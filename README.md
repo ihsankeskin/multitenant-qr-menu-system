@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🍽️ Multi-Tenant QR Menu System
 
 A comprehensive, production-ready multi-tenant restaurant QR menu system built with Next.js 14, featuring super admin management, tenant dashboards, and customer-facing digital menus.
@@ -67,7 +68,7 @@ A comprehensive, production-ready multi-tenant restaurant QR menu system built w
    npm run stop
    ```
 
-## � Default Credentials
+## 🔑 Default Credentials
 
 ### Super Admin Access
 - **URL**: http://localhost:3000/super-admin/login
@@ -214,7 +215,7 @@ The application includes comprehensive sample data:
 - **Input Validation**: Comprehensive Zod schema validation
 - **Environment Security**: Secure secret generation and management
 
-## � Error Handling
+## 🚨 Error Handling
 
 The application includes comprehensive error handling:
 - **API Errors**: Structured error responses with appropriate HTTP status codes
@@ -229,7 +230,7 @@ The application includes comprehensive error handling:
 - **Fast Loading**: Optimized assets and lazy loading
 - **PWA-Ready**: Progressive Web App capabilities
 
-## � Development Workflow
+## 🔄 Development Workflow
 
 1. **Environment Setup**: Robust start script handles all setup automatically
 2. **Hot Reload**: Next.js development server with instant updates
@@ -274,3 +275,7 @@ This project is developed as a comprehensive multi-tenant restaurant management 
 - ✅ Health monitoring and error handling
 
 Ready for production deployment and further development! 🚀
+=======
+# multitenant-qr-menu-system
+Multi-tenant QR code menu system built with Next.js 14, TypeScript, and Prisma. Supports restaurant management, digital menus, and super admin functionality.
+>>>>>>> 81000a426e378e5876603a21e3bea4eda552fbf0
