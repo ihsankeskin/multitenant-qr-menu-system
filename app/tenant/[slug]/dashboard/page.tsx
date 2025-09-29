@@ -43,13 +43,21 @@ interface Tenant {
   secondaryColor?: string
   accentColor?: string
   logoUrl?: string
+  phone?: string
+  email: string
+  address?: string
 }
 
 interface TenantSettings {
+  nameEn?: string
+  nameAr?: string
   phone?: string
   email?: string
   address?: string
   logoUrl?: string
+  primaryColor?: string
+  secondaryColor?: string
+  accentColor?: string
   coverImageUrl?: string
   showPrices?: boolean
   showCalories?: boolean

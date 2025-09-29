@@ -87,6 +87,21 @@ export interface TenantTheme {
   logoUrl?: string
 }
 
+export interface TenantSettings {
+  nameEn: string
+  nameAr?: string
+  logoUrl?: string
+  phone?: string
+  email: string
+  address?: string
+  primaryColor?: string
+  secondaryColor?: string
+  accentColor?: string
+  currency?: string
+  timezone?: string
+  defaultLanguage?: string
+}
+
 export interface CreateTenantData {
   businessName: string
   businessNameAr?: string

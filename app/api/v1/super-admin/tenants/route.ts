@@ -262,7 +262,7 @@ export async function POST(request: NextRequest) {
         defaultLanguage: defaultLanguage || 'ar',
         timezone,
         nextPaymentDate: billingInfo.nextPaymentDate,
-        createdById: decodedToken.sub || decodedToken.id || decodedToken.userId || 'unknown'
+        createdById: String(decodedToken.sub || decodedToken.id || decodedToken.userId || 'unknown')
       },
       include: {
         businessType: true
@@ -285,7 +285,7 @@ export async function POST(request: NextRequest) {
         notes: billingInfo.firstPaymentProrated 
           ? `Prorated for ${billingInfo.daysInFirstPeriod} days of ${billingInfo.totalDaysInMonth} days in month`
           : 'Regular monthly subscription fee',
-        createdById: decodedToken.sub || decodedToken.id || decodedToken.userId || 'unknown'
+        createdById: String(decodedToken.sub || decodedToken.id || decodedToken.userId || 'unknown')
       }
     })
 
@@ -295,7 +295,7 @@ export async function POST(request: NextRequest) {
         action: 'CREATE',
         resource: 'TENANT',
         resourceId: tenant.id,
-        userId: decodedToken.sub || decodedToken.id || decodedToken.userId || 'unknown',
+        userId: String(decodedToken.sub || decodedToken.id || decodedToken.userId || 'unknown'),
         ipAddress: request.ip || request.headers.get('x-forwarded-for') || 'unknown',
         userAgent: request.headers.get('user-agent') || 'unknown',
         requestMethod: 'POST',
@@ -303,7 +303,7 @@ export async function POST(request: NextRequest) {
         newValues: objectToJson({
           tenantId: tenant.id,
           businessName: tenant.businessName,
-          businessType: tenant.businessType.nameEn,
+          businessType: tenant.businessType?.nameEn || 'Unknown',
           ownerEmail: tenant.ownerEmail
         })
       }
@@ -316,7 +316,7 @@ export async function POST(request: NextRequest) {
         tenant: {
           id: tenant.id,
           name: tenant.businessName,
-          businessType: tenant.businessType.nameEn,
+          businessType: tenant.businessType?.nameEn || 'Unknown',
           ownerName: tenant.ownerName,
           ownerEmail: tenant.ownerEmail,
           ownerPhone: tenant.ownerPhone,
