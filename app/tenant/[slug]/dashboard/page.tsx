@@ -41,6 +41,7 @@ interface Tenant {
   nameAr: string
   primaryColor: string
   secondaryColor?: string
+  accentColor?: string
   logoUrl?: string
 }
 
@@ -210,7 +211,7 @@ export default function TenantDashboard() {
 
   // Settings functions
   const updateTenantSetting = (key: string, value: any) => {
-    if (key === 'nameEn' || key === 'nameAr' || key === 'primaryColor' || key === 'secondaryColor') {
+    if (key === 'nameEn' || key === 'nameAr' || key === 'primaryColor' || key === 'secondaryColor' || key === 'accentColor') {
       setTenant(prev => prev ? { ...prev, [key]: value } : null)
     } else {
       setTenantSettings(prev => ({ ...prev, [key]: value }))
@@ -252,6 +253,7 @@ export default function TenantDashboard() {
           nameAr: tenant.nameAr,
           primaryColor: tenant.primaryColor,
           secondaryColor: tenant.secondaryColor,
+          accentColor: tenant.accentColor,
           ...tenantSettings
         })
       })
@@ -288,25 +290,47 @@ export default function TenantDashboard() {
     try {
       const token = localStorage.getItem(`tenant_token_${slug}`)
       const response = await fetch(`/api/v1/tenant/qr-code`, {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          size: qrSettings.size,
-          includeLogo: qrSettings.includeLogo
-        })
+        }
       })
 
       if (response.ok) {
         const data = await response.json()
-        setQrCodeUrl(data.qrCodeUrl)
+        // Create a QR code using the menuUrl
+        const menuUrl = data.data.menuUrl
+        const qrCodeDataUrl = await createQRCodeDataUrl(menuUrl)
+        setQrCodeUrl(qrCodeDataUrl)
       }
     } catch (error) {
       console.error('Error generating QR code:', error)
     } finally {
       setIsGeneratingQR(false)
+    }
+  }
+
+  const createQRCodeDataUrl = async (text: string): Promise<string> => {
+    try {
+      // Use the qrcode library to generate a proper QR code
+      const QRCode = (await import('qrcode')).default
+      
+      const options = {
+        width: qrSettings.size,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        },
+        errorCorrectionLevel: 'M' as const
+      }
+      
+      const qrCodeDataUrl = await QRCode.toDataURL(text, options)
+      return qrCodeDataUrl
+    } catch (error) {
+      console.error('Error generating QR code:', error)
+      return ''
     }
   }
 
@@ -391,7 +415,105 @@ export default function TenantDashboard() {
   // Initialize tenant settings when tenant is loaded
   useEffect(() => {
     if (tenant && Object.keys(tenantSettings).length === 0) {
+      fetchTenantSettings()
+    }
+  }, [tenant, tenantSettings])
+
+  const fetchTenantSettings = async () => {
+    if (!tenant) return
+    
+    try {
+      const token = localStorage.getItem(`tenant_token_${slug}`)
+      if (!token) return
+
+      const response = await fetch('/api/v1/tenant/settings', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.data) {
+          // Map the tenant data to settings format
+          const settings: TenantSettings = {
+            nameEn: data.data.businessName,
+            nameAr: data.data.businessNameAr,
+            logoUrl: data.data.logoUrl,
+            phone: data.data.phone,
+            email: data.data.email,
+            address: data.data.address,
+            primaryColor: data.data.primaryColor,
+            secondaryColor: data.data.secondaryColor,
+            accentColor: data.data.accentColor,
+            showPrices: true,
+            showCalories: false,
+            showDescriptions: true,
+            showImages: true,
+            defaultLanguage: data.data.defaultLanguage || 'en',
+            enableBilingualMenu: true,
+            currency: data.data.currency || 'USD',
+            currencyPosition: 'before',
+            businessHours: {
+              monday: { isOpen: true, open: '09:00', close: '22:00' },
+              tuesday: { isOpen: true, open: '09:00', close: '22:00' },
+              wednesday: { isOpen: true, open: '09:00', close: '22:00' },
+              thursday: { isOpen: true, open: '09:00', close: '22:00' },
+              friday: { isOpen: true, open: '09:00', close: '23:00' },
+              saturday: { isOpen: true, open: '09:00', close: '23:00' },
+              sunday: { isOpen: true, open: '10:00', close: '21:00' }
+            }
+          }
+          setTenantSettings(settings)
+          setOriginalTenantSettings(settings)
+        }
+      } else {
+        // Fallback to default settings if fetch fails
+        const defaultSettings: TenantSettings = {
+          nameEn: tenant.businessName,
+          nameAr: tenant.businessNameAr,
+          logoUrl: tenant.logoUrl,
+          phone: tenant.phone,
+          email: tenant.email,
+          address: tenant.address,
+          primaryColor: tenant.primaryColor,
+          secondaryColor: tenant.secondaryColor,
+          accentColor: tenant.accentColor,
+          showPrices: true,
+          showCalories: false,
+          showDescriptions: true,
+          showImages: true,
+          defaultLanguage: 'en',
+          enableBilingualMenu: true,
+          currency: 'USD',
+          currencyPosition: 'before',
+          businessHours: {
+            monday: { isOpen: true, open: '09:00', close: '22:00' },
+            tuesday: { isOpen: true, open: '09:00', close: '22:00' },
+            wednesday: { isOpen: true, open: '09:00', close: '22:00' },
+            thursday: { isOpen: true, open: '09:00', close: '22:00' },
+            friday: { isOpen: true, open: '09:00', close: '23:00' },
+            saturday: { isOpen: true, open: '09:00', close: '23:00' },
+            sunday: { isOpen: true, open: '10:00', close: '21:00' }
+          }
+        }
+        setTenantSettings(defaultSettings)
+        setOriginalTenantSettings(defaultSettings)
+      }
+    } catch (error) {
+      console.error('Error fetching tenant settings:', error)
+      // Fallback to default settings
       const defaultSettings: TenantSettings = {
+        nameEn: tenant.businessName,
+        nameAr: tenant.businessNameAr,
+        logoUrl: tenant.logoUrl,
+        phone: tenant.phone,
+        email: tenant.email,
+        address: tenant.address,
+        primaryColor: tenant.primaryColor,
+        secondaryColor: tenant.secondaryColor,
+        accentColor: tenant.accentColor,
         showPrices: true,
         showCalories: false,
         showDescriptions: true,
@@ -413,7 +535,7 @@ export default function TenantDashboard() {
       setTenantSettings(defaultSettings)
       setOriginalTenantSettings(defaultSettings)
     }
-  }, [tenant, tenantSettings])
+  }
 
   const fetchAnalytics = async () => {
     if (!user || !tenant) return
@@ -462,6 +584,33 @@ export default function TenantDashboard() {
       fetchProducts()
     }
   }, [isLoading, user, tenant, activeTab])
+
+  // Format currency based on tenant settings
+  const formatCurrency = (amount: number) => {
+    const currency = tenantSettings.currency || 'USD'
+    const currencySymbols: { [key: string]: string } = {
+      'USD': '$',
+      'EUR': '€', 
+      'GBP': '£',
+      'AED': 'د.إ',
+      'SAR': 'ر.س',
+      'EGP': 'ج.م',
+      'JOD': 'د.أ',
+      'KWD': 'د.ك',
+      'QAR': 'ر.ق',
+      'BHD': 'د.ب',
+      'OMR': 'ر.ع'
+    }
+    
+    const symbol = currencySymbols[currency] || currency
+    const formattedAmount = amount.toFixed(2)
+    
+    if (tenantSettings.currencyPosition === 'after') {
+      return `${formattedAmount} ${symbol}`
+    } else {
+      return `${symbol}${formattedAmount}`
+    }
+  }
 
   const fetchCategories = async () => {
     if (!user || !tenant) return
@@ -830,7 +979,10 @@ export default function TenantDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                   <div className="bg-white p-6 rounded-lg shadow-sm border">
                     <div className="flex items-center">
-                      <RectangleStackIcon className="h-8 w-8 text-blue-600" />
+                      <RectangleStackIcon 
+                        className="h-8 w-8" 
+                        style={{ color: tenant.primaryColor }}
+                      />
                       <div className="ml-4">
                         <p className="text-sm font-medium text-gray-600">Categories</p>
                         <p className="text-2xl font-semibold text-gray-900">
@@ -851,7 +1003,10 @@ export default function TenantDashboard() {
                   
                   <div className="bg-white p-6 rounded-lg shadow-sm border">
                     <div className="flex items-center">
-                      <TagIcon className="h-8 w-8 text-green-600" />
+                      <TagIcon 
+                        className="h-8 w-8" 
+                        style={{ color: tenant.secondaryColor || '#6B7280' }}
+                      />
                       <div className="ml-4">
                         <p className="text-sm font-medium text-gray-600">Products</p>
                         <p className="text-2xl font-semibold text-gray-900">
@@ -872,7 +1027,10 @@ export default function TenantDashboard() {
                   
                   <div className="bg-white p-6 rounded-lg shadow-sm border">
                     <div className="flex items-center">
-                      <ChartBarIcon className="h-8 w-8 text-purple-600" />
+                      <ChartBarIcon 
+                        className="h-8 w-8" 
+                        style={{ color: tenant.accentColor || '#3B82F6' }}
+                      />
                       <div className="ml-4">
                         <p className="text-sm font-medium text-gray-600">Menu Health</p>
                         <p className="text-2xl font-semibold text-gray-900">
@@ -937,7 +1095,11 @@ export default function TenantDashboard() {
                     </button>
                     <button
                       onClick={() => setActiveTab('products')}
-                      className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition duration-150 ease-in-out"
+                      className="inline-flex items-center px-4 py-2 border text-sm font-medium rounded-md text-white shadow-sm hover:opacity-90 transition duration-150 ease-in-out"
+                      style={{ 
+                        backgroundColor: tenant.accentColor || '#3B82F6',
+                        borderColor: tenant.accentColor || '#3B82F6' 
+                      }}
                     >
                       <PlusIcon className="h-4 w-4 mr-2" />
                       Add Product
@@ -981,12 +1143,19 @@ export default function TenantDashboard() {
                     placeholder="Search categories..."
                     value={categorySearchTerm}
                     onChange={(e) => setCategorySearchTerm(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
+                    style={{ 
+                      '--tw-ring-color': tenant.primaryColor 
+                    } as React.CSSProperties}
                   />
                 </div>
                 <button
                   onClick={fetchCategories}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border text-white rounded-md hover:opacity-90 transition-colors"
+                  style={{ 
+                    backgroundColor: tenant.secondaryColor || '#6B7280',
+                    borderColor: tenant.secondaryColor || '#6B7280'
+                  }}
                 >
                   Search
                 </button>
@@ -1227,11 +1396,11 @@ export default function TenantDashboard() {
 
                         <div className="mb-3">
                           <span className="text-lg font-bold" style={{ color: tenant.primaryColor }}>
-                            ${product.price ? Number(product.price).toFixed(2) : '0.00'}
+                            {formatCurrency(product.price || 0)}
                           </span>
                           {product.compareAtPrice && product.compareAtPrice > (product.price || 0) && (
                             <span className="ml-2 text-sm text-gray-500 line-through">
-                              ${Number(product.compareAtPrice).toFixed(2)}
+                              {formatCurrency(product.compareAtPrice)}
                             </span>
                           )}
                         </div>
@@ -1660,7 +1829,7 @@ export default function TenantDashboard() {
                     <div className="space-y-6">
                       <div>
                         <h3 className="text-lg font-medium text-gray-900 mb-4">Brand Colors</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                               Primary Color
@@ -1695,6 +1864,25 @@ export default function TenantDashboard() {
                                 type="text"
                                 value={tenant.secondaryColor || '#6B7280'}
                                 onChange={(e) => updateTenantSetting('secondaryColor', e.target.value)}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Accent Color
+                            </label>
+                            <div className="flex items-center space-x-3">
+                              <input
+                                type="color"
+                                value={tenant.accentColor || '#3B82F6'}
+                                onChange={(e) => updateTenantSetting('accentColor', e.target.value)}
+                                className="h-10 w-20 border border-gray-300 rounded-md"
+                              />
+                              <input
+                                type="text"
+                                value={tenant.accentColor || '#3B82F6'}
+                                onChange={(e) => updateTenantSetting('accentColor', e.target.value)}
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                               />
                             </div>
@@ -1871,10 +2059,11 @@ export default function TenantDashboard() {
                               Currency
                             </label>
                             <select
-                              value={tenantSettings.currency || 'USD'}
+                              value={tenantSettings.currency || 'EGP'}
                               onChange={(e) => updateTenantSetting('currency', e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
+                              <option value="EGP">Egyptian Pound (EGP)</option>
                               <option value="USD">US Dollar ($)</option>
                               <option value="EUR">Euro (€)</option>
                               <option value="GBP">British Pound (£)</option>

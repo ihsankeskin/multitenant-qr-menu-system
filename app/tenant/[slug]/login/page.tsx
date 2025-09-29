@@ -17,6 +17,7 @@ interface TenantInfo {
   businessNameAr: string | null
   primaryColor: string
   secondaryColor: string
+  accentColor?: string
   logoUrl: string | null
 }
 
@@ -50,6 +51,9 @@ export default function TenantLoginPage() {
           // Apply tenant branding
           document.documentElement.style.setProperty('--tenant-primary', data.data.tenant.primaryColor)
           document.documentElement.style.setProperty('--tenant-secondary', data.data.tenant.secondaryColor)
+          if (data.data.tenant.accentColor) {
+            document.documentElement.style.setProperty('--tenant-accent', data.data.tenant.accentColor)
+          }
         } else {
           router.push('/404')
         }

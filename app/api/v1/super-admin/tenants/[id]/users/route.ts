@@ -182,7 +182,7 @@ export async function POST(
           tenantId: tenantId,
           role: tenantRole, // Use mapped role (ADMIN, MANAGER, STAFF)
           isActive: true,
-          createdById: payload.userId || newUser.id // Use the super admin user ID or the new user ID as fallback
+          createdById: (payload.sub as string) || newUser.id // Use the super admin user ID or the new user ID as fallback
         }
       })
 

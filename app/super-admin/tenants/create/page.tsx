@@ -25,6 +25,7 @@ export default function CreateTenantPage() {
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     businessName: '',
+    businessNameAr: '',
     businessTypeId: '',
     ownerName: '',
     ownerEmail: '',
@@ -32,6 +33,7 @@ export default function CreateTenantPage() {
     subdomain: '',
     subscriptionPlan: 'BASIC',
     monthlyFee: 100,
+    currency: 'USD',
     primaryColor: '#2563eb',
     secondaryColor: '#1e40af',
     accentColor: '#3b82f6'
@@ -122,7 +124,7 @@ export default function CreateTenantPage() {
     }
 
     if (!formData.subdomain.trim()) {
-      newErrors.subdomain = 'Subdomain is required'
+      newErrors.subdomain = 'Tenant route/slug is required'
     } else if (!/^[a-z0-9-]+$/.test(formData.subdomain)) {
       newErrors.subdomain = 'Subdomain can only contain lowercase letters, numbers, and hyphens'
     }
@@ -193,7 +195,7 @@ export default function CreateTenantPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-2">
-                Business Name *
+                Business Name (English) *
               </label>
               <input
                 type="text"
@@ -204,11 +206,27 @@ export default function CreateTenantPage() {
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                   errors.businessName ? 'border-red-500' : 'border-gray-300'
                 }`}
-                placeholder="Enter business name"
+                placeholder="Enter business name in English"
               />
               {errors.businessName && (
                 <p className="text-red-600 text-sm mt-1">{errors.businessName}</p>
               )}
+            </div>
+
+            <div>
+              <label htmlFor="businessNameAr" className="block text-sm font-medium text-gray-700 mb-2">
+                Business Name (Arabic)
+              </label>
+              <input
+                type="text"
+                id="businessNameAr"
+                name="businessNameAr"
+                value={formData.businessNameAr}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="أدخل اسم المطعم بالعربية"
+                dir="rtl"
+              />
             </div>
 
             <div>
@@ -234,6 +252,31 @@ export default function CreateTenantPage() {
               {errors.businessTypeId && (
                 <p className="text-red-600 text-sm mt-1">{errors.businessTypeId}</p>
               )}
+            </div>
+
+            <div>
+              <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-2">
+                Currency *
+              </label>
+              <select
+                id="currency"
+                name="currency"
+                value={formData.currency}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="USD">USD - US Dollar ($)</option>
+                <option value="EUR">EUR - Euro (€)</option>
+                <option value="GBP">GBP - British Pound (£)</option>
+                <option value="AED">AED - UAE Dirham (د.إ)</option>
+                <option value="SAR">SAR - Saudi Riyal (ر.س)</option>
+                <option value="EGP">EGP - Egyptian Pound (ج.م)</option>
+                <option value="JOD">JOD - Jordanian Dinar (د.أ)</option>
+                <option value="KWD">KWD - Kuwaiti Dinar (د.ك)</option>
+                <option value="QAR">QAR - Qatari Riyal (ر.ق)</option>
+                <option value="BHD">BHD - Bahraini Dinar (د.ب)</option>
+                <option value="OMR">OMR - Omani Rial (ر.ع)</option>
+              </select>
             </div>
           </div>
         </div>
@@ -312,7 +355,7 @@ export default function CreateTenantPage() {
 
             <div>
               <label htmlFor="subdomain" className="block text-sm font-medium text-gray-700 mb-2">
-                Subdomain *
+                Tenant Route/Slug *
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -327,12 +370,20 @@ export default function CreateTenantPage() {
                   className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                     errors.subdomain ? 'border-red-500' : 'border-gray-300'
                   }`}
-                  placeholder="Enter subdomain"
+                  placeholder="restaurant-name"
                 />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <span className="text-gray-500">.menuapp.com</span>
-                </div>
               </div>
+              {formData.subdomain && (
+                <div className="mt-2 p-3 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-gray-700 font-medium">Tenant URLs:</p>
+                  <p className="text-sm text-blue-600 font-mono break-all">
+                    Admin: /tenant/{formData.subdomain}/dashboard
+                  </p>
+                  <p className="text-sm text-green-600 font-mono break-all">
+                    Menu: /menu/{formData.subdomain}
+                  </p>
+                </div>
+              )}
               {errors.subdomain && (
                 <p className="text-red-600 text-sm mt-1">{errors.subdomain}</p>
               )}

@@ -21,6 +21,7 @@ interface Tenant {
   businessNameAr: string
   primaryColor: string
   secondaryColor?: string
+  accentColor?: string
   logoUrl?: string
   phone?: string
   email?: string
@@ -196,8 +197,23 @@ export default function PublicMenu() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading menu...</p>
+          <div 
+            className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
+            style={{ borderBottomColor: tenant?.primaryColor || '#3B82F6' }}
+          ></div>
+          <p className="text-gray-600 font-medium">
+            {tenant?.businessName ? `Loading ${tenant.businessName}...` : 'Loading menu...'}
+          </p>
+          {tenant?.logoUrl && (
+            <img
+              src={tenant.logoUrl}
+              alt="Restaurant Logo"
+              className="h-8 w-8 rounded-full mx-auto mt-2"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+              }}
+            />
+          )}
         </div>
       </div>
     )
@@ -217,6 +233,7 @@ export default function PublicMenu() {
 
   const primaryColor = tenant.primaryColor || '#3B82F6'
   const secondaryColor = tenant.secondaryColor || '#6B7280'
+  const accentColor = tenant.accentColor || '#3B82F6'
 
   return (
     <div className="min-h-screen bg-gray-50" style={{ fontFamily: language === 'ar' ? 'system-ui' : 'inherit' }}>
@@ -265,7 +282,21 @@ export default function PublicMenu() {
               {settings?.enableBilingualMenu && (
                 <button
                   onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
-                  className="flex items-center space-x-1 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+                  className="flex items-center space-x-1 px-4 py-2 rounded-full backdrop-blur-sm hover:shadow-lg transition-all duration-200 font-medium"
+                  style={{
+                    backgroundColor: `${accentColor}20`,
+                    color: 'white',
+                    borderWidth: '2px',
+                    borderColor: accentColor
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = accentColor
+                    e.currentTarget.style.transform = 'scale(1.05)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = `${accentColor}20`
+                    e.currentTarget.style.transform = 'scale(1)'
+                  }}
                 >
                   <LanguageIcon className="h-4 w-4" />
                   <span className="text-sm">{language === 'en' ? 'عربي' : 'EN'}</span>
@@ -275,9 +306,22 @@ export default function PublicMenu() {
               {tenant.phone && (
                 <a
                   href={`tel:${tenant.phone}`}
-                  className="p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+                  className="p-3 rounded-full backdrop-blur-sm hover:shadow-lg transition-all duration-200"
+                  style={{
+                    backgroundColor: `${secondaryColor}20`,
+                    borderWidth: '2px',
+                    borderColor: secondaryColor
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = secondaryColor
+                    e.currentTarget.style.transform = 'scale(1.05)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = `${secondaryColor}20`
+                    e.currentTarget.style.transform = 'scale(1)'
+                  }}
                 >
-                  <PhoneIcon className="h-5 w-5" />
+                  <PhoneIcon className="h-5 w-5 text-white" />
                 </a>
               )}
             </div>
@@ -304,38 +348,61 @@ export default function PublicMenu() {
       </div>
 
       {/* Search Bar */}
-      <div className="sticky top-0 bg-white border-b border-gray-200 z-40">
+      <div className="sticky top-0 bg-white border-b z-40" style={{ borderBottomColor: `${primaryColor}20` }}>
         <div className="container mx-auto px-4 py-3">
           <div className="relative">
-            <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <MagnifyingGlassIcon 
+              className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2" 
+              style={{ color: secondaryColor }}
+            />
             <input
               type="text"
               placeholder={language === 'ar' ? 'ابحث في القائمة...' : 'Search menu...'}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
-              style={{ '--tw-ring-color': primaryColor } as React.CSSProperties}
+              className="w-full pl-10 pr-4 py-2 border-2 rounded-lg focus:outline-none transition-colors"
+              style={{ 
+                borderColor: searchTerm ? accentColor : '#E5E7EB',
+                '--tw-ring-color': primaryColor 
+              } as React.CSSProperties}
               dir={language === 'ar' ? 'rtl' : 'ltr'}
             />
+            {searchTerm && (
+              <div 
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs px-2 py-1 rounded-full text-white font-medium"
+                style={{ backgroundColor: accentColor }}
+              >
+                {filteredProducts.length}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Categories Navigation */}
-      <div className="sticky top-16 bg-white border-b border-gray-200 z-30">
+      <div className="sticky top-16 bg-white border-b z-30" style={{ borderBottomColor: `${secondaryColor}20` }}>
         <div className="container mx-auto">
           <div className="flex overflow-x-auto scrollbar-hide py-3 px-4 space-x-4">
             <button
               onClick={() => setSelectedCategory('')}
-              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${
                 !selectedCategory 
-                  ? 'text-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'text-white transform scale-105'
+                  : 'text-gray-600 hover:text-white hover:scale-105'
               }`}
               style={{ 
                 backgroundColor: !selectedCategory ? primaryColor : 'transparent',
                 borderColor: primaryColor,
-                borderWidth: '1px'
+                borderWidth: '2px',
+                boxShadow: !selectedCategory ? `0 4px 12px ${primaryColor}40` : 'none'
+              }}
+              onMouseEnter={(e) => {
+                if (!selectedCategory) return
+                e.currentTarget.style.backgroundColor = `${primaryColor}20`
+              }}
+              onMouseLeave={(e) => {
+                if (!selectedCategory) return
+                e.currentTarget.style.backgroundColor = 'transparent'
               }}
             >
               {language === 'ar' ? 'الكل' : 'All'}
@@ -344,15 +411,24 @@ export default function PublicMenu() {
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
+                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm whitespace-nowrap ${
                   selectedCategory === category.id 
-                    ? 'text-white shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'text-white transform scale-105'
+                    : 'text-gray-600 hover:text-white hover:scale-105'
                 }`}
                 style={{ 
                   backgroundColor: selectedCategory === category.id ? primaryColor : 'transparent',
                   borderColor: primaryColor,
-                  borderWidth: '1px'
+                  borderWidth: '2px',
+                  boxShadow: selectedCategory === category.id ? `0 4px 12px ${primaryColor}40` : 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedCategory === category.id) return
+                  e.currentTarget.style.backgroundColor = `${primaryColor}20`
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedCategory === category.id) return
+                  e.currentTarget.style.backgroundColor = 'transparent'
                 }}
               >
                 {language === 'ar' ? category.nameAr : category.nameEn}
@@ -365,8 +441,8 @@ export default function PublicMenu() {
       {/* Menu Content */}
       <div className="container mx-auto px-4 py-6">
         {searchTerm && (
-          <div className="mb-6">
-            <p className="text-gray-600">
+          <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: `${accentColor}10`, borderLeft: `4px solid ${accentColor}` }}>
+            <p className="font-medium" style={{ color: accentColor }}>
               {language === 'ar' 
                 ? `${filteredProducts.length} نتائج للبحث "${searchTerm}"`
                 : `${filteredProducts.length} results for "${searchTerm}"`
@@ -378,30 +454,56 @@ export default function PublicMenu() {
         {filteredProducts.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold mb-2" style={{ color: primaryColor }}>
               {language === 'ar' ? 'لا توجد منتجات' : 'No items found'}
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 mb-4">
               {language === 'ar' 
                 ? 'جرب البحث بكلمات مختلفة أو تصفح الفئات'
                 : 'Try searching with different keywords or browse categories'
               }
             </p>
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="px-6 py-2 rounded-full text-white font-medium hover:shadow-lg transition-all duration-200"
+                style={{ backgroundColor: accentColor }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
+              >
+                {language === 'ar' ? 'مسح البحث' : 'Clear Search'}
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-100"
+                className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border-2 border-transparent hover:border-opacity-30 group"
+                style={{
+                  '--hover-border-color': primaryColor
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = `${primaryColor}30`
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'transparent'
+                  e.currentTarget.style.transform = 'translateY(0px)'
+                }}
               >
                 {/* Product Image */}
                 {settings?.showImages && product.imageUrl && (
-                  <div className="relative h-48">
+                  <div className="relative h-48 overflow-hidden">
                     <img
                       src={product.imageUrl}
                       alt={language === 'ar' ? product.nameAr : product.nameEn}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none'
                       }}
@@ -409,10 +511,13 @@ export default function PublicMenu() {
                     {/* Favorite Button */}
                     <button
                       onClick={() => toggleFavorite(product.id)}
-                      className="absolute top-3 right-3 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-colors"
+                      className="absolute top-3 right-3 p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white transition-all duration-200 shadow-lg"
+                      style={{
+                        boxShadow: favorites.has(product.id) ? `0 4px 12px ${accentColor}40` : '0 2px 8px rgba(0,0,0,0.15)'
+                      }}
                     >
                       {favorites.has(product.id) ? (
-                        <HeartSolidIcon className="h-5 w-5 text-red-500" />
+                        <HeartSolidIcon className="h-5 w-5" style={{ color: accentColor }} />
                       ) : (
                         <HeartIcon className="h-5 w-5 text-gray-600" />
                       )}
@@ -420,9 +525,25 @@ export default function PublicMenu() {
                     
                     {/* Featured Badge */}
                     {product.isFeatured && (
-                      <div className="absolute top-3 left-3 px-2 py-1 rounded-full bg-yellow-500 text-white text-xs font-medium flex items-center space-x-1">
+                      <div 
+                        className="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-xs font-bold flex items-center space-x-1 shadow-lg"
+                        style={{ 
+                          backgroundColor: accentColor,
+                          boxShadow: `0 4px 12px ${accentColor}40`
+                        }}
+                      >
                         <StarIcon className="h-3 w-3" />
                         <span>{language === 'ar' ? 'مميز' : 'Featured'}</span>
+                      </div>
+                    )}
+
+                    {/* Discount Badge */}
+                    {product.hasDiscount && (
+                      <div 
+                        className="absolute bottom-3 left-3 px-2 py-1 rounded-full text-white text-xs font-bold shadow-lg"
+                        style={{ backgroundColor: secondaryColor }}
+                      >
+                        {language === 'ar' ? 'خصم' : 'Sale'}
                       </div>
                     )}
                   </div>
@@ -430,21 +551,21 @@ export default function PublicMenu() {
 
                 {/* Product Content */}
                 <div className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-opacity-80 transition-colors" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                       {language === 'ar' ? product.nameAr : product.nameEn}
                     </h3>
                     
                     {settings?.showPrices && (
                       <div className="flex flex-col items-end">
                         <span 
-                          className="text-lg font-bold"
+                          className="text-lg font-bold transition-colors"
                           style={{ color: primaryColor }}
                         >
                           {formatPrice(product.currentPrice)}
                         </span>
                         {product.hasDiscount && (
-                          <span className="text-sm text-gray-500 line-through">
+                          <span className="text-sm line-through" style={{ color: secondaryColor }}>
                             {formatPrice(product.basePrice)}
                           </span>
                         )}
@@ -454,30 +575,39 @@ export default function PublicMenu() {
 
                   {/* Product Description */}
                   {settings?.showDescriptions && (product.descriptionEn || product.descriptionAr) && (
-                    <p className="text-gray-600 text-sm mb-3" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+                    <p className="text-gray-600 text-sm mb-3 line-clamp-2" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                       {language === 'ar' ? product.descriptionAr : product.descriptionEn}
                     </p>
                   )}
 
                   {/* Product Details */}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2">
                       {settings?.showCalories && product.calories && (
-                        <span className="text-xs text-gray-500 px-2 py-1 bg-gray-100 rounded-full">
+                        <span 
+                          className="text-xs text-white px-2 py-1 rounded-full font-medium shadow-sm"
+                          style={{ backgroundColor: secondaryColor }}
+                        >
                           {product.calories} cal
                         </span>
                       )}
                       
                       {product.isOutOfStock && (
-                        <span className="text-xs text-red-600 px-2 py-1 bg-red-100 rounded-full">
+                        <span 
+                          className="text-xs text-white px-2 py-1 rounded-full font-medium"
+                          style={{ backgroundColor: '#EF4444' }}
+                        >
                           {language === 'ar' ? 'غير متوفر' : 'Unavailable'}
                         </span>
                       )}
                     </div>
 
                     {!product.isOutOfStock && (
-                      <div className="flex items-center text-sm text-green-600">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                      <div className="flex items-center text-sm font-medium" style={{ color: accentColor }}>
+                        <div 
+                          className="w-2 h-2 rounded-full mr-2 animate-pulse" 
+                          style={{ backgroundColor: accentColor }}
+                        ></div>
                         {language === 'ar' ? 'متوفر' : 'Available'}
                       </div>
                     )}
@@ -490,21 +620,92 @@ export default function PublicMenu() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-12">
-        <div className="container mx-auto px-4 py-6">
-          <div className="text-center text-gray-500 text-sm">
-            <p>
-              {language === 'ar' 
-                ? `© ${new Date().getFullYear()} ${tenant.businessNameAr || tenant.businessName}. جميع الحقوق محفوظة.`
-                : `© ${new Date().getFullYear()} ${tenant.businessName}. All rights reserved.`
-              }
-            </p>
-            <p className="mt-2 text-xs">
-              {language === 'ar' 
-                ? 'تم إنشاؤها بواسطة Menu App'
-                : 'Powered by Menu App'
-              }
-            </p>
+      <footer className="bg-white border-t-4 mt-12" style={{ borderTopColor: primaryColor }}>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            {/* Business Info */}
+            <div className="flex justify-center items-center space-x-4 mb-6">
+              {tenant.logoUrl && (
+                <img
+                  src={tenant.logoUrl}
+                  alt="Restaurant Logo"
+                  className="h-12 w-12 rounded-full"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none'
+                  }}
+                />
+              )}
+              <div>
+                <h3 className="text-lg font-bold" style={{ color: primaryColor }}>
+                  {language === 'ar' ? tenant.businessNameAr || tenant.businessName : tenant.businessName}
+                </h3>
+                {tenant.address && (
+                  <p className="text-sm" style={{ color: secondaryColor }}>
+                    {tenant.address}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Contact Information */}
+            {(tenant.phone || tenant.email) && (
+              <div className="flex justify-center space-x-6 mb-6">
+                {tenant.phone && (
+                  <a
+                    href={`tel:${tenant.phone}`}
+                    className="flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-200 hover:shadow-lg"
+                    style={{ 
+                      backgroundColor: `${primaryColor}10`,
+                      color: primaryColor
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = `${primaryColor}20`
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = `${primaryColor}10`
+                    }}
+                  >
+                    <PhoneIcon className="h-4 w-4" />
+                    <span className="text-sm font-medium">{tenant.phone}</span>
+                  </a>
+                )}
+                {tenant.email && (
+                  <a
+                    href={`mailto:${tenant.email}`}
+                    className="flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-200 hover:shadow-lg"
+                    style={{ 
+                      backgroundColor: `${secondaryColor}10`,
+                      color: secondaryColor
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = `${secondaryColor}20`
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = `${secondaryColor}10`
+                    }}
+                  >
+                    <EnvelopeIcon className="h-4 w-4" />
+                    <span className="text-sm font-medium">{tenant.email}</span>
+                  </a>
+                )}
+              </div>
+            )}
+
+            {/* Copyright */}
+            <div className="border-t pt-4" style={{ borderTopColor: `${primaryColor}20` }}>
+              <p className="text-gray-500 text-sm">
+                {language === 'ar' 
+                  ? `© ${new Date().getFullYear()} ${tenant.businessNameAr || tenant.businessName}. جميع الحقوق محفوظة.`
+                  : `© ${new Date().getFullYear()} ${tenant.businessName}. All rights reserved.`
+                }
+              </p>
+              <p className="mt-2 text-xs font-medium" style={{ color: accentColor }}>
+                {language === 'ar' 
+                  ? 'تم إنشاؤها بواسطة Menu App'
+                  : 'Powered by Menu App'
+                }
+              </p>
+            </div>
           </div>
         </div>
       </footer>

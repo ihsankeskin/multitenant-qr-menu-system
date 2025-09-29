@@ -40,6 +40,7 @@ export default function SuperAdminDashboard() {
   const [recentTenants, setRecentTenants] = useState<RecentTenant[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -84,6 +85,26 @@ export default function SuperAdminDashboard() {
       case 'suspended': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
     }
+  }
+
+  const toggleDropdown = (tenantId: string) => {
+    setOpenDropdownId(openDropdownId === tenantId ? null : tenantId)
+  }
+
+  const handleViewTenant = (tenantId: string) => {
+    setOpenDropdownId(null)
+    router.push(`/super-admin/tenants/${tenantId}`)
+  }
+
+  const handleEditTenant = (tenantId: string) => {
+    setOpenDropdownId(null)
+    router.push(`/super-admin/tenants/${tenantId}`)
+  }
+
+  const handleDeleteTenant = (tenantId: string) => {
+    setOpenDropdownId(null)
+    router.push(`/super-admin/tenants/${tenantId}`)
+    // Could also open delete modal here if needed
   }
 
   if (loading) {
@@ -308,9 +329,39 @@ export default function SuperAdminDashboard() {
                         {new Date(tenant.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button className="text-indigo-600 hover:text-indigo-900">
-                          <MoreVertical className="h-5 w-5" />
-                        </button>
+                        <div className="relative">
+                          <button 
+                            onClick={() => toggleDropdown(tenant.id)}
+                            className="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600"
+                          >
+                            <MoreVertical className="h-5 w-5" />
+                          </button>
+                          
+                          {openDropdownId === tenant.id && (
+                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                              <div className="py-1">
+                                <button
+                                  onClick={() => handleViewTenant(tenant.id)}
+                                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                                >
+                                  👁️ View Details
+                                </button>
+                                <button
+                                  onClick={() => handleEditTenant(tenant.id)}
+                                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                                >
+                                  ✏️ Edit Tenant
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteTenant(tenant.id)}
+                                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700"
+                                >
+                                  🗑️ Delete
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}

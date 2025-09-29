@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyToken } from '@/lib/auth'
+import { calculateTenantBilling, generateInvoiceNumber } from '@/lib/billing'
 import { objectToJson } from '@/lib/validation'
 
 export async function GET(request: NextRequest) {
@@ -111,6 +112,8 @@ export async function GET(request: NextRequest) {
           subdomain: tenant.subdomain,
           logoUrl: tenant.logoUrl,
           primaryColor: tenant.primaryColor,
+          secondaryColor: tenant.secondaryColor,
+          accentColor: tenant.accentColor,
           monthlyFee: tenant.monthlyFee,
           lastPaymentDate: tenant.lastPaymentDate,
           nextPaymentDate: tenant.nextPaymentDate,
@@ -192,6 +195,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const {
       businessName,
+      businessNameAr,
       businessTypeId,
       ownerName,
       ownerEmail,
@@ -202,7 +206,10 @@ export async function POST(request: NextRequest) {
       monthlyFee,
       primaryColor,
       secondaryColor,
-      accentColor
+      accentColor,
+      currency,
+      defaultLanguage,
+      timezone
     } = body
 
     // Validate required fields
@@ -228,11 +235,17 @@ export async function POST(request: NextRequest) {
       counter++
     }
 
-    // Create tenant
+    // Calculate prorated billing for the first payment
+    const joinDate = new Date()
+    const monthlyFeeAmount = parseFloat(String(monthlyFee)) || 100.00
+    const billingInfo = calculateTenantBilling(monthlyFeeAmount, joinDate)
+
+    // Create tenant with proper payment dates
     const tenant = await prisma.tenant.create({
       data: {
         slug,
         businessName,
+        businessNameAr,
         businessTypeId,
         email: ownerEmail, // Use owner email as tenant email
         ownerName,
@@ -241,15 +254,38 @@ export async function POST(request: NextRequest) {
         customDomain,
         subdomain,
         subscriptionPlan: subscriptionPlan || 'BASIC',
-        monthlyFee: parseFloat(String(monthlyFee)) || 100.00,
+        monthlyFee: monthlyFeeAmount,
         primaryColor,
         secondaryColor,
         accentColor,
-        nextPaymentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+        currency,
+        defaultLanguage: defaultLanguage || 'ar',
+        timezone,
+        nextPaymentDate: billingInfo.nextPaymentDate,
         createdById: decodedToken.sub || decodedToken.id || decodedToken.userId || 'unknown'
       },
       include: {
         businessType: true
+      }
+    })
+
+    // Create the first payment record (prorated if joined mid-month)
+    const firstPaymentRecord = await prisma.paymentRecord.create({
+      data: {
+        tenantId: tenant.id,
+        amount: billingInfo.firstPaymentAmount,
+        currency: currency || 'EGP',
+        method: 'BANK_TRANSFER',
+        status: 'PENDING',
+        description: billingInfo.firstPaymentProrated 
+          ? `Initial prorated payment for ${billingInfo.firstPaymentPeriod}`
+          : `Monthly subscription fee for ${billingInfo.firstPaymentPeriod}`,
+        invoiceNumber: generateInvoiceNumber(tenant.id, joinDate),
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Due in 7 days
+        notes: billingInfo.firstPaymentProrated 
+          ? `Prorated for ${billingInfo.daysInFirstPeriod} days of ${billingInfo.totalDaysInMonth} days in month`
+          : 'Regular monthly subscription fee',
+        createdById: decodedToken.sub || decodedToken.id || decodedToken.userId || 'unknown'
       }
     })
 

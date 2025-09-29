@@ -32,6 +32,12 @@ export async function GET(
     const tenant = await prisma.tenant.findUnique({
       where: { id: tenantId },
       include: {
+        businessType: {
+          select: {
+            nameEn: true,
+            nameAr: true
+          }
+        },
         _count: {
           select: {
             categories: true,
@@ -53,6 +59,7 @@ export async function GET(
       ...tenant,
       createdAt: tenant.createdAt.toISOString(),
       updatedAt: tenant.updatedAt.toISOString(),
+      businessType: tenant.businessType?.nameEn || 'Unknown',
       _count: {
         ...tenant._count,
         users: tenant._count.tenantUsers

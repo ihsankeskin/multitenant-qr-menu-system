@@ -12,6 +12,7 @@ import {
   CogIcon,
   ArrowRightOnRectangleIcon,
   UserCircleIcon,
+  UserGroupIcon,
   Bars3Icon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
@@ -78,6 +79,7 @@ export default function SuperAdminLayout({
   const navigation = [
     { name: 'Dashboard', href: '/super-admin/dashboard', icon: HomeIcon },
     { name: 'Tenants', href: '/super-admin/tenants', icon: BuildingStorefrontIcon },
+    { name: 'Admins', href: '/super-admin/admins', icon: UserGroupIcon },
     { name: 'Financials', href: '/super-admin/financials', icon: BanknotesIcon },
     { name: 'Analytics', href: '/super-admin/analytics', icon: ChartBarIcon },
     { name: 'Settings', href: '/super-admin/settings', icon: CogIcon },

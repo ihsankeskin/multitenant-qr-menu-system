@@ -27,11 +27,14 @@ interface Tenant {
   businessNameAr: string
   primaryColor: string
   secondaryColor?: string
+  accentColor?: string
   logoUrl?: string
   isActive: boolean
   createdAt: string
   updatedAt: string
   businessType: string
+  currency: string
+  defaultLanguage: string
   phone?: string
   email?: string
   address?: string
@@ -77,6 +80,9 @@ export default function SuperAdminTenantDetail() {
   const [isSaving, setSaving] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'success' | 'error' | null>(null)
   const [showAddUserModal, setShowAddUserModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteConfirmName, setDeleteConfirmName] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
   const [userFormData, setUserFormData] = useState({
     email: '',
     firstName: '',
@@ -209,12 +215,9 @@ export default function SuperAdminTenantDetail() {
   }
 
   const deleteTenant = async () => {
-    if (!tenant) return
+    if (!tenant || deleteConfirmName !== tenant.businessName) return
     
-    if (!window.confirm(`Are you sure you want to delete ${tenant.businessName}? This action cannot be undone.`)) {
-      return
-    }
-
+    setIsDeleting(true)
     try {
       const token = localStorage.getItem('token')
       if (!token) return
@@ -227,11 +230,27 @@ export default function SuperAdminTenantDetail() {
       })
 
       if (response.ok) {
-        router.push('/super-admin/tenants')
+        router.push('/super-admin/tenants?deleted=true')
+      } else {
+        const data = await response.json()
+        alert(`Failed to delete tenant: ${data.message || 'Unknown error'}`)
       }
     } catch (error) {
       console.error('Failed to delete tenant:', error)
+      alert('Failed to delete tenant. Please try again.')
+    } finally {
+      setIsDeleting(false)
     }
+  }
+
+  const openDeleteModal = () => {
+    setDeleteConfirmName('')
+    setShowDeleteModal(true)
+  }
+
+  const closeDeleteModal = () => {
+    setDeleteConfirmName('')
+    setShowDeleteModal(false)
   }
 
   const createTenantUser = async () => {
@@ -468,6 +487,17 @@ export default function SuperAdminTenantDetail() {
                   <dd className="mt-1 text-sm text-gray-900">{tenant.businessNameAr || 'Not set'}</dd>
                 </div>
                 <div>
+                  <dt className="text-sm font-medium text-gray-500">URLs</dt>
+                  <dd className="mt-1 space-y-1">
+                    <div className="text-sm text-gray-900">
+                      <span className="font-medium">Admin:</span> /tenant/{tenant.slug}/dashboard
+                    </div>
+                    <div className="text-sm text-gray-900">
+                      <span className="font-medium">Menu:</span> /menu/{tenant.slug}
+                    </div>
+                  </dd>
+                </div>
+                <div>
                   <dt className="text-sm font-medium text-gray-500">Slug</dt>
                   <dd className="mt-1 text-sm text-gray-900">/{tenant.slug}</dd>
                 </div>
@@ -476,13 +506,47 @@ export default function SuperAdminTenantDetail() {
                   <dd className="mt-1 text-sm text-gray-900 capitalize">{tenant.businessType}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">Primary Color</dt>
-                  <dd className="mt-1 flex items-center">
-                    <div 
-                      className="w-6 h-6 rounded-full mr-2 border" 
-                      style={{ backgroundColor: tenant.primaryColor }}
-                    ></div>
-                    <span className="text-sm text-gray-900">{tenant.primaryColor}</span>
+                  <dt className="text-sm font-medium text-gray-500">Currency</dt>
+                  <dd className="mt-1 text-sm text-gray-900">{tenant.currency || 'Not set'}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-gray-500">Default Language</dt>
+                  <dd className="mt-1 text-sm text-gray-900">{tenant.defaultLanguage === 'ar' ? 'Arabic' : 'English'}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-gray-500">Brand Colors</dt>
+                  <dd className="mt-1 space-y-2">
+                    <div className="flex items-center">
+                      <div 
+                        className="w-6 h-6 rounded-full mr-2 border" 
+                        style={{ backgroundColor: tenant.primaryColor }}
+                      ></div>
+                      <span className="text-sm text-gray-900">
+                        <span className="font-medium">Primary:</span> {tenant.primaryColor}
+                      </span>
+                    </div>
+                    {tenant.secondaryColor && (
+                      <div className="flex items-center">
+                        <div 
+                          className="w-6 h-6 rounded-full mr-2 border" 
+                          style={{ backgroundColor: tenant.secondaryColor }}
+                        ></div>
+                        <span className="text-sm text-gray-900">
+                          <span className="font-medium">Secondary:</span> {tenant.secondaryColor}
+                        </span>
+                      </div>
+                    )}
+                    {tenant.accentColor && (
+                      <div className="flex items-center">
+                        <div 
+                          className="w-6 h-6 rounded-full mr-2 border" 
+                          style={{ backgroundColor: tenant.accentColor }}
+                        ></div>
+                        <span className="text-sm text-gray-900">
+                          <span className="font-medium">Accent:</span> {tenant.accentColor}
+                        </span>
+                      </div>
+                    )}
                   </dd>
                 </div>
                 {tenant.email && (
@@ -712,8 +776,9 @@ export default function SuperAdminTenantDetail() {
                   </p>
                 </div>
                 <button
-                  onClick={deleteTenant}
+                  onClick={openDeleteModal}
                   className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
+                >
                 >
                   <TrashIcon className="h-4 w-4 mr-2" />
                   Delete Tenant
@@ -842,6 +907,80 @@ export default function SuperAdminTenantDetail() {
                   {isSaving ? 'Creating...' : 'Create User'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && tenant && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <ExclamationTriangleIcon className="h-6 w-6 text-red-600 mr-2" />
+                <h3 className="text-lg font-medium text-gray-900">Delete Tenant</h3>
+              </div>
+              <button
+                onClick={closeDeleteModal}
+                className="text-gray-400 hover:text-gray-600"
+                disabled={isDeleting}
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                <p className="text-sm text-red-800 mb-2">
+                  <strong>Warning:</strong> This action cannot be undone.
+                </p>
+                <p className="text-sm text-red-700">
+                  This will permanently delete:
+                </p>
+                <ul className="text-sm text-red-700 mt-2 ml-4 list-disc">
+                  <li>Tenant account and all settings</li>
+                  <li>All users and their access</li>
+                  <li>All categories and products</li>
+                  <li>All payment records and billing history</li>
+                  <li>All audit logs and activity data</li>
+                </ul>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-700 mb-2">
+                  To confirm deletion, please type the tenant name:{' '}
+                  <span className="font-medium text-gray-900">{tenant.businessName}</span>
+                </p>
+                <input
+                  type="text"
+                  value={deleteConfirmName}
+                  onChange={(e) => setDeleteConfirmName(e.target.value)}
+                  placeholder={`Type "${tenant.businessName}" to confirm`}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
+                  disabled={isDeleting}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200 mt-6">
+              <button
+                onClick={closeDeleteModal}
+                className="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={deleteTenant}
+                disabled={isDeleting || deleteConfirmName !== tenant.businessName}
+                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isDeleting && (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                )}
+                {isDeleting ? 'Deleting...' : 'Delete Tenant'}
+              </button>
             </div>
           </div>
         </div>

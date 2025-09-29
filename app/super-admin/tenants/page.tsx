@@ -295,8 +295,9 @@ export default function TenantsPage() {
                         <div className="text-sm text-gray-500">
                           {tenant.ownerEmail}
                         </div>
-                        <div className="text-xs text-gray-400">
-                          {tenant.subdomain}.menuapp.com
+                        <div className="text-xs text-gray-400 space-y-1">
+                          <div>Admin: /tenant/{tenant.subdomain}/dashboard</div>
+                          <div>Menu: /menu/{tenant.subdomain}</div>
                         </div>
                       </div>
                     </div>

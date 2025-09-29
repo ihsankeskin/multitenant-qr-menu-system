@@ -177,6 +177,8 @@ export async function POST(request: NextRequest) {
           businessName: tenant.businessName,
           businessNameAr: tenant.businessNameAr,
           primaryColor: tenant.primaryColor,
+          secondaryColor: tenant.secondaryColor,
+          accentColor: tenant.accentColor,
           logoUrl: tenant.logoUrl
         }
       }
