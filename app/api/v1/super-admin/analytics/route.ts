@@ -107,6 +107,11 @@ export async function GET(request: NextRequest) {
               categories: true,
               products: true
             }
+          },
+          businessType: {
+            select: {
+              nameEn: true
+            }
           }
         },
         orderBy: {
@@ -145,13 +150,20 @@ export async function GET(request: NextRequest) {
     // Format top tenants data
     const formattedTopTenants = topTenants.map(tenant => ({
       id: tenant.id,
-      name: tenant.businessName,
+      businessName: tenant.businessName,
       slug: tenant.slug,
       email: tenant.email,
       categories: tenant._count.categories,
       products: tenant._count.products,
       isActive: tenant.isActive,
-      createdAt: tenant.createdAt.toISOString()
+      status: tenant.isActive ? 'active' : 'inactive',
+      businessType: tenant.businessType?.nameEn || 'Unknown',
+      _count: {
+        categories: tenant._count.categories,
+        products: tenant._count.products
+      },
+      createdAt: tenant.createdAt.toISOString(),
+      lastLoginAt: null // We'll add this field later if needed
     }))
 
     const analytics = {
@@ -192,12 +204,18 @@ export async function GET(request: NextRequest) {
       topPerformers: {
         mostActiveMenus: formattedTopTenants.map(tenant => ({
           tenantId: tenant.id,
-          businessName: tenant.name,
+          businessName: tenant.businessName,
           viewCount: Math.floor(Math.random() * 1000) + 100,
           categoryCount: tenant.categories,
           productCount: tenant.products
         })).slice(0, 3),
-        newestTenants: formattedTopTenants.slice(0, 3)
+        newestTenants: formattedTopTenants.map(tenant => ({
+          id: tenant.id,
+          businessName: tenant.businessName,
+          slug: tenant.slug,
+          createdAt: tenant.createdAt,
+          businessType: tenant.businessType
+        })).slice(0, 3)
       },
       alerts: systemAlerts
     }

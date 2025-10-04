@@ -25,6 +25,7 @@ export async function GET(
         description: true,
         descriptionAr: true,
         logoUrl: true,
+        logoImage: true,
         primaryColor: true,
         secondaryColor: true,
         accentColor: true,
@@ -164,7 +165,7 @@ export async function GET(
         primaryColor: tenant.primaryColor,
         secondaryColor: tenant.secondaryColor,
         accentColor: tenant.accentColor,
-        logoUrl: tenant.logoUrl,
+        logoUrl: tenant.logoImage || tenant.logoUrl,
         phone: tenant.phone,
         email: tenant.email,
         address: tenant.address

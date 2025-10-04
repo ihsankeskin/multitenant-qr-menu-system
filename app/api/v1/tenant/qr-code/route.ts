@@ -58,14 +58,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    if (!hasContent) {
-      return NextResponse.json(
-        { success: false, message: 'No active menu content available for QR code generation' },
-        { status: 400 }
-      )
-    }
-
-    // Generate the public menu URL
+    // Generate the public menu URL regardless of content
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     const menuUrl = `${baseUrl}/menu/${tenant.slug}`
 
@@ -80,14 +73,23 @@ export async function GET(request: NextRequest) {
           slug: tenant.slug,
           subdomain: tenant.subdomain
         },
+        hasContent: !!hasContent,
+        warning: !hasContent ? 'No active menu content yet. Add categories and products to make your menu visible to customers.' : null,
         instructions: {
           title: 'QR Code for Digital Menu',
-          description: 'Customers can scan this QR code to view your digital menu',
-          steps: [
+          description: hasContent 
+            ? 'Customers can scan this QR code to view your digital menu'
+            : 'QR code ready - add menu content to make it functional',
+          steps: hasContent ? [
             'Print the QR code and place it on tables or at the entrance',
             'Customers scan with their phone camera or QR code app',
             'They will be directed to your digital menu',
             'Orders can be placed directly through the menu interface'
+          ] : [
+            'Add categories and products to your menu first',
+            'Once content is added, your QR code will work automatically',
+            'Print the QR code and place it on tables or at the entrance',
+            'Customers will be able to view your complete digital menu'
           ]
         }
       }

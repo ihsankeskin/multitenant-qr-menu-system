@@ -4,7 +4,7 @@ import { verifyToken } from '@/lib/auth'
 export const dynamic = 'force-dynamic'
 
 // File size limits (in bytes)
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+const MAX_FILE_SIZE = 3 * 1024 * 1024 // 3MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 
 // POST /api/v1/upload/image - Upload image and convert to base64

@@ -57,7 +57,7 @@ interface AnalyticsData {
     slug: string
     isActive: boolean
     createdAt: string
-    lastLoginAt?: string
+    lastLoginAt?: string | null
     _count: {
       categories: number
       products: number
@@ -156,7 +156,9 @@ export default function SuperAdminAnalytics() {
     return null
   }
 
-  const getStatusColor = (status: string): string => {
+  const getStatusColor = (status: string | undefined): string => {
+    if (!status) return 'bg-gray-100 text-gray-800'
+    
     switch (status.toLowerCase()) {
       case 'active': return 'bg-green-100 text-green-800'
       case 'inactive': return 'bg-red-100 text-red-800'
@@ -510,7 +512,7 @@ export default function SuperAdminAnalytics() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(tenant.status)}`}>
-                        {tenant.status}
+                        {tenant.status || (tenant.isActive ? 'active' : 'inactive')}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

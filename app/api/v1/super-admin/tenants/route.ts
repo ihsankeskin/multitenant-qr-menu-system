@@ -200,6 +200,7 @@ export async function POST(request: NextRequest) {
       ownerName,
       ownerEmail,
       ownerPhone,
+      address,
       customDomain,
       subdomain,
       subscriptionPlan,
@@ -209,25 +210,27 @@ export async function POST(request: NextRequest) {
       accentColor,
       currency,
       defaultLanguage,
-      timezone
+      timezone,
+      logoImage,
+      coverImage
     } = body
 
     // Validate required fields
-    if (!businessName || !businessTypeId || !ownerName || !ownerEmail) {
+    if (!businessName || !businessTypeId || !ownerName || !ownerEmail || !subdomain) {
       return NextResponse.json(
         {
           success: false,
-          message: 'Missing required fields: businessName, businessTypeId, ownerName, ownerEmail',
+          message: 'Missing required fields: businessName, businessTypeId, ownerName, ownerEmail, subdomain',
           error: 'VALIDATION_ERROR'
         },
         { status: 400 }
       )
     }
 
-    // Generate unique slug from business name
-    const baseSlug = businessName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
-    let slug = baseSlug
+    // Use the subdomain field as the slug (it should already be validated on frontend)
+    let slug = subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
     let counter = 1
+    const baseSlug = slug
     
     // Ensure slug is unique
     while (await prisma.tenant.findUnique({ where: { slug } })) {
@@ -237,7 +240,7 @@ export async function POST(request: NextRequest) {
 
     // Calculate prorated billing for the first payment
     const joinDate = new Date()
-    const monthlyFeeAmount = parseFloat(String(monthlyFee)) || 100.00
+    const monthlyFeeAmount = parseFloat(String(monthlyFee)) || 1000.00
     const billingInfo = calculateTenantBilling(monthlyFeeAmount, joinDate)
 
     // Create tenant with proper payment dates
@@ -251,6 +254,7 @@ export async function POST(request: NextRequest) {
         ownerName,
         ownerEmail,
         ownerPhone,
+        address,
         customDomain,
         subdomain,
         subscriptionPlan: subscriptionPlan || 'BASIC',
@@ -258,9 +262,11 @@ export async function POST(request: NextRequest) {
         primaryColor,
         secondaryColor,
         accentColor,
-        currency,
+        currency: currency || 'EGP',
         defaultLanguage: defaultLanguage || 'ar',
         timezone,
+        logoImage: logoImage || null,
+        coverImage: coverImage || null,
         nextPaymentDate: billingInfo.nextPaymentDate,
         createdById: String(decodedToken.sub || decodedToken.id || decodedToken.userId || 'unknown')
       },

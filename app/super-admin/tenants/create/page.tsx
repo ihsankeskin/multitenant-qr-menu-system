@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import ImageUpload from '@/components/ImageUpload'
 import { 
   BuildingStorefrontIcon, 
   ArrowLeftIcon,
@@ -30,15 +31,36 @@ export default function CreateTenantPage() {
     ownerName: '',
     ownerEmail: '',
     ownerPhone: '',
+    address: '',
     subdomain: '',
     subscriptionPlan: 'BASIC',
-    monthlyFee: 100,
-    currency: 'USD',
+    monthlyFee: 1000,
+    currency: 'EGP',
     primaryColor: '#2563eb',
     secondaryColor: '#1e40af',
-    accentColor: '#3b82f6'
+    accentColor: '#3b82f6',
+    logoImage: '',
+    coverImage: ''
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Get currency symbol for display
+  const getCurrencySymbol = (currency: string) => {
+    const currencySymbols: { [key: string]: string } = {
+      'USD': '$',
+      'EUR': '€',
+      'GBP': '£',
+      'AED': 'د.إ',
+      'SAR': 'ر.س',
+      'EGP': 'ج.م',
+      'JOD': 'د.أ',
+      'KWD': 'د.ك',
+      'QAR': 'ر.ق',
+      'BHD': 'د.ب',
+      'OMR': 'ر.ع'
+    }
+    return currencySymbols[currency] || currency
+  }
 
   useEffect(() => {
     fetchBusinessTypes()
@@ -100,6 +122,20 @@ export default function CreateTenantPage() {
         businessName: ''
       }))
     }
+  }
+
+  const handleLogoUpload = (base64Image: string) => {
+    setFormData(prev => ({
+      ...prev,
+      logoImage: base64Image
+    }))
+  }
+
+  const handleCoverImageUpload = (base64Image: string) => {
+    setFormData(prev => ({
+      ...prev,
+      coverImage: base64Image
+    }))
   }
 
   const validateForm = () => {
@@ -354,6 +390,21 @@ export default function CreateTenantPage() {
             </div>
 
             <div>
+              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                Business Address
+              </label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter business address"
+              />
+            </div>
+
+            <div>
               <label htmlFor="subdomain" className="block text-sm font-medium text-gray-700 mb-2">
                 Tenant Route/Slug *
               </label>
@@ -414,7 +465,7 @@ export default function CreateTenantPage() {
 
             <div>
               <label htmlFor="monthlyFee" className="block text-sm font-medium text-gray-700 mb-2">
-                Monthly Fee ($)
+                Monthly Fee ({getCurrencySymbol(formData.currency)})
               </label>
               <input
                 type="number"
@@ -474,6 +525,42 @@ export default function CreateTenantPage() {
                 onChange={handleChange}
                 className="w-full h-10 border border-gray-300 rounded-lg"
               />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-6">Branding & Images</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Logo Image
+              </label>
+              <ImageUpload
+                onImageUpload={handleLogoUpload}
+                currentImage={formData.logoImage}
+                placeholder="Upload restaurant logo"
+                className="h-32"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Logo will appear in the menu and admin dashboard
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Cover Image
+              </label>
+              <ImageUpload
+                onImageUpload={handleCoverImageUpload}
+                currentImage={formData.coverImage}
+                placeholder="Upload cover image"
+                className="h-32"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Cover image will appear in the public menu
+              </p>
             </div>
           </div>
         </div>

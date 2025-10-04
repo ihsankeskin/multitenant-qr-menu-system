@@ -123,6 +123,7 @@ export async function GET(request: NextRequest) {
       descriptionEn: product.descriptionEn,
       descriptionAr: product.descriptionAr,
       imageUrl: product.imageUrl,
+      imageData: product.imageData,
       imageUrls: jsonToStringArray(product.imageUrls),
       basePrice: product.basePrice,
       discountPrice: product.discountPrice,
@@ -221,6 +222,7 @@ export async function POST(request: NextRequest) {
       descriptionEn,
       descriptionAr,
       imageUrl,
+      imageData,
       imageUrls = [],
       basePrice,
       price, // Accept both price and basePrice for compatibility
@@ -323,6 +325,7 @@ export async function POST(request: NextRequest) {
         descriptionEn: descriptionEn?.trim() || null,
         descriptionAr: descriptionAr?.trim() || null,
         imageUrl: imageUrl?.trim() || null,
+        imageData: imageData?.trim() || null,
         imageUrls: stringArrayToJson(imageUrls),
         basePrice: parseFloat(productPrice),
         discountPrice: discountPrice ? parseFloat(discountPrice) : null,

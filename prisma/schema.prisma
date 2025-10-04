@@ -16,6 +16,7 @@ model BusinessType {
   descriptionEn         String?
   descriptionAr         String?
   iconUrl               String?
+  iconData              String?   // Base64 encoded icon image data
   isActive              Boolean   @default(true)
   sortOrder             Int       @default(0)
   createdAt             DateTime  @default(now())
@@ -46,6 +47,7 @@ model User {
   mfaSecret             String?
   phoneNumber           String?
   avatarUrl             String?
+  avatarImage           String?   // Base64 encoded avatar image data
   isActive              Boolean   @default(true)
   preferences           String?   // JSON string for user preferences
   timezone              String    @default("UTC")
@@ -95,6 +97,8 @@ model Tenant {
   currency              String    @default("EGP")
   timezone              String    @default("Africa/Cairo")
   logoUrl               String?
+  logoImage             String?   // Base64 encoded image data
+  coverImage            String?   // Base64 encoded cover image data
   primaryColor          String?
   secondaryColor        String?
   accentColor           String?
@@ -158,6 +162,7 @@ model Category {
   descriptionEn         String?
   descriptionAr         String?
   imageUrl              String?
+  imageData             String?   // Base64 encoded image data
   isActive              Boolean   @default(true)
   sortOrder             Int       @default(0)
   showInMenu            Boolean   @default(true)
@@ -189,7 +194,9 @@ model Product {
   descriptionEn         String?
   descriptionAr         String?
   imageUrl              String?
+  imageData             String?   // Base64 encoded primary image data
   imageUrls             String?   // JSON string for multiple images
+  imageDataArray        String?   // JSON string for multiple base64 images
   basePrice             Float
   currency              String    @default("EGP")
   discountPrice         Float?

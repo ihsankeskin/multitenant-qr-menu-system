@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import ImageUpload from '@/components/ImageUpload'
 import {
   HomeIcon,
   RectangleStackIcon,
@@ -43,6 +44,7 @@ interface Tenant {
   secondaryColor?: string
   accentColor?: string
   logoUrl?: string
+  logoImage?: string
   phone?: string
   email: string
   address?: string
@@ -55,6 +57,8 @@ interface TenantSettings {
   email?: string
   address?: string
   logoUrl?: string
+  logoImage?: string
+  coverImage?: string
   primaryColor?: string
   secondaryColor?: string
   accentColor?: string
@@ -110,6 +114,7 @@ interface Category {
   descriptionEn?: string
   descriptionAr?: string
   imageUrl?: string
+  imageData?: string
   isActive: boolean
   sortOrder: number
   showInMenu: boolean
@@ -127,6 +132,7 @@ interface CategoryFormData {
   descriptionEn?: string
   descriptionAr?: string
   imageUrl?: string
+  imageData?: string
   isActive: boolean
   showInMenu: boolean
   sortOrder: number
@@ -139,6 +145,7 @@ interface Product {
   descriptionEn?: string
   descriptionAr?: string
   imageUrl?: string
+  imageData?: string
   price: number
   compareAtPrice?: number
   isActive: boolean
@@ -219,11 +226,7 @@ export default function TenantDashboard() {
 
   // Settings functions
   const updateTenantSetting = (key: string, value: any) => {
-    if (key === 'nameEn' || key === 'nameAr' || key === 'primaryColor' || key === 'secondaryColor' || key === 'accentColor') {
-      setTenant(prev => prev ? { ...prev, [key]: value } : null)
-    } else {
-      setTenantSettings(prev => ({ ...prev, [key]: value }))
-    }
+    setTenantSettings(prev => ({ ...prev, [key]: value }))
   }
 
   const updateBusinessHours = (day: string, field: string, value: any) => {
@@ -446,22 +449,22 @@ export default function TenantDashboard() {
         if (data.success && data.data) {
           // Map the tenant data to settings format
           const settings: TenantSettings = {
-            nameEn: data.data.businessName,
-            nameAr: data.data.businessNameAr,
-            logoUrl: data.data.logoUrl,
-            phone: data.data.phone,
-            email: data.data.email,
-            address: data.data.address,
-            primaryColor: data.data.primaryColor,
-            secondaryColor: data.data.secondaryColor,
-            accentColor: data.data.accentColor,
+            nameEn: data.data.businessName || '',
+            nameAr: data.data.businessNameAr || '',
+            logoUrl: data.data.logoUrl || data.data.logoImage || '',
+            phone: data.data.phone || '',
+            email: data.data.email || '',
+            address: data.data.address || '',
+            primaryColor: data.data.primaryColor || '#2563eb',
+            secondaryColor: data.data.secondaryColor || '#1e40af',
+            accentColor: data.data.accentColor || '#3b82f6',
             showPrices: true,
             showCalories: false,
             showDescriptions: true,
             showImages: true,
             defaultLanguage: data.data.defaultLanguage || 'en',
             enableBilingualMenu: true,
-            currency: data.data.currency || 'USD',
+            currency: data.data.currency || 'EGP',
             currencyPosition: 'before',
             businessHours: {
               monday: { isOpen: true, open: '09:00', close: '22:00' },
@@ -475,6 +478,25 @@ export default function TenantDashboard() {
           }
           setTenantSettings(settings)
           setOriginalTenantSettings(settings)
+          
+          // Also update the tenant state to reflect the most current data
+          if (tenant) {
+            const updatedTenant = {
+              ...tenant,
+              businessName: data.data.businessName || tenant.businessName,
+              businessNameAr: data.data.businessNameAr || tenant.businessNameAr,
+              phone: data.data.phone || tenant.phone,
+              email: data.data.email || tenant.email,
+              address: data.data.address || tenant.address,
+              primaryColor: data.data.primaryColor || tenant.primaryColor,
+              secondaryColor: data.data.secondaryColor || tenant.secondaryColor,
+              accentColor: data.data.accentColor || tenant.accentColor,
+              logoUrl: data.data.logoUrl || data.data.logoImage || tenant.logoUrl
+            }
+            setTenant(updatedTenant)
+            // Update localStorage with fresh data
+            localStorage.setItem(`tenant_data_${slug}`, JSON.stringify(updatedTenant))
+          }
         }
       } else {
         // Fallback to default settings if fetch fails
@@ -618,6 +640,27 @@ export default function TenantDashboard() {
     } else {
       return `${symbol}${formattedAmount}`
     }
+  }
+
+  // Get currency-dependent labels
+  const getCurrencyLabel = (baseLabel: string) => {
+    const currency = tenantSettings.currency || 'EGP'
+    const currencySymbols: { [key: string]: string } = {
+      'USD': '$',
+      'EUR': '€', 
+      'GBP': '£',
+      'AED': 'د.إ',
+      'SAR': 'ر.س',
+      'EGP': 'ج.م',
+      'JOD': 'د.أ',
+      'KWD': 'د.ك',
+      'QAR': 'ر.ق',
+      'BHD': 'د.ب',
+      'OMR': 'ر.ع'
+    }
+    
+    const symbol = currencySymbols[currency] || currency
+    return `${baseLabel} (${symbol})`
   }
 
   const fetchCategories = async () => {
@@ -878,10 +921,10 @@ export default function TenantDashboard() {
             {/* Logo and Business Name */}
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
-                {tenant.logoUrl ? (
+                {(tenant.logoImage || tenant.logoUrl) ? (
                   <img
-                    src={tenant.logoUrl}
-                    alt={tenant.businessName}
+                    src={tenant.logoImage || tenant.logoUrl}
+                    alt={tenant.businessName || 'Restaurant Logo'}
                     className="h-10 w-auto"
                   />
                 ) : (
@@ -889,12 +932,12 @@ export default function TenantDashboard() {
                     className="h-10 w-10 rounded-lg flex items-center justify-center text-white font-bold text-lg"
                     style={{ backgroundColor: tenant.primaryColor }}
                   >
-                    {tenant.businessName.charAt(0).toUpperCase()}
+                    {tenant.businessName?.charAt(0)?.toUpperCase() || 'T'}
                   </div>
                 )}
                 <div className="ml-3">
                   <h1 className="text-lg font-semibold text-gray-900">
-                    {tenant.businessName}
+                    {tenant.businessName || 'Tenant'}
                   </h1>
                   {tenant.businessNameAr && (
                     <p className="text-sm text-gray-600 font-arabic">
@@ -1729,7 +1772,7 @@ export default function TenantDashboard() {
                             </label>
                             <input
                               type="text"
-                              value={tenant.nameEn}
+                              value={tenantSettings.nameEn || ''}
                               onChange={(e) => updateTenantSetting('nameEn', e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
@@ -1740,12 +1783,52 @@ export default function TenantDashboard() {
                             </label>
                             <input
                               type="text"
-                              value={tenant.nameAr}
+                              value={tenantSettings.nameAr || ''}
                               onChange={(e) => updateTenantSetting('nameAr', e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-arabic"
                               dir="rtl"
                             />
                           </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-4">Menu URL</h3>
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Public Menu URL
+                              </label>
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  type="text"
+                                  value={`${window.location.origin}/menu/${slug}`}
+                                  readOnly
+                                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
+                                />
+                                <button
+                                  onClick={() => {
+                                    const url = `${window.location.origin}/menu/${slug}`;
+                                    navigator.clipboard.writeText(url);
+                                    // Show a quick feedback (you could add a toast notification here)
+                                    const button = event?.target as HTMLButtonElement;
+                                    const originalText = button.textContent;
+                                    button.textContent = 'Copied!';
+                                    setTimeout(() => {
+                                      button.textContent = originalText;
+                                    }, 2000);
+                                  }}
+                                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                                >
+                                  Copy
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-sm text-gray-500 mt-2">
+                            Share this URL with customers to let them view your menu directly.
+                          </p>
                         </div>
                       </div>
 
@@ -1845,13 +1928,13 @@ export default function TenantDashboard() {
                             <div className="flex items-center space-x-3">
                               <input
                                 type="color"
-                                value={tenant.primaryColor}
+                                value={tenantSettings.primaryColor || '#2563eb'}
                                 onChange={(e) => updateTenantSetting('primaryColor', e.target.value)}
                                 className="h-10 w-20 border border-gray-300 rounded-md"
                               />
                               <input
                                 type="text"
-                                value={tenant.primaryColor}
+                                value={tenantSettings.primaryColor || '#2563eb'}
                                 onChange={(e) => updateTenantSetting('primaryColor', e.target.value)}
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                               />
@@ -1864,13 +1947,13 @@ export default function TenantDashboard() {
                             <div className="flex items-center space-x-3">
                               <input
                                 type="color"
-                                value={tenant.secondaryColor || '#6B7280'}
+                                value={tenantSettings.secondaryColor || '#6B7280'}
                                 onChange={(e) => updateTenantSetting('secondaryColor', e.target.value)}
                                 className="h-10 w-20 border border-gray-300 rounded-md"
                               />
                               <input
                                 type="text"
-                                value={tenant.secondaryColor || '#6B7280'}
+                                value={tenantSettings.secondaryColor || '#6B7280'}
                                 onChange={(e) => updateTenantSetting('secondaryColor', e.target.value)}
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                               />
@@ -1883,13 +1966,13 @@ export default function TenantDashboard() {
                             <div className="flex items-center space-x-3">
                               <input
                                 type="color"
-                                value={tenant.accentColor || '#3B82F6'}
+                                value={tenantSettings.accentColor || '#3B82F6'}
                                 onChange={(e) => updateTenantSetting('accentColor', e.target.value)}
                                 className="h-10 w-20 border border-gray-300 rounded-md"
                               />
                               <input
                                 type="text"
-                                value={tenant.accentColor || '#3B82F6'}
+                                value={tenantSettings.accentColor || '#3B82F6'}
                                 onChange={(e) => updateTenantSetting('accentColor', e.target.value)}
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                               />
@@ -1903,51 +1986,27 @@ export default function TenantDashboard() {
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Logo URL
+                              Logo
                             </label>
-                            <input
-                              type="url"
-                              value={tenantSettings.logoUrl || ''}
-                              onChange={(e) => updateTenantSetting('logoUrl', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="https://example.com/logo.png"
+                            <ImageUpload
+                              onImageUpload={(base64Image) => updateTenantSetting('logoImage', base64Image)}
+                              currentImage={tenantSettings.logoImage || tenantSettings.logoUrl || ''}
+                              placeholder="Upload restaurant logo"
+                              className="w-full"
+                              maxSizeMB={3}
                             />
-                            {tenantSettings.logoUrl && (
-                              <div className="mt-2">
-                                <img
-                                  src={tenantSettings.logoUrl}
-                                  alt="Restaurant Logo"
-                                  className="h-16 w-auto rounded-lg border"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none'
-                                  }}
-                                />
-                              </div>
-                            )}
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Cover Image URL
+                              Cover Image
                             </label>
-                            <input
-                              type="url"
-                              value={tenantSettings.coverImageUrl || ''}
-                              onChange={(e) => updateTenantSetting('coverImageUrl', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="https://example.com/cover.jpg"
+                            <ImageUpload
+                              onImageUpload={(base64Image) => updateTenantSetting('coverImage', base64Image)}
+                              currentImage={tenantSettings.coverImage || tenantSettings.coverImageUrl || ''}
+                              placeholder="Upload cover image"
+                              className="w-full"
+                              maxSizeMB={3}
                             />
-                            {tenantSettings.coverImageUrl && (
-                              <div className="mt-2">
-                                <img
-                                  src={tenantSettings.coverImageUrl}
-                                  alt="Cover Image"
-                                  className="h-24 w-auto rounded-lg border"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none'
-                                  }}
-                                />
-                              </div>
-                            )}
                           </div>
                         </div>
                       </div>
@@ -2250,6 +2309,7 @@ function CategoryModal({ category, onClose, onSave, tenant }: CategoryModalProps
     descriptionEn: category?.descriptionEn || '',
     descriptionAr: category?.descriptionAr || '',
     imageUrl: category?.imageUrl || '',
+    imageData: category?.imageData || '',
     isActive: category?.isActive ?? true,
     showInMenu: category?.showInMenu ?? true,
     sortOrder: category?.sortOrder || 0
@@ -2375,14 +2435,14 @@ function CategoryModal({ category, onClose, onSave, tenant }: CategoryModalProps
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Image URL
+              Category Image
             </label>
-            <input
-              type="url"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="https://example.com/image.jpg"
+            <ImageUpload
+              onImageUpload={(base64Image) => setFormData({ ...formData, imageData: base64Image })}
+              currentImage={formData.imageData || formData.imageUrl || ''}
+              placeholder="Upload category image"
+              className="w-full"
+              maxSizeMB={3}
             />
           </div>
 
@@ -2457,6 +2517,7 @@ interface ProductFormData {
   descriptionEn?: string
   descriptionAr?: string
   imageUrl?: string
+  imageData?: string
   price: number
   compareAtPrice?: number
   isActive: boolean
@@ -2482,6 +2543,7 @@ function ProductModal({ product, onClose, onSave, tenant, categories }: ProductM
     descriptionEn: product?.descriptionEn || '',
     descriptionAr: product?.descriptionAr || '',
     imageUrl: product?.imageUrl || '',
+    imageData: product?.imageData || '',
     price: product?.price || 0,
     compareAtPrice: product?.compareAtPrice || undefined,
     isActive: product?.isActive ?? true,
@@ -2649,14 +2711,14 @@ function ProductModal({ product, onClose, onSave, tenant, categories }: ProductM
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Image URL
+              Product Image
             </label>
-            <input
-              type="url"
-              value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="https://example.com/image.jpg"
+            <ImageUpload
+              onImageUpload={(base64Image) => setFormData({ ...formData, imageData: base64Image })}
+              currentImage={formData.imageData || formData.imageUrl || ''}
+              placeholder="Upload product image"
+              className="w-full"
+              maxSizeMB={3}
             />
           </div>
 

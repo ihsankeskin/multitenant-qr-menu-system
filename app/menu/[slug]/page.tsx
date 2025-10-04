@@ -23,6 +23,7 @@ interface Tenant {
   secondaryColor?: string
   accentColor?: string
   logoUrl?: string
+  logoImage?: string
   phone?: string
   email?: string
   address?: string
@@ -204,9 +205,9 @@ export default function PublicMenu() {
           <p className="text-gray-600 font-medium">
             {tenant?.businessName ? `Loading ${tenant.businessName}...` : 'Loading menu...'}
           </p>
-          {tenant?.logoUrl && (
+          {(tenant?.logoImage || tenant?.logoUrl) && (
             <img
-              src={tenant.logoUrl}
+              src={tenant.logoImage || tenant.logoUrl}
               alt="Restaurant Logo"
               className="h-8 w-8 rounded-full mx-auto mt-2"
               onError={(e) => {
@@ -249,9 +250,9 @@ export default function PublicMenu() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-              {tenant.logoUrl && (
+              {(tenant.logoImage || tenant.logoUrl) && (
                 <img
-                  src={tenant.logoUrl}
+                  src={tenant.logoImage || tenant.logoUrl}
                   alt="Restaurant Logo"
                   className="h-16 w-16 rounded-full bg-white p-1"
                   onError={(e) => {
@@ -485,9 +486,6 @@ export default function PublicMenu() {
               <div
                 key={product.id}
                 className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border-2 border-transparent hover:border-opacity-30 group"
-                style={{
-                  '--hover-border-color': primaryColor
-                }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = `${primaryColor}30`
                   e.currentTarget.style.transform = 'translateY(-2px)'
@@ -625,9 +623,9 @@ export default function PublicMenu() {
           <div className="text-center">
             {/* Business Info */}
             <div className="flex justify-center items-center space-x-4 mb-6">
-              {tenant.logoUrl && (
+              {(tenant.logoImage || tenant.logoUrl) && (
                 <img
-                  src={tenant.logoUrl}
+                  src={tenant.logoImage || tenant.logoUrl}
                   alt="Restaurant Logo"
                   className="h-12 w-12 rounded-full"
                   onError={(e) => {

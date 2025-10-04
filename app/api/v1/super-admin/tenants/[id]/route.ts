@@ -108,6 +108,8 @@ export async function PUT(
     const tenantId = params.id
     const updateData = await request.json()
 
+    console.log('Raw updateData received:', JSON.stringify(updateData, null, 2))
+
     // Validate the tenant exists
     const existingTenant = await prisma.tenant.findUnique({
       where: { id: tenantId }
@@ -120,11 +122,30 @@ export async function PUT(
       )
     }
 
+    // Filter updateData to only include fields that can be updated
+    const allowedFields = [
+      'slug', 'businessName', 'businessNameAr', 'businessTypeId', 'email', 'phone',
+      'address', 'addressAr', 'ownerName', 'ownerEmail', 'ownerPhone', 'customDomain',
+      'subdomain', 'defaultLanguage', 'currency', 'timezone', 'logoUrl', 'primaryColor',
+      'secondaryColor', 'accentColor', 'customCSS', 'description', 'descriptionAr',
+      'subscriptionStatus', 'subscriptionPlan', 'monthlyFee', 'lastPaymentDate',
+      'nextPaymentDate', 'overdueSince', 'suspendedAt', 'isActive'
+    ]
+
+    const filteredUpdateData: any = {}
+    for (const field of allowedFields) {
+      if (updateData.hasOwnProperty(field)) {
+        filteredUpdateData[field] = updateData[field]
+      }
+    }
+
+    console.log('Filtered updateData:', JSON.stringify(filteredUpdateData, null, 2))
+
     // Update tenant
     const updatedTenant = await prisma.tenant.update({
       where: { id: tenantId },
       data: {
-        ...updateData,
+        ...filteredUpdateData,
         updatedAt: new Date()
       },
       include: {
