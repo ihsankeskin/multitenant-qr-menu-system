@@ -33,8 +33,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Check if user is super admin
-    if (payload.role !== 'SUPER_ADMIN' && payload.role !== 'super-admin') {
+    // Check if user is super admin or admin
+    if (payload.role !== 'SUPER_ADMIN' && payload.role !== 'super-admin' && payload.role !== 'ADMIN' && payload.role !== 'admin') {
       return NextResponse.json(
         { success: false, error: 'Access denied' },
         { status: 403 }

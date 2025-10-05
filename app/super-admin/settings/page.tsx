@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from '../../../contexts/LocalizationContext'
 import {
   CogIcon,
   BellIcon,
@@ -85,6 +86,7 @@ interface SystemUser {
 }
 
 export default function SuperAdminSettings() {
+  const { t } = useTranslation()
   const router = useRouter()
   const [settings, setSettings] = useState<SystemSettings | null>(null)
   const [systemUsers, setSystemUsers] = useState<SystemUser[]>([])
@@ -232,13 +234,13 @@ export default function SuperAdminSettings() {
   }
 
   const tabs = [
-    { id: 'platform', name: 'Platform', icon: CogIcon },
-    { id: 'security', name: 'Security', icon: ShieldCheckIcon },
-    { id: 'email', name: 'Email', icon: BellIcon },
-    { id: 'storage', name: 'Storage', icon: CircleStackIcon },
-    { id: 'notifications', name: 'Notifications', icon: BellIcon },
-    { id: 'business', name: 'Business', icon: ServerIcon },
-    { id: 'users', name: 'System Users', icon: UserGroupIcon }
+    { id: 'platform', name: t('superAdmin.settings.platform'), icon: CogIcon },
+    { id: 'security', name: t('superAdmin.settings.security'), icon: ShieldCheckIcon },
+    { id: 'email', name: t('superAdmin.settings.email'), icon: BellIcon },
+    { id: 'storage', name: t('superAdmin.settings.storage'), icon: CircleStackIcon },
+    { id: 'notifications', name: t('superAdmin.settings.notifications'), icon: BellIcon },
+    { id: 'business', name: t('superAdmin.settings.business'), icon: ServerIcon },
+    { id: 'users', name: t('superAdmin.settings.systemUsers'), icon: UserGroupIcon }
   ]
 
   if (isLoading) {
@@ -262,10 +264,10 @@ export default function SuperAdminSettings() {
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center">
                 <CogSolidIcon className="h-8 w-8 mr-3 text-blue-600" />
-                System Settings
+                {t('superAdmin.settings.title')}
               </h1>
               <p className="text-gray-600 mt-2">
-                Configure platform settings, security, and system preferences
+                {t('superAdmin.settings.description')}
               </p>
             </div>
             <button
@@ -278,7 +280,7 @@ export default function SuperAdminSettings() {
               ) : (
                 <CheckCircleIcon className="h-4 w-4 mr-2" />
               )}
-              {isSaving ? 'Saving...' : 'Save Settings'}
+              {isSaving ? t('superAdmin.settings.saving') : t('superAdmin.settings.saveSettings')}
             </button>
           </div>
           
@@ -286,14 +288,14 @@ export default function SuperAdminSettings() {
           {saveStatus === 'success' && (
             <div className="mt-4 flex items-center p-4 bg-green-50 border border-green-200 rounded-md">
               <CheckCircleIcon className="h-5 w-5 text-green-600 mr-2" />
-              <span className="text-green-800">Settings saved successfully!</span>
+              <span className="text-green-800">{t('superAdmin.settings.settingsSavedSuccessfully')}</span>
             </div>
           )}
           
           {saveStatus === 'error' && (
             <div className="mt-4 flex items-center p-4 bg-red-50 border border-red-200 rounded-md">
               <ExclamationTriangleIcon className="h-5 w-5 text-red-600 mr-2" />
-              <span className="text-red-800">Failed to save settings. Please try again.</span>
+              <span className="text-red-800">{t('superAdmin.settings.failedToSaveSettings')}</span>
             </div>
           )}
         </div>
@@ -324,12 +326,12 @@ export default function SuperAdminSettings() {
             {/* Platform Settings */}
             {activeTab === 'platform' && settings && (
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Platform Settings</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('superAdmin.settings.platformSettings')}</h2>
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Site Name
+                        {t('superAdmin.settings.siteName')}
                       </label>
                       <input
                         type="text"
@@ -341,7 +343,7 @@ export default function SuperAdminSettings() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Support Email
+                        {t('superAdmin.settings.supportEmail')}
                       </label>
                       <input
                         type="email"
@@ -354,7 +356,7 @@ export default function SuperAdminSettings() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Site Description
+                      {t('superAdmin.settings.siteDescription')}
                     </label>
                     <textarea
                       value={settings.platform.siteDescription}
@@ -367,7 +369,7 @@ export default function SuperAdminSettings() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Default Timezone
+                        {t('superAdmin.settings.defaultTimezone')}
                       </label>
                       <select
                         value={settings.platform.defaultTimeZone}
@@ -384,7 +386,7 @@ export default function SuperAdminSettings() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Max Tenants Per User
+                        {t('superAdmin.settings.maxTenantsPerUser')}
                       </label>
                       <input
                         type="number"
@@ -406,7 +408,7 @@ export default function SuperAdminSettings() {
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
                       <label htmlFor="maintenance" className="ml-2 text-sm text-gray-700">
-                        Enable Maintenance Mode
+                        {t('superAdmin.settings.enableMaintenanceMode')}
                       </label>
                     </div>
 
@@ -419,7 +421,7 @@ export default function SuperAdminSettings() {
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
                       <label htmlFor="registration" className="ml-2 text-sm text-gray-700">
-                        Enable User Registration
+                        {t('superAdmin.settings.enableUserRegistration')}
                       </label>
                     </div>
                   </div>
@@ -430,28 +432,28 @@ export default function SuperAdminSettings() {
             {/* Security Settings */}
             {activeTab === 'security' && settings && (
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Security Settings</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('superAdmin.settings.securitySettings')}</h2>
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        JWT Expiration
+                        {t('superAdmin.settings.jwtExpiration')}
                       </label>
                       <select
                         value={settings.security.jwtExpiration}
                         onChange={(e) => updateSetting('security', 'jwtExpiration', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        <option value="1h">1 Hour</option>
-                        <option value="24h">24 Hours</option>
-                        <option value="7d">7 Days</option>
-                        <option value="30d">30 Days</option>
+                        <option value="1h">{t('superAdmin.settings.oneHour')}</option>
+                        <option value="24h">{t('superAdmin.settings.twentyFourHours')}</option>
+                        <option value="7d">{t('superAdmin.settings.sevenDays')}</option>
+                        <option value="30d">{t('superAdmin.settings.thirtyDays')}</option>
                       </select>
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Minimum Password Length
+                        {t('superAdmin.settings.minimumPasswordLength')}
                       </label>
                       <input
                         type="number"
@@ -465,7 +467,7 @@ export default function SuperAdminSettings() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Max Login Attempts
+                        {t('superAdmin.settings.maxLoginAttempts')}
                       </label>
                       <input
                         type="number"
@@ -479,7 +481,7 @@ export default function SuperAdminSettings() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Lockout Duration (minutes)
+                        {t('superAdmin.settings.lockoutDuration')}
                       </label>
                       <input
                         type="number"
@@ -501,7 +503,7 @@ export default function SuperAdminSettings() {
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
                       <label htmlFor="emailVerification" className="ml-2 text-sm text-gray-700">
-                        Require Email Verification
+                        {t('superAdmin.settings.requireEmailVerification')}
                       </label>
                     </div>
 
@@ -514,7 +516,7 @@ export default function SuperAdminSettings() {
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
                       <label htmlFor="twoFactor" className="ml-2 text-sm text-gray-700">
-                        Enable Two-Factor Authentication
+                        {t('superAdmin.settings.enableTwoFactorAuth')}
                       </label>
                     </div>
                   </div>
@@ -525,12 +527,12 @@ export default function SuperAdminSettings() {
             {/* Email Settings */}
             {activeTab === 'email' && settings && (
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Email Settings</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('superAdmin.settings.emailSettings')}</h2>
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email Provider
+                        {t('superAdmin.settings.emailProvider')}
                       </label>
                       <select
                         value={settings.email.provider}
@@ -546,7 +548,7 @@ export default function SuperAdminSettings() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        SMTP Host
+                        {t('superAdmin.settings.smtpHost')}
                       </label>
                       <input
                         type="text"
@@ -558,7 +560,7 @@ export default function SuperAdminSettings() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        SMTP Port
+                        {t('superAdmin.settings.smtpPort')}
                       </label>
                       <input
                         type="number"
@@ -570,7 +572,7 @@ export default function SuperAdminSettings() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        From Email
+                        {t('superAdmin.settings.fromEmail')}
                       </label>
                       <input
                         type="email"
@@ -582,7 +584,7 @@ export default function SuperAdminSettings() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        From Name
+                        {t('superAdmin.settings.fromName')}
                       </label>
                       <input
                         type="text"
@@ -607,9 +609,9 @@ export default function SuperAdminSettings() {
                         ) : (
                           <BellIcon className="h-4 w-4 mr-2" />
                         )}
-                        {testEmailStatus === 'sending' ? 'Sending...' : 
-                         testEmailStatus === 'success' ? 'Test Sent!' :
-                         testEmailStatus === 'error' ? 'Failed' : 'Send Test Email'}
+                        {testEmailStatus === 'sending' ? t('superAdmin.settings.sending') : 
+                         testEmailStatus === 'success' ? t('superAdmin.settings.testSent') :
+                         testEmailStatus === 'error' ? t('superAdmin.settings.failed') : t('superAdmin.settings.sendTestEmail')}
                       </button>
                     </div>
                   </div>
@@ -621,13 +623,13 @@ export default function SuperAdminSettings() {
             {activeTab === 'users' && (
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">System Users</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">{t('superAdmin.settings.systemUsers')}</h2>
                   <button
                     onClick={() => setShowAddUserModal(true)}
                     className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <PlusIcon className="h-4 w-4 mr-2" />
-                    Add User
+                    {t('superAdmin.settings.addUser')}
                   </button>
                 </div>
 
@@ -636,22 +638,22 @@ export default function SuperAdminSettings() {
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Email
+                          {t('superAdmin.settings.userEmail')}
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Role
+                          {t('superAdmin.settings.role')}
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
+                          {t('superAdmin.settings.status')}
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Created
+                          {t('superAdmin.settings.created')}
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Last Login
+                          {t('superAdmin.settings.lastLogin')}
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
+                          {t('superAdmin.settings.actions')}
                         </th>
                       </tr>
                     </thead>
@@ -670,14 +672,14 @@ export default function SuperAdminSettings() {
                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                               user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                             }`}>
-                              {user.isActive ? 'Active' : 'Inactive'}
+                              {user.isActive ? t('superAdmin.settings.active') : t('superAdmin.settings.inactive')}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {new Date(user.createdAt).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}
+                            {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : t('superAdmin.settings.never')}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                             <button className="text-blue-600 hover:text-blue-900">

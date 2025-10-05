@@ -36,8 +36,8 @@ export async function GET(
       )
     }
 
-    // Check if user is super admin
-    if (payload.role !== 'SUPER_ADMIN' && payload.role !== 'super-admin') {
+    // Check if user is super admin or admin
+    if (payload.role !== 'SUPER_ADMIN' && payload.role !== 'super-admin' && payload.role !== 'ADMIN' && payload.role !== 'admin') {
       return NextResponse.json(
         { success: false, error: 'Access denied' },
         { status: 403 }
@@ -126,8 +126,8 @@ export async function PUT(
       )
     }
 
-    // Check if user is super admin
-    if (payload.role !== 'SUPER_ADMIN' && payload.role !== 'super-admin') {
+    // Check if user is super admin or admin
+    if (payload.role !== 'SUPER_ADMIN' && payload.role !== 'super-admin' && payload.role !== 'ADMIN' && payload.role !== 'admin') {
       return NextResponse.json(
         { success: false, error: 'Access denied' },
         { status: 403 }
@@ -240,8 +240,8 @@ export async function DELETE(
       )
     }
 
-    // Check if user is super admin
-    if (payload.role !== 'SUPER_ADMIN' && payload.role !== 'super-admin') {
+    // Check if user is super admin or admin
+    if (payload.role !== 'SUPER_ADMIN' && payload.role !== 'super-admin' && payload.role !== 'ADMIN' && payload.role !== 'admin') {
       return NextResponse.json(
         { success: false, error: 'Access denied' },
         { status: 403 }

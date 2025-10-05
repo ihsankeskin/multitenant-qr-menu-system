@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
       where: { tenantId }
     })
 
-    const itemsCount = await prisma.menuItem.count({
+    const itemsCount = await prisma.product.count({
       where: {
         category: {
           tenantId
@@ -96,17 +96,17 @@ export async function GET(request: NextRequest) {
       include: {
         _count: {
           select: {
-            menuItems: true
+            products: true
           }
         }
       },
       orderBy: {
-        order: 'asc'
+        sortOrder: 'asc'
       }
     })
 
-    // Get recent menu items (last 5)
-    const recentItems = await prisma.menuItem.findMany({
+    // Get recent products (last 5)
+    const recentItems = await prisma.product.findMany({
       where: {
         category: {
           tenantId
@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
       include: {
         category: {
           select: {
-            name: true,
+            nameEn: true,
             nameAr: true
           }
         }
@@ -139,18 +139,18 @@ export async function GET(request: NextRequest) {
         },
         categories: categories.map(cat => ({
           id: cat.id,
-          name: cat.name,
+          name: cat.nameEn,
           nameAr: cat.nameAr,
-          itemsCount: cat._count.menuItems,
+          itemsCount: cat._count.products,
           isActive: cat.isActive
         })),
-        recentItems: recentItems.map(item => ({
+        recentItems: recentItems.map((item: any) => ({
           id: item.id,
-          name: item.name,
+          name: item.nameEn,
           nameAr: item.nameAr,
-          price: item.price,
+          price: item.basePrice,
           category: {
-            name: item.category.name,
+            name: item.category.nameEn,
             nameAr: item.category.nameAr
           },
           isActive: item.isActive,

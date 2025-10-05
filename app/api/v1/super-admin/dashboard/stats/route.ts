@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const token = authHeader.substring(7)
     const decodedToken = await verifyToken(token)
     
-    if (!decodedToken || decodedToken.role !== 'SUPER_ADMIN') {
+    if (!decodedToken || (decodedToken.role !== 'SUPER_ADMIN' && decodedToken.role !== 'ADMIN')) {
       return NextResponse.json(
         {
           success: false,

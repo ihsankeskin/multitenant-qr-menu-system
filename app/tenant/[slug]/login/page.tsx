@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { useTranslation } from '@/contexts/LocalizationContext'
 import { 
   BuildingStorefrontIcon, 
   EnvelopeIcon, 
@@ -22,6 +24,7 @@ interface TenantInfo {
 }
 
 export default function TenantLoginPage() {
+  const { t, isRTL } = useTranslation()
   const router = useRouter()
   const params = useParams()
   const slug = params.slug as string
@@ -160,8 +163,11 @@ export default function TenantLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="flex justify-end mb-4">
+          <LanguageSwitcher variant="dropdown" />
+        </div>
         <div className="flex justify-center">
           {tenantInfo.logoUrl ? (
             <img
@@ -185,7 +191,7 @@ export default function TenantLoginPage() {
           </h3>
         )}
         <p className="mt-4 text-center text-sm text-gray-600">
-          Sign in to manage your restaurant
+          {t('tenant.auth.login.description')}
         </p>
       </div>
 
@@ -194,10 +200,10 @@ export default function TenantLoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email Address
+                {t('common.email')}
               </label>
               <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className={`absolute inset-y-0 ${isRTL ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none`}>
                   <EnvelopeIcon className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -208,12 +214,12 @@ export default function TenantLoginPage() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className={`appearance-none block w-full pl-10 pr-3 py-2 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm ${
+                  className={`appearance-none block w-full ${isRTL ? 'pr-10 pl-3' : 'pl-10 pr-3'} py-2 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm ${
                     errors.email
                       ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
                       : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                   }`}
-                  placeholder="Enter your email"
+                  placeholder={t('tenant.auth.login.emailPlaceholder')}
                 />
               </div>
               {errors.email && (
@@ -223,10 +229,10 @@ export default function TenantLoginPage() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
+                {t('common.password')}
               </label>
               <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className={`absolute inset-y-0 ${isRTL ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none`}>
                   <LockClosedIcon className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
@@ -237,18 +243,19 @@ export default function TenantLoginPage() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className={`appearance-none block w-full pl-10 pr-10 py-2 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm ${
+                  className={`appearance-none block w-full ${isRTL ? 'pr-10 pl-10' : 'pl-10 pr-10'} py-2 border rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm ${
                     errors.password
                       ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
                       : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                   }`}
-                  placeholder="Enter your password"
+                  placeholder={t('tenant.auth.login.passwordPlaceholder')}
                 />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                <div className={`absolute inset-y-0 ${isRTL ? 'left-0 pl-3' : 'right-0 pr-3'} flex items-center`}>
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="text-gray-400 hover:text-gray-600"
+                    title={showPassword ? t('tenant.auth.login.hidePassword') : t('tenant.auth.login.showPassword')}
                   >
                     {showPassword ? (
                       <EyeSlashIcon className="h-5 w-5" />
@@ -270,7 +277,7 @@ export default function TenantLoginPage() {
                   className="font-medium hover:underline"
                   style={{ color: tenantInfo.primaryColor }}
                 >
-                  Forgot your password?
+                  {t('tenant.auth.login.forgotPassword')}
                 </Link>
               </div>
             </div>
@@ -286,15 +293,15 @@ export default function TenantLoginPage() {
               <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-blue-800">Demo Quick Login</p>
-                    <p className="text-xs text-blue-600 mt-1">Click to auto-fill demo admin credentials</p>
+                    <p className="text-sm font-medium text-blue-800">{t('tenant.auth.login.demoQuickLogin', { default: 'Demo Quick Login' })}</p>
+                    <p className="text-xs text-blue-600 mt-1">{t('tenant.auth.login.demoQuickLoginDescription', { default: 'Click to auto-fill demo admin credentials' })}</p>
                   </div>
                   <button
                     type="button"
                     onClick={handleQuickLogin}
                     className="inline-flex items-center px-3 py-1 border border-blue-300 rounded-md text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    Quick Login
+                    {t('tenant.auth.login.quickLoginButton', { default: 'Quick Login' })}
                   </button>
                 </div>
               </div>
@@ -310,9 +317,9 @@ export default function TenantLoginPage() {
                 }}
               >
                 {loading && (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <div className={`animate-spin rounded-full h-4 w-4 border-b-2 border-white ${isRTL ? 'ml-2' : 'mr-2'}`}></div>
                 )}
-                {loading ? 'Signing in...' : 'Sign in'}
+                {loading ? t('tenant.auth.login.signingIn') : t('tenant.auth.login.signIn')}
               </button>
             </div>
           </form>

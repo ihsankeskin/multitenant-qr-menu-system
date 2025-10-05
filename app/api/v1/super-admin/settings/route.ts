@@ -89,8 +89,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Verify super admin role
-    if (decoded.role !== 'super-admin') {
+    // Verify super admin or admin role
+    if (decoded.role !== 'super-admin' && decoded.role !== 'SUPER_ADMIN' && decoded.role !== 'admin' && decoded.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, message: 'Access denied. Super admin only.' },
         { status: 403 }
@@ -154,8 +154,8 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    // Verify super admin role
-    if (decoded.role !== 'super-admin') {
+    // Verify super admin or admin role
+    if (decoded.role !== 'super-admin' && decoded.role !== 'SUPER_ADMIN' && decoded.role !== 'admin' && decoded.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, message: 'Access denied. Super admin only.' },
         { status: 403 }

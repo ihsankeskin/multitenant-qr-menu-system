@@ -4,7 +4,9 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 
 interface JWTPayload {
-  userId: string
+  userId?: string
+  sub?: string
+  id?: string
   role: string
   email: string
 }
@@ -36,10 +38,11 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Verify super admin role
-    if (decoded.role !== 'super-admin') {
+    // Verify super admin or admin role (handle both 'SUPER_ADMIN' and 'super-admin' formats)
+    const normalizedRole = decoded.role?.toUpperCase().replace(/-/g, '_') || ''
+    if (normalizedRole !== 'SUPER_ADMIN' && normalizedRole !== 'ADMIN') {
       return NextResponse.json(
-        { success: false, message: 'Access denied. Super admin only.' },
+        { success: false, message: 'Access denied. Super admin or admin only.' },
         { status: 403 }
       )
     }
@@ -48,7 +51,7 @@ export async function GET(request: NextRequest) {
     const systemUsers = await prisma.user.findMany({
       where: {
         role: {
-          in: ['super-admin', 'admin'] // Only system-level users
+          in: ['SUPER_ADMIN', 'ADMIN'] // Only system-level users (database format)
         }
       },
       select: {
@@ -115,10 +118,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify super admin role
-    if (decoded.role !== 'super-admin') {
+    // Verify super admin or admin role (handle both 'SUPER_ADMIN' and 'super-admin' formats)
+    const normalizedRole = decoded.role?.toUpperCase().replace(/-/g, '_') || ''
+    if (normalizedRole !== 'SUPER_ADMIN' && normalizedRole !== 'ADMIN') {
       return NextResponse.json(
-        { success: false, message: 'Access denied. Super admin only.' },
+        { success: false, message: 'Access denied. Super admin or admin only.' },
         { status: 403 }
       )
     }
@@ -154,12 +158,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!['super-admin', 'admin'].includes(role)) {
+    if (!['super-admin', 'admin', 'SUPER_ADMIN', 'ADMIN'].includes(role)) {
       return NextResponse.json(
         { success: false, message: 'Invalid role. Must be super-admin or admin' },
         { status: 400 }
       )
     }
+
+    // Normalize role to database format (SUPER_ADMIN, ADMIN)
+    const dbRole = role === 'super-admin' || role === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'ADMIN'
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -184,7 +191,7 @@ export async function POST(request: NextRequest) {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         password: hashedPassword,
-        role,
+        role: dbRole,
         isActive,
         emailVerified: false // They should verify their email
       },
@@ -216,6 +223,237 @@ export async function POST(request: NextRequest) {
     console.error('Create system user error:', error)
     return NextResponse.json(
       { success: false, message: 'Failed to create system user' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    // Extract token from Authorization header
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { success: false, message: 'No token provided' },
+        { status: 401 }
+      )
+    }
+
+    const token = authHeader.substring(7)
+    const jwtSecret = process.env.JWT_SECRET
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET is not defined')
+    }
+
+    let decoded: JWTPayload
+    try {
+      decoded = jwt.verify(token, jwtSecret) as JWTPayload
+    } catch (error) {
+      return NextResponse.json(
+        { success: false, message: 'Invalid token' },
+        { status: 401 }
+      )
+    }
+
+    // Verify super admin or admin role (handle both 'SUPER_ADMIN' and 'super-admin' formats)
+    const normalizedRole = decoded.role?.toUpperCase().replace(/-/g, '_') || ''
+    if (normalizedRole !== 'SUPER_ADMIN' && normalizedRole !== 'ADMIN') {
+      return NextResponse.json(
+        { success: false, message: 'Access denied. Super admin or admin only.' },
+        { status: 403 }
+      )
+    }
+
+    const { id, email, firstName, lastName, role, isActive } = await request.json()
+
+    // Validation
+    if (!id) {
+      return NextResponse.json(
+        { success: false, message: 'User ID is required' },
+        { status: 400 }
+      )
+    }
+
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { id }
+    })
+
+    if (!existingUser) {
+      return NextResponse.json(
+        { success: false, message: 'User not found' },
+        { status: 404 }
+      )
+    }
+
+    // Prepare update data
+    const updateData: any = {}
+    
+    if (email !== undefined && email.trim()) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return NextResponse.json(
+          { success: false, message: 'Invalid email format' },
+          { status: 400 }
+        )
+      }
+      
+      // Check if email is already taken by another user
+      const emailExists = await prisma.user.findFirst({
+        where: { 
+          email: email.toLowerCase().trim(),
+          id: { not: id }
+        }
+      })
+      
+      if (emailExists) {
+        return NextResponse.json(
+          { success: false, message: 'Email already taken by another user' },
+          { status: 409 }
+        )
+      }
+      
+      updateData.email = email.toLowerCase().trim()
+    }
+
+    if (firstName !== undefined && firstName.trim()) {
+      updateData.firstName = firstName.trim()
+    }
+
+    if (lastName !== undefined && lastName.trim()) {
+      updateData.lastName = lastName.trim()
+    }
+
+    if (role !== undefined) {
+      if (!['super-admin', 'admin', 'SUPER_ADMIN', 'ADMIN'].includes(role)) {
+        return NextResponse.json(
+          { success: false, message: 'Invalid role. Must be super-admin or admin' },
+          { status: 400 }
+        )
+      }
+      // Normalize role to database format (SUPER_ADMIN, ADMIN)
+      updateData.role = role === 'super-admin' || role === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'ADMIN'
+    }
+
+    if (isActive !== undefined) {
+      updateData.isActive = isActive
+    }
+
+    // Update user
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        lastLogin: true
+      }
+    })
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        ...updatedUser,
+        createdAt: updatedUser.createdAt.toISOString(),
+        lastLoginAt: updatedUser.lastLogin?.toISOString()
+      },
+      message: 'System user updated successfully'
+    })
+
+  } catch (error) {
+    console.error('Update system user error:', error)
+    return NextResponse.json(
+      { success: false, message: 'Failed to update system user' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    // Extract token from Authorization header
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { success: false, message: 'No token provided' },
+        { status: 401 }
+      )
+    }
+
+    const token = authHeader.substring(7)
+    const jwtSecret = process.env.JWT_SECRET
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET is not defined')
+    }
+
+    let decoded: JWTPayload
+    try {
+      decoded = jwt.verify(token, jwtSecret) as JWTPayload
+    } catch (error) {
+      return NextResponse.json(
+        { success: false, message: 'Invalid token' },
+        { status: 401 }
+      )
+    }
+
+    // Verify super admin or admin role (handle both 'SUPER_ADMIN' and 'super-admin' formats)
+    const normalizedRole = decoded.role?.toUpperCase().replace(/-/g, '_') || ''
+    if (normalizedRole !== 'SUPER_ADMIN' && normalizedRole !== 'ADMIN') {
+      return NextResponse.json(
+        { success: false, message: 'Access denied. Super admin or admin only.' },
+        { status: 403 }
+      )
+    }
+
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, message: 'User ID is required' },
+        { status: 400 }
+      )
+    }
+
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { id }
+    })
+
+    if (!existingUser) {
+      return NextResponse.json(
+        { success: false, message: 'User not found' },
+        { status: 404 }
+      )
+    }
+
+    // Prevent deleting yourself
+    const currentUserId = decoded.userId || decoded.sub
+    if (currentUserId === id) {
+      return NextResponse.json(
+        { success: false, message: 'Cannot delete your own account' },
+        { status: 400 }
+      )
+    }
+
+    // Delete user
+    await prisma.user.delete({
+      where: { id }
+    })
+
+    return NextResponse.json({
+      success: true,
+      message: 'System user deleted successfully'
+    })
+
+  } catch (error) {
+    console.error('Delete system user error:', error)
+    return NextResponse.json(
+      { success: false, message: 'Failed to delete system user' },
       { status: 500 }
     )
   }

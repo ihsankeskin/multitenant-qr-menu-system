@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { LocalizationProvider } from '@/contexts/LocalizationContext'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,7 +20,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head />
       <body className={inter.className} suppressHydrationWarning>
-        <div id="root">{children}</div>
+        <LocalizationProvider>
+          <div id="root">{children}</div>
+        </LocalizationProvider>
       </body>
     </html>
   )

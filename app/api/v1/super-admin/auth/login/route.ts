@@ -15,11 +15,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = loginSchema.parse(body)
 
-    // Find user with super admin role
+    // Find user with super admin or admin role
     const user = await prisma.user.findFirst({
       where: {
         email: validatedData.email,
-        role: 'SUPER_ADMIN',
+        role: {
+          in: ['SUPER_ADMIN', 'ADMIN']
+        },
         isActive: true
       },
       select: {
@@ -33,7 +35,8 @@ export async function POST(request: NextRequest) {
         mfaSecret: true,
         lastLogin: true,
         loginAttempts: true,
-        lockedUntil: true
+        lockedUntil: true,
+        mustChangePassword: true
       }
     })
 
@@ -151,6 +154,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Login successful',
+      mustChangePassword: user.mustChangePassword || false,
       data: {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
@@ -159,7 +163,8 @@ export async function POST(request: NextRequest) {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
-          role: user.role
+          role: user.role,
+          mustChangePassword: user.mustChangePassword || false
         }
       }
     })

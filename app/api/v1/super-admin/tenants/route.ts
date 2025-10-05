@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const token = authHeader.substring(7)
     const decodedToken = await verifyToken(token)
     
-    if (!decodedToken || decodedToken.role !== 'SUPER_ADMIN') {
+    if (!decodedToken || (decodedToken.role !== 'SUPER_ADMIN' && decodedToken.role !== 'ADMIN')) {
       return NextResponse.json(
         {
           success: false,
@@ -102,6 +102,8 @@ export async function GET(request: NextRequest) {
         return {
           id: tenant.id,
           name: tenant.businessName,
+          businessName: tenant.businessName, // Add for consistency
+          slug: tenant.slug, // Add slug for modal
           businessType: tenant.businessType.nameEn,
           status: tenant.subscriptionStatus,
           subscriptionPlan: tenant.subscriptionPlan,

@@ -12,6 +12,7 @@ import {
   TrashIcon,
   FunnelIcon
 } from '@heroicons/react/24/outline'
+import { useTranslation } from '@/contexts/LocalizationContext'
 
 interface Tenant {
   id: string
@@ -35,6 +36,7 @@ interface Tenant {
 
 export default function TenantsPage() {
   const router = useRouter()
+  const { t } = useTranslation()
   const [tenants, setTenants] = useState<Tenant[]>([])
   const [filteredTenants, setFilteredTenants] = useState<Tenant[]>([])
   const [loading, setLoading] = useState(true)
@@ -109,13 +111,13 @@ export default function TenantsPage() {
   const getStatusBadge = (tenant: Tenant) => {
     switch (tenant.status) {
       case 'ACTIVE':
-        return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Active</span>
+        return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">{t('superAdmin.tenants.filters.active')}</span>
       case 'GRACE_PERIOD':
-        return <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Grace Period</span>
+        return <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">{t('superAdmin.tenants.filters.gracePeriod')}</span>
       case 'SUSPENDED':
-        return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Suspended</span>
+        return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">{t('superAdmin.tenants.filters.suspended')}</span>
       case 'CANCELLED':
-        return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">Cancelled</span>
+        return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">{t('superAdmin.tenants.filters.cancelled')}</span>
       default:
         return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">{tenant.status}</span>
     }
@@ -128,9 +130,15 @@ export default function TenantsPage() {
       ENTERPRISE: 'bg-orange-100 text-orange-800'
     }
     
+    const planTranslations = {
+      BASIC: t('common.basic'),
+      PREMIUM: t('common.premium'),
+      ENTERPRISE: t('common.enterprise')
+    }
+    
     return (
       <span className={`px-2 py-1 text-xs rounded-full ${colors[plan as keyof typeof colors] || 'bg-gray-100 text-gray-800'}`}>
-        {plan}
+        {planTranslations[plan as keyof typeof planTranslations] || plan}
       </span>
     )
   }
@@ -183,16 +191,16 @@ export default function TenantsPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center">
               <BuildingStorefrontIcon className="h-8 w-8 mr-3 text-blue-600" />
-              Tenant Management
+              {t('superAdmin.tenants.title')}
             </h1>
-            <p className="text-gray-600 mt-2">Manage restaurant tenants and their subscriptions</p>
+            <p className="text-gray-600 mt-2">{t('superAdmin.tenants.description')}</p>
           </div>
           <Link
             href="/super-admin/tenants/create"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
           >
             <PlusIcon className="h-5 w-5" />
-            <span>Add New Tenant</span>
+            <span>{t('superAdmin.tenants.addNewTenant')}</span>
           </Link>
         </div>
       </div>
@@ -205,7 +213,7 @@ export default function TenantsPage() {
             <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search tenants..."
+              placeholder={t('superAdmin.tenants.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -219,12 +227,12 @@ export default function TenantsPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="grace_period">Grace Period</option>
-              <option value="suspended">Suspended</option>
-              <option value="cancelled">Cancelled</option>
+              <option value="all">{t('superAdmin.tenants.filters.allStatuses')}</option>
+              <option value="active">{t('superAdmin.tenants.filters.active')}</option>
+              <option value="inactive">{t('superAdmin.tenants.filters.inactive')}</option>
+              <option value="grace_period">{t('superAdmin.tenants.filters.gracePeriod')}</option>
+              <option value="suspended">{t('superAdmin.tenants.filters.suspended')}</option>
+              <option value="cancelled">{t('superAdmin.tenants.filters.cancelled')}</option>
             </select>
           </div>
 
@@ -235,10 +243,10 @@ export default function TenantsPage() {
               onChange={(e) => setPlanFilter(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Plans</option>
-              <option value="basic">Basic</option>
-              <option value="premium">Premium</option>
-              <option value="enterprise">Enterprise</option>
+              <option value="all">{t('superAdmin.tenants.filters.allPlans')}</option>
+              <option value="basic">{t('common.basic')}</option>
+              <option value="premium">{t('common.premium')}</option>
+              <option value="enterprise">{t('common.enterprise')}</option>
             </select>
           </div>
 
@@ -246,7 +254,7 @@ export default function TenantsPage() {
           <div className="flex items-center">
             <FunnelIcon className="h-5 w-5 text-gray-400 mr-2" />
             <span className="text-sm text-gray-600">
-              {filteredTenants.length} of {tenants.length} tenants
+              {t('superAdmin.tenants.tenantsCount', { count: filteredTenants.length, total: tenants.length })}
             </span>
           </div>
         </div>
@@ -259,22 +267,22 @@ export default function TenantsPage() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Business
+                  {t('superAdmin.tenants.business')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Subscription
+                  {t('superAdmin.tenants.subscription')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
+                  {t('common.status')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Next Payment
+                  {t('superAdmin.tenants.nextPayment')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Monthly Fee
+                  {t('superAdmin.tenants.monthlyFee')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  {t('common.actions')}
                 </th>
               </tr>
             </thead>
@@ -324,21 +332,21 @@ export default function TenantsPage() {
                       <Link
                         href={`/super-admin/tenants/${tenant.id}`}
                         className="text-blue-600 hover:text-blue-900 p-2 hover:bg-blue-50 rounded-lg"
-                        title="View Details"
+                        title={t('superAdmin.tenants.viewDetails')}
                       >
                         <EyeIcon className="h-4 w-4" />
                       </Link>
                       <Link
                         href={`/super-admin/tenants/${tenant.id}/edit`}
                         className="text-green-600 hover:text-green-900 p-2 hover:bg-green-50 rounded-lg"
-                        title="Edit Tenant"
+                        title={t('superAdmin.tenants.editTenant')}
                       >
                         <PencilIcon className="h-4 w-4" />
                       </Link>
                       <button
                         onClick={() => handleDeleteClick(tenant)}
                         className="text-red-600 hover:text-red-900 p-2 hover:bg-red-50 rounded-lg"
-                        title="Delete Tenant"
+                        title={t('superAdmin.tenants.deleteTenant')}
                       >
                         <TrashIcon className="h-4 w-4" />
                       </button>
@@ -353,11 +361,11 @@ export default function TenantsPage() {
         {filteredTenants.length === 0 && (
           <div className="text-center py-12">
             <BuildingStorefrontIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No tenants found</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('superAdmin.tenants.noTenants')}</h3>
             <p className="text-gray-500 mb-4">
               {searchQuery || statusFilter !== 'all' || planFilter !== 'all'
-                ? 'Try adjusting your filters'
-                : 'Get started by creating your first tenant'}
+                ? t('common.tryAdjustingFilters')
+                : t('superAdmin.tenants.getStarted')}
             </p>
             {!searchQuery && statusFilter === 'all' && planFilter === 'all' && (
               <Link
@@ -365,7 +373,7 @@ export default function TenantsPage() {
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg inline-flex items-center space-x-2"
               >
                 <PlusIcon className="h-5 w-5" />
-                <span>Add New Tenant</span>
+                <span>{t('superAdmin.tenants.addNewTenant')}</span>
               </Link>
             )}
           </div>
@@ -380,12 +388,10 @@ export default function TenantsPage() {
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
                 <TrashIcon className="h-6 w-6 text-red-600" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mt-4">Delete Tenant</h3>
+              <h3 className="text-lg font-medium text-gray-900 mt-4">{t('superAdmin.tenants.deleteTenant')}</h3>
               <div className="mt-2 px-7 py-3">
                 <p className="text-sm text-gray-500">
-                  Are you sure you want to delete <strong>{tenantToDelete.name}</strong>? 
-                  This action cannot be undone and will permanently remove all tenant data, 
-                  including users, categories, and products.
+                  {t('superAdmin.tenants.deleteConfirm', { name: tenantToDelete.name })}
                 </p>
               </div>
               <div className="flex justify-center space-x-3 mt-4">
@@ -397,14 +403,14 @@ export default function TenantsPage() {
                   disabled={isDeleting}
                   className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 disabled:opacity-50"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={handleDeleteConfirm}
                   disabled={isDeleting}
                   className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
                 >
-                  {isDeleting ? 'Deleting...' : 'Delete'}
+                  {isDeleting ? t('common.deleting') : t('common.delete')}
                 </button>
               </div>
             </div>

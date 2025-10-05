@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from '../../../contexts/LocalizationContext'
 import {
   ChartBarIcon,
   BuildingStorefrontIcon,
@@ -93,6 +94,7 @@ interface AnalyticsData {
 
 export default function SuperAdminAnalytics() {
   const router = useRouter()
+  const { t } = useTranslation()
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
@@ -198,15 +200,15 @@ export default function SuperAdminAnalytics() {
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center">
                 <ChartBarSolidIcon className="h-8 w-8 mr-3 text-blue-600" />
-                Platform Analytics
+                {t('superAdmin.analytics.title')}
               </h1>
               <p className="text-gray-600 mt-2">
-                Comprehensive insights into platform usage and tenant activity
+                {t('superAdmin.analytics.description')}
               </p>
               {lastUpdated && (
                 <p className="text-sm text-gray-500 mt-1 flex items-center">
                   <ClockIcon className="h-4 w-4 mr-1" />
-                  Last updated: {lastUpdated.toLocaleString()}
+                  {t('superAdmin.analytics.lastUpdated')}: {lastUpdated.toLocaleString()}
                 </p>
               )}
             </div>
@@ -216,17 +218,17 @@ export default function SuperAdminAnalytics() {
                 onChange={(e) => setSelectedTimeframe(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="7d">Last 7 days</option>
-                <option value="30d">Last 30 days</option>
-                <option value="90d">Last 3 months</option>
-                <option value="1y">Last year</option>
+                <option value="7d">{t('superAdmin.analytics.last7Days')}</option>
+                <option value="30d">{t('superAdmin.analytics.last30Days')}</option>
+                <option value="90d">{t('superAdmin.analytics.last3Months')}</option>
+                <option value="1y">{t('superAdmin.analytics.lastYear')}</option>
               </select>
               <button
                 onClick={fetchAnalytics}
                 className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <ArrowPathIcon className="h-4 w-4 mr-2" />
-                Refresh
+                {t('superAdmin.analytics.refresh')}
               </button>
             </div>
           </div>
@@ -238,17 +240,17 @@ export default function SuperAdminAnalytics() {
             <div className="flex items-center">
               <BuildingStorefrontIcon className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Tenants</p>
+                <p className="text-sm font-medium text-gray-600">{t('superAdmin.analytics.totalTenants')}</p>
                 <p className="text-2xl font-semibold text-gray-900">
                   {analytics?.overview.totalTenants || 0}
                 </p>
                 <div className="flex items-center text-sm">
                   <span className="text-green-600 mr-1">
-                    {analytics?.overview.activeTenants || 0} active
+                    {analytics?.overview.activeTenants || 0} {t('superAdmin.analytics.active')}
                   </span>
                   <span className="text-gray-400">•</span>
                   <span className="text-red-600 ml-1">
-                    {analytics?.overview.inactiveTenants || 0} inactive
+                    {analytics?.overview.inactiveTenants || 0} {t('superAdmin.analytics.inactive')}
                   </span>
                 </div>
               </div>
@@ -259,11 +261,11 @@ export default function SuperAdminAnalytics() {
             <div className="flex items-center">
               <UserGroupIcon className="h-8 w-8 text-green-600" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">New This Month</p>
+                <p className="text-sm font-medium text-gray-600">{t('superAdmin.analytics.newThisMonth')}</p>
                 <p className="text-2xl font-semibold text-gray-900">
                   {analytics?.overview.newTenantsThisMonth || 0}
                 </p>
-                <p className="text-xs text-gray-500">Recently joined tenants</p>
+                <p className="text-xs text-gray-500">{t('superAdmin.analytics.recentlyJoinedTenants')}</p>
               </div>
             </div>
           </div>
@@ -272,12 +274,12 @@ export default function SuperAdminAnalytics() {
             <div className="flex items-center">
               <ChartBarIcon className="h-8 w-8 text-purple-600" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Products</p>
+                <p className="text-sm font-medium text-gray-600">{t('superAdmin.analytics.totalProducts')}</p>
                 <p className="text-2xl font-semibold text-gray-900">
                   {formatNumber(analytics?.overview.totalProducts || 0)}
                 </p>
                 <p className="text-xs text-green-600">
-                  {formatNumber(analytics?.overview.totalActiveProducts || 0)} active
+                  {formatNumber(analytics?.overview.totalActiveProducts || 0)} {t('superAdmin.analytics.active')}
                 </p>
               </div>
             </div>
@@ -287,12 +289,12 @@ export default function SuperAdminAnalytics() {
             <div className="flex items-center">
               <CurrencyDollarIcon className="h-8 w-8 text-yellow-600" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Menu Views</p>
+                <p className="text-sm font-medium text-gray-600">{t('superAdmin.analytics.menuViews')}</p>
                 <p className="text-2xl font-semibold text-gray-900">
                   {formatNumber(analytics?.overview.totalMenuViews || 0)}
                 </p>
                 <p className="text-xs text-gray-500">
-                  Avg {(analytics?.overview.averageMenusPerTenant || 0).toFixed(1)} per tenant
+                  {t('superAdmin.analytics.avgPerTenant', { avg: (analytics?.overview.averageMenusPerTenant || 0).toFixed(1) })}
                 </p>
               </div>
             </div>
@@ -304,11 +306,11 @@ export default function SuperAdminAnalytics() {
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
               <ArrowTrendingUpIcon className="h-5 w-5 mr-2 text-green-600" />
-              Platform Health
+              {t('superAdmin.analytics.platformHealth')}
             </h3>
             <div className="space-y-4">
               <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-700">Active Tenants</span>
+                <span className="text-sm font-medium text-gray-700">{t('superAdmin.analytics.activeTenants')}</span>
                 <div className="flex items-center">
                   <span className="text-lg font-semibold text-green-700">
                     {analytics?.overview.activeTenants || 0}
@@ -320,14 +322,14 @@ export default function SuperAdminAnalytics() {
               </div>
               
               <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-700">Categories Created</span>
+                <span className="text-sm font-medium text-gray-700">{t('superAdmin.analytics.categoriesCreated')}</span>
                 <span className="text-lg font-semibold text-blue-700">
                   {formatNumber(analytics?.overview.totalCategories || 0)}
                 </span>
               </div>
               
               <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-700">Products Listed</span>
+                <span className="text-sm font-medium text-gray-700">{t('superAdmin.analytics.productsListed')}</span>
                 <span className="text-lg font-semibold text-purple-700">
                   {formatNumber(analytics?.overview.totalProducts || 0)}
                 </span>
@@ -337,22 +339,22 @@ export default function SuperAdminAnalytics() {
 
           {/* Recent Activity */}
           <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">{t('superAdmin.analytics.recentActivity')}</h3>
             <div className="space-y-3">
               {analytics?.topPerformers.newestTenants.slice(0, 5).map((tenant) => (
                 <div key={tenant.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div>
                     <p className="font-medium text-gray-900">{tenant.businessName}</p>
                     <p className="text-sm text-gray-600">
-                      {tenant.businessType} • Joined {formatDate(tenant.createdAt)}
+                      {tenant.businessType} • {t('superAdmin.analytics.joined')} {formatDate(tenant.createdAt)}
                     </p>
                   </div>
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    New
+                    {t('superAdmin.analytics.new')}
                   </span>
                 </div>
               )) || (
-                <p className="text-gray-500 text-center py-4">No recent activity</p>
+                <p className="text-gray-500 text-center py-4">{t('superAdmin.analytics.noRecentActivity')}</p>
               )}
             </div>
           </div>
@@ -360,25 +362,25 @@ export default function SuperAdminAnalytics() {
 
         {/* Top Performers */}
         <div className="bg-white p-6 rounded-lg shadow-sm border mb-8">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Top Performing Menus</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">{t('superAdmin.analytics.topPerformingMenus')}</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Restaurant
+                    {t('superAdmin.analytics.restaurant')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Menu Views
+                    {t('superAdmin.analytics.menuViews')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Categories
+                    {t('superAdmin.analytics.categories')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Products
+                    {t('superAdmin.analytics.products')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Engagement
+                    {t('superAdmin.analytics.engagement')}
                   </th>
                 </tr>
               </thead>
@@ -425,7 +427,7 @@ export default function SuperAdminAnalytics() {
                 )) || (
                   <tr>
                     <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                      No data available
+                      {t('superAdmin.analytics.noDataAvailable')}
                     </td>
                   </tr>
                 )}
@@ -437,7 +439,7 @@ export default function SuperAdminAnalytics() {
         {/* Alerts & Notifications */}
         {analytics?.alerts && analytics.alerts.length > 0 && (
           <div className="bg-white p-6 rounded-lg shadow-sm border mb-8">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">System Alerts</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">{t('superAdmin.analytics.systemAlerts')}</h3>
             <div className="space-y-3">
               {analytics.alerts.slice(0, 10).map((alert, index) => (
                 <div key={index} className="flex items-start p-4 border rounded-lg">
@@ -467,32 +469,32 @@ export default function SuperAdminAnalytics() {
         {/* All Tenants */}
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">All Tenants</h3>
+            <h3 className="text-lg font-medium text-gray-900">{t('superAdmin.analytics.allTenants')}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Restaurant
+                    {t('superAdmin.analytics.restaurant')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Business Type
+                    {t('superAdmin.analytics.businessType')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                    {t('superAdmin.analytics.status')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Categories
+                    {t('superAdmin.analytics.categories')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Products
+                    {t('superAdmin.analytics.products')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Joined
+                    {t('superAdmin.analytics.joined')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Last Login
+                    {t('superAdmin.analytics.lastLogin')}
                   </th>
                 </tr>
               </thead>
@@ -512,7 +514,7 @@ export default function SuperAdminAnalytics() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(tenant.status)}`}>
-                        {tenant.status || (tenant.isActive ? 'active' : 'inactive')}
+                        {tenant.status ? t(`superAdmin.analytics.status${tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1)}`) : (tenant.isActive ? t('superAdmin.analytics.active') : t('superAdmin.analytics.inactive'))}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -525,13 +527,13 @@ export default function SuperAdminAnalytics() {
                       {formatDate(tenant.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {tenant.lastLoginAt ? formatDate(tenant.lastLoginAt) : 'Never'}
+                      {tenant.lastLoginAt ? formatDate(tenant.lastLoginAt) : t('superAdmin.analytics.never')}
                     </td>
                   </tr>
                 )) || (
                   <tr>
                     <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
-                      No tenants found
+                      {t('superAdmin.analytics.noTenantsFound')}
                     </td>
                   </tr>
                 )}

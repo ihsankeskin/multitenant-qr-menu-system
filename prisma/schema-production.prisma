@@ -1,0 +1,283 @@
+// Multi-Tenant QR Menu System Database Schema - PostgreSQL Production
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Business Type model
+model BusinessType {
+  id                    String    @id @default(cuid())
+  nameEn                String
+  nameAr                String
+  descriptionEn         String?
+  descriptionAr         String?
+  iconUrl               String?
+  iconData              String?   // Base64 encoded icon image data
+  isActive              Boolean   @default(true)
+  sortOrder             Int       @default(0)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  createdById           String
+
+  // Relations
+  createdBy             User      @relation("BusinessTypeCreator", fields: [createdById], references: [id])
+  tenants               Tenant[]
+
+  @@map("business_types")
+}
+
+// User model
+model User {
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  firstName             String
+  lastName              String
+  role                  String    @default("TENANT_STAFF") // SUPER_ADMIN, TENANT_ADMIN, TENANT_MANAGER, TENANT_STAFF
+  password              String
+  mustChangePassword    Boolean   @default(true)
+  lastLogin             DateTime?
+  lastPasswordChange    DateTime?
+  loginAttempts         Int       @default(0)
+  lockedUntil           DateTime?
+  mfaEnabled            Boolean   @default(false)
+  mfaSecret             String?
+  phoneNumber           String?
+  avatarUrl             String?
+  avatarImage           String?   // Base64 encoded avatar image data
+  isActive              Boolean   @default(true)
+  preferences           String?   // JSON string for user preferences
+  timezone              String    @default("UTC")
+  language              String    @default("en")
+  lastLoginIP           String?
+  emailVerified         Boolean   @default(false)
+  emailVerificationToken String?
+  resetPasswordToken    String?
+  resetPasswordExpires  DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  createdById           String?
+
+  // Relations
+  createdBy             User?         @relation("UserCreator", fields: [createdById], references: [id])
+  createdUsers          User[]        @relation("UserCreator")
+  tenantUsers           TenantUser[]
+  createdTenants        Tenant[]      @relation("TenantCreator")
+  createdBusinessTypes  BusinessType[] @relation("BusinessTypeCreator")
+  createdCategories     Category[]    @relation("CategoryCreator")
+  updatedCategories     Category[]    @relation("CategoryUpdater")
+  createdProducts       Product[]     @relation("ProductCreator")
+  updatedProducts       Product[]     @relation("ProductUpdater")
+  createdPaymentRecords PaymentRecord[] @relation("PaymentRecordCreator")
+  auditLogs            AuditLog[]
+
+  @@map("users")
+}
+
+// Tenant model
+model Tenant {
+  id                    String    @id @default(cuid())
+  slug                  String    @unique
+  businessName          String
+  businessNameAr        String?
+  businessTypeId        String
+  email                 String
+  phone                 String?
+  address               String?
+  addressAr             String?
+  ownerName             String
+  ownerEmail            String
+  ownerPhone            String?
+  customDomain          String?
+  subdomain             String?
+  defaultLanguage       String    @default("ar")
+  currency              String    @default("EGP")
+  timezone              String    @default("Africa/Cairo")
+  logoUrl               String?
+  logoImage             String?   // Base64 encoded image data
+  coverImage            String?   // Base64 encoded cover image data
+  primaryColor          String?
+  secondaryColor        String?
+  accentColor           String?
+  customCSS             String?
+  description           String?
+  descriptionAr         String?
+  subscriptionStatus    String    @default("ACTIVE") // ACTIVE, GRACE_PERIOD, SUSPENDED, CANCELLED
+  subscriptionPlan      String    @default("BASIC")  // BASIC, PREMIUM, ENTERPRISE
+  monthlyFee            Decimal   @default(100.00) @db.Decimal(10,2)
+  lastPaymentDate       DateTime?
+  nextPaymentDate       DateTime?
+  overdueSince          DateTime?
+  suspendedAt           DateTime?
+  isActive              Boolean   @default(true)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  createdById           String
+
+  // Relations
+  businessType          BusinessType    @relation(fields: [businessTypeId], references: [id])
+  createdBy             User            @relation("TenantCreator", fields: [createdById], references: [id])
+  tenantUsers           TenantUser[]
+  categories            Category[]
+  products              Product[]
+  paymentHistory        PaymentRecord[]
+  auditLogs             AuditLog[]
+
+  @@map("tenants")
+}
+
+// TenantUser model
+model TenantUser {
+  id                    String    @id @default(cuid())
+  tenantId              String
+  userId                String
+  role                  String    @default("STAFF") // ADMIN, MANAGER, STAFF
+  canManageUsers        Boolean   @default(false)
+  canManageBilling      Boolean   @default(false)
+  canManageSettings     Boolean   @default(false)
+  isActive              Boolean   @default(true)
+  joinedAt              DateTime  @default(now())
+  leftAt                DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  createdById           String
+
+  // Relations
+  tenant                Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user                  User      @relation(fields: [userId], references: [id])
+
+  @@unique([tenantId, userId])
+  @@map("tenant_users")
+}
+
+// Category model
+model Category {
+  id                    String    @id @default(cuid())
+  tenantId              String
+  nameEn                String
+  nameAr                String
+  descriptionEn         String?
+  descriptionAr         String?
+  imageUrl              String?
+  imageData             String?   // Base64 encoded image data
+  isActive              Boolean   @default(true)
+  sortOrder             Int       @default(0)
+  showInMenu            Boolean   @default(true)
+  slugEn                String?
+  slugAr                String?
+  metaDescriptionEn     String?
+  metaDescriptionAr     String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  createdById           String
+  updatedById           String?
+
+  // Relations
+  tenant                Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdBy             User      @relation("CategoryCreator", fields: [createdById], references: [id])
+  updatedBy             User?     @relation("CategoryUpdater", fields: [updatedById], references: [id])
+  products              Product[]
+
+  @@map("categories")
+}
+
+// Product model
+model Product {
+  id                    String    @id @default(cuid())
+  tenantId              String
+  categoryId            String
+  nameEn                String
+  nameAr                String
+  descriptionEn         String?
+  descriptionAr         String?
+  imageUrl              String?
+  imageData             String?   // Base64 encoded primary image data
+  imageUrls             String?   // JSON string for multiple images
+  imageDataArray        String?   // JSON string for multiple base64 images
+  basePrice             Decimal   @db.Decimal(10,2)
+  currency              String    @default("EGP")
+  discountPrice         Decimal?  @db.Decimal(10,2)
+  discountStartDate     DateTime?
+  discountEndDate       DateTime?
+  isActive              Boolean   @default(true)
+  isFeatured            Boolean   @default(false)
+  isOutOfStock          Boolean   @default(false)
+  stockQuantity         Int?
+  sortOrder             Int       @default(0)
+  tags                  String?   // JSON string for tags array
+  preparationTime       String?
+  servingSize           String?
+  calories              Int?
+  ingredientsEn         String?   // JSON string for ingredients array
+  ingredientsAr         String?   // JSON string for ingredients array
+  allergensEn           String?   // JSON string for allergens array
+  allergensAr           String?   // JSON string for allergens array
+  slugEn                String?
+  slugAr                String?
+  metaDescriptionEn     String?
+  metaDescriptionAr     String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  createdById           String
+  updatedById           String?
+
+  // Relations
+  tenant                Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  category              Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdBy             User      @relation("ProductCreator", fields: [createdById], references: [id])
+  updatedBy             User?     @relation("ProductUpdater", fields: [updatedById], references: [id])
+
+  @@map("products")
+}
+
+// PaymentRecord model
+model PaymentRecord {
+  id                    String    @id @default(cuid())
+  tenantId              String
+  amount                Decimal   @db.Decimal(10,2)
+  currency              String    @default("EGP")
+  method                String    @default("BANK_TRANSFER") // CASH, BANK_TRANSFER, CREDIT_CARD, DIGITAL_WALLET, CHECK, OTHER
+  status                String    @default("PENDING") // PENDING, PAID, OVERDUE, CANCELLED, REFUNDED
+  description           String?
+  invoiceNumber         String    @unique
+  paidAt                DateTime?
+  dueDate               DateTime
+  notes                 String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  createdById           String
+
+  // Relations
+  tenant                Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdBy             User      @relation("PaymentRecordCreator", fields: [createdById], references: [id])
+
+  @@map("payment_records")
+}
+
+// AuditLog model
+model AuditLog {
+  id                    String    @id @default(cuid())
+  tenantId              String?
+  userId                String
+  action                String    // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, PASSWORD_CHANGE, ROLE_CHANGE, SUSPEND, ACTIVATE, PAYMENT_UPDATE
+  resource              String
+  resourceId            String?
+  oldValues             String?   // JSON string for old values
+  newValues             String?   // JSON string for new values
+  ipAddress             String
+  userAgent             String
+  requestMethod         String
+  requestUrl            String
+  createdAt             DateTime  @default(now())
+
+  // Relations
+  tenant                Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user                  User      @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}

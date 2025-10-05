@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import ImageUpload from '@/components/ImageUpload'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { useTranslation } from '@/contexts/LocalizationContext'
 import {
   HomeIcon,
   RectangleStackIcon,
@@ -168,6 +170,7 @@ export default function TenantDashboard() {
   const router = useRouter()
   const params = useParams()
   const slug = params.slug as string
+  const { t, isRTL } = useTranslation()
   
   const [user, setUser] = useState<User | null>(null)
   const [tenant, setTenant] = useState<Tenant | null>(null)
@@ -208,7 +211,15 @@ export default function TenantDashboard() {
   const [isGeneratingQR, setIsGeneratingQR] = useState(false)
 
   // Constants
-  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  const daysOfWeek = [
+    t('days.monday'),
+    t('days.tuesday'), 
+    t('days.wednesday'),
+    t('days.thursday'),
+    t('days.friday'),
+    t('days.saturday'),
+    t('days.sunday')
+  ]
 
   // Computed values
   const filteredProducts = products.filter(product => {
@@ -860,40 +871,40 @@ export default function TenantDashboard() {
   const navigation = [
     {
       id: 'dashboard',
-      name: 'Dashboard',
-      nameAr: 'لوحة التحكم',
+      name: t('tenant.navigation.dashboard'),
+      nameAr: t('tenant.navigation.dashboard'),
       icon: HomeIcon,
       iconSolid: HomeSolidIcon,
       href: '#dashboard'
     },
     {
       id: 'categories',
-      name: 'Categories',
-      nameAr: 'الفئات',
+      name: t('tenant.navigation.categories'),
+      nameAr: t('tenant.navigation.categories'),
       icon: RectangleStackIcon,
       iconSolid: RectangleStackSolidIcon,
       href: '#categories'
     },
     {
       id: 'products',
-      name: 'Products',
-      nameAr: 'المنتجات',
+      name: t('tenant.navigation.products'),
+      nameAr: t('tenant.navigation.products'),
       icon: TagIcon,
       iconSolid: TagSolidIcon,
       href: '#products'
     },
     {
       id: 'analytics',
-      name: 'Analytics',
-      nameAr: 'التحليلات',
+      name: t('tenant.navigation.analytics'),
+      nameAr: t('tenant.navigation.analytics'),
       icon: ChartBarIcon,
       iconSolid: ChartBarSolidIcon,
       href: '#analytics'
     },
     {
       id: 'settings',
-      name: 'Settings',
-      nameAr: 'الإعدادات',
+      name: t('tenant.navigation.settings'),
+      nameAr: t('tenant.navigation.settings'),
       icon: CogIcon,
       iconSolid: CogSolidIcon,
       href: '#settings'
@@ -950,6 +961,7 @@ export default function TenantDashboard() {
 
             {/* User Menu */}
             <div className="flex items-center space-x-4">
+              <LanguageSwitcher className="mr-4" variant="toggle" />
               <div className="flex items-center space-x-2">
                 <UserCircleIcon className="h-8 w-8 text-gray-600" />
                 <div className="text-sm">
@@ -957,7 +969,7 @@ export default function TenantDashboard() {
                     {user.firstName} {user.lastName}
                   </p>
                   <p className="text-gray-600 capitalize">
-                    {user.tenantRole.toLowerCase()}
+                    {user.tenantRole.toLowerCase() === 'admin' ? t('common.admin') : user.tenantRole.toLowerCase()}
                   </p>
                 </div>
               </div>
@@ -966,7 +978,7 @@ export default function TenantDashboard() {
                 className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition duration-150 ease-in-out"
               >
                 <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
-                Logout
+                {t('common.logout')}
               </button>
             </div>
           </div>
@@ -993,13 +1005,8 @@ export default function TenantDashboard() {
                     `}
                     style={isActive ? { borderColor: tenant.primaryColor, color: tenant.primaryColor } : {}}
                   >
-                    <Icon className="h-5 w-5 mr-2" />
+                    <Icon className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                     <span>{item.name}</span>
-                    {item.nameAr && (
-                      <span className="text-xs text-gray-400 ml-1 font-arabic">
-                        ({item.nameAr})
-                      </span>
-                    )}
                   </button>
                 )
               })}
@@ -1020,10 +1027,10 @@ export default function TenantDashboard() {
                   style={{ color: tenant.primaryColor }}
                 />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Welcome to {tenant.businessName}
+                  {t('tenant.dashboard.welcome', { restaurantName: tenant.businessName || 'Restaurant' })}
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  Manage your restaurant's digital menu, categories, and products from this dashboard.
+                  {t('tenant.dashboard.description')}
                 </p>
                 
                 {/* Quick Stats */}
@@ -1034,8 +1041,8 @@ export default function TenantDashboard() {
                         className="h-8 w-8" 
                         style={{ color: tenant.primaryColor }}
                       />
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Categories</p>
+                      <div className={`${isRTL ? 'mr-4' : 'ml-4'}`}>
+                        <p className="text-sm font-medium text-gray-600">{t('tenant.dashboard.stats.categories')}</p>
                         <p className="text-2xl font-semibold text-gray-900">
                           {isLoadingAnalytics ? (
                             <span className="animate-pulse bg-gray-200 rounded w-8 h-8 block"></span>
@@ -1045,7 +1052,7 @@ export default function TenantDashboard() {
                         </p>
                         {analytics?.overview?.activeCategories !== undefined && (
                           <p className="text-xs text-gray-500">
-                            {analytics.overview.activeCategories} active
+                            {analytics.overview.activeCategories} {t('common.active').toLowerCase()}
                           </p>
                         )}
                       </div>
@@ -1058,8 +1065,8 @@ export default function TenantDashboard() {
                         className="h-8 w-8" 
                         style={{ color: tenant.secondaryColor || '#6B7280' }}
                       />
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Products</p>
+                      <div className={`${isRTL ? 'mr-4' : 'ml-4'}`}>
+                        <p className="text-sm font-medium text-gray-600">{t('tenant.dashboard.stats.products')}</p>
                         <p className="text-2xl font-semibold text-gray-900">
                           {isLoadingAnalytics ? (
                             <span className="animate-pulse bg-gray-200 rounded w-8 h-8 block"></span>
@@ -1069,7 +1076,7 @@ export default function TenantDashboard() {
                         </p>
                         {analytics?.overview?.activeProducts !== undefined && (
                           <p className="text-xs text-gray-500">
-                            {analytics.overview.activeProducts} active
+                            {analytics.overview.activeProducts} {t('common.active').toLowerCase()}
                           </p>
                         )}
                       </div>
@@ -1082,8 +1089,8 @@ export default function TenantDashboard() {
                         className="h-8 w-8" 
                         style={{ color: tenant.accentColor || '#3B82F6' }}
                       />
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Menu Health</p>
+                      <div className={`${isRTL ? 'mr-4' : 'ml-4'}`}>
+                        <p className="text-sm font-medium text-gray-600">{t('tenant.dashboard.stats.menuHealth')}</p>
                         <p className="text-2xl font-semibold text-gray-900">
                           {isLoadingAnalytics ? (
                             <span className="animate-pulse bg-gray-200 rounded w-8 h-8 block"></span>
@@ -1093,7 +1100,7 @@ export default function TenantDashboard() {
                         </p>
                         {analytics?.overview?.featuredProducts !== undefined && (
                           <p className="text-xs text-gray-500">
-                            {analytics.overview.featuredProducts} featured items
+                            {analytics.overview.featuredProducts} {t('common.featured').toLowerCase()}
                           </p>
                         )}
                       </div>
@@ -1104,7 +1111,7 @@ export default function TenantDashboard() {
                 {/* Insights and Alerts */}
                 {analytics?.insights && (analytics.insights.recommendations.length > 0 || analytics.insights.alerts.length > 0) && (
                   <div className="mt-8">
-                    <h4 className="text-lg font-medium text-gray-900 mb-4">Insights & Recommendations</h4>
+                    <h4 className="text-lg font-medium text-gray-900 mb-4">{t('tenant.dashboard.insights.title')}</h4>
                     <div className="space-y-4">
                       {/* Alerts */}
                       {analytics.insights.alerts.map((alert, index) => (
@@ -1134,15 +1141,15 @@ export default function TenantDashboard() {
 
                 {/* Quick Actions */}
                 <div className="mt-8">
-                  <h4 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h4>
+                  <h4 className="text-lg font-medium text-gray-900 mb-4">{t('tenant.dashboard.quickActions.title')}</h4>
                   <div className="flex flex-wrap justify-center gap-4">
                     <button
                       onClick={() => setActiveTab('categories')}
                       className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white shadow-sm hover:opacity-90 transition duration-150 ease-in-out"
                       style={{ backgroundColor: tenant.primaryColor }}
                     >
-                      <PlusIcon className="h-4 w-4 mr-2" />
-                      Add Category
+                      <PlusIcon className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                      {t('tenant.dashboard.quickActions.addCategory')}
                     </button>
                     <button
                       onClick={() => setActiveTab('products')}
@@ -1152,8 +1159,8 @@ export default function TenantDashboard() {
                         borderColor: tenant.accentColor || '#3B82F6' 
                       }}
                     >
-                      <PlusIcon className="h-4 w-4 mr-2" />
-                      Add Product
+                      <PlusIcon className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                      {t('tenant.dashboard.quickActions.addProduct')}
                     </button>
                   </div>
                 </div>
@@ -1168,8 +1175,8 @@ export default function TenantDashboard() {
             <div className="mb-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Categories Management</h2>
-                  <p className="text-gray-600">Organize your menu items into categories</p>
+                  <h2 className="text-2xl font-bold text-gray-900">{t('tenant.categories.title')}</h2>
+                  <p className="text-gray-600">{t('tenant.categories.subtitle')}</p>
                 </div>
                 <button
                   onClick={() => {
@@ -1179,8 +1186,8 @@ export default function TenantDashboard() {
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white shadow-sm hover:opacity-90 transition duration-150 ease-in-out"
                   style={{ backgroundColor: tenant.primaryColor }}
                 >
-                  <PlusIcon className="h-4 w-4 mr-2" />
-                  Add Category
+                  <PlusIcon className={`h-4 w-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                  {t('tenant.categories.addCategory')}
                 </button>
               </div>
             </div>
@@ -1191,7 +1198,7 @@ export default function TenantDashboard() {
                 <div className="flex-1">
                   <input
                     type="text"
-                    placeholder="Search categories..."
+                    placeholder={t('tenant.categories.searchPlaceholder')}
                     value={categorySearchTerm}
                     onChange={(e) => setCategorySearchTerm(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
@@ -1208,7 +1215,7 @@ export default function TenantDashboard() {
                     borderColor: tenant.secondaryColor || '#6B7280'
                   }}
                 >
-                  Search
+                  {t('common.search')}
                 </button>
               </div>
             </div>
@@ -1247,12 +1254,12 @@ export default function TenantDashboard() {
                             <h3 className="text-lg font-medium text-gray-900">{category.nameEn}</h3>
                             {!category.isActive && (
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                Inactive
+                                {t('common.inactive')}
                               </span>
                             )}
                             {!category.showInMenu && (
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                Hidden
+                                {t('common.hidden')}
                               </span>
                             )}
                           </div>
@@ -1263,10 +1270,10 @@ export default function TenantDashboard() {
                             <p className="text-sm text-gray-500 mb-3">{category.descriptionEn}</p>
                           )}
                           <div className="flex items-center text-sm text-gray-500">
-                            <TagIcon className="h-4 w-4 mr-1" />
-                            <span>{category._count?.products || 0} products</span>
+                            <TagIcon className={`h-4 w-4 ${isRTL ? 'ml-1' : 'mr-1'}`} />
+                            <span>{category._count?.products || 0} {t('tenant.categories.productCount')}</span>
                             <span className="mx-2">•</span>
-                            <span>Order: {category.sortOrder}</span>
+                            <span>{t('tenant.categories.order')}: {category.sortOrder}</span>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -1320,8 +1327,8 @@ export default function TenantDashboard() {
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Products Management</h2>
-                  <p className="text-gray-600">Manage your menu items with prices, descriptions, and images</p>
+                  <h2 className="text-2xl font-bold text-gray-900">{t('tenant.products.title')}</h2>
+                  <p className="text-gray-600">{t('tenant.products.subtitle')}</p>
                 </div>
                 <button
                   onClick={() => {
@@ -1331,7 +1338,7 @@ export default function TenantDashboard() {
                   className="px-4 py-2 rounded-md text-white shadow-sm hover:opacity-90"
                   style={{ backgroundColor: tenant.primaryColor }}
                 >
-                  Add Product
+                  {t('tenant.products.addProduct')}
                 </button>
               </div>
 
@@ -1340,7 +1347,7 @@ export default function TenantDashboard() {
                 <div className="flex-1">
                   <input
                     type="text"
-                    placeholder="Search products..."
+                    placeholder={t('tenant.products.searchPlaceholder')}
                     value={productSearchTerm}
                     onChange={(e) => setProductSearchTerm(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -1351,7 +1358,7 @@ export default function TenantDashboard() {
                   onChange={(e) => setSelectedCategoryId(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">All Categories</option>
+                  <option value="">{t('tenant.products.allCategories')}</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.nameEn}
@@ -1363,11 +1370,11 @@ export default function TenantDashboard() {
                   onChange={(e) => setProductStatusFilter(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="available">Available</option>
-                  <option value="unavailable">Unavailable</option>
+                  <option value="">{t('tenant.products.allStatus')}</option>
+                  <option value="active">{t('common.active')}</option>
+                  <option value="inactive">{t('common.inactive')}</option>
+                  <option value="available">{t('tenant.products.available')}</option>
+                  <option value="unavailable">{t('tenant.products.unavailable')}</option>
                 </select>
               </div>
 
@@ -1419,20 +1426,20 @@ export default function TenantDashboard() {
                           <div className="flex space-x-2">
                             {product.isActive ? (
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Active
+                                {t('common.active')}
                               </span>
                             ) : (
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                Inactive
+                                {t('common.inactive')}
                               </span>
                             )}
                             {product.isAvailable ? (
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                Available
+                                {t('tenant.products.available')}
                               </span>
                             ) : (
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                Unavailable
+                                {t('tenant.products.unavailable')}
                               </span>
                             )}
                           </div>
@@ -1458,14 +1465,14 @@ export default function TenantDashboard() {
 
                         <div className="mb-3">
                           <p className="text-xs text-gray-500">
-                            Category: {categories.find(c => c.id === product.categoryId)?.nameEn || 'Unknown'}
+                            {t('tenant.products.category')}: {categories.find(c => c.id === product.categoryId)?.nameEn || t('tenant.products.unknown')}
                           </p>
                           <p className="text-xs text-gray-500">
-                            Sort Order: {product.sortOrder}
+                            {t('tenant.products.sortOrderLabel')}: {product.sortOrder}
                           </p>
                           {product.calories && (
                             <p className="text-xs text-gray-500">
-                              Calories: {product.calories}
+                              {t('tenant.products.calories')}: {product.calories}
                             </p>
                           )}
                         </div>
@@ -1479,13 +1486,13 @@ export default function TenantDashboard() {
                             className="text-sm font-medium hover:underline"
                             style={{ color: tenant.primaryColor }}
                           >
-                            Edit
+                            {t('common.edit')}
                           </button>
                           <button
                             onClick={() => handleDeleteProduct(product.id)}
                             className="text-sm text-red-600 hover:text-red-900 font-medium"
                           >
-                            Delete
+                            {t('common.delete')}
                           </button>
                         </div>
                       </div>
@@ -1516,15 +1523,15 @@ export default function TenantDashboard() {
           <div className="px-4 py-6 sm:px-0">
             <div className="mb-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">Analytics & Reports</h2>
+                <h2 className="text-2xl font-bold text-gray-900">{t('tenant.analytics.title')}</h2>
                 <button
                   onClick={fetchAnalytics}
                   className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                 >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  Refresh Data
+                  {t('tenant.analytics.refreshData')}
                 </button>
               </div>
             </div>
@@ -1532,7 +1539,7 @@ export default function TenantDashboard() {
             {isLoadingAnalytics ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Loading analytics data...</p>
+                <p className="mt-4 text-gray-600">{t('common.loading')}</p>
               </div>
             ) : analytics ? (
               <div className="space-y-8">
@@ -1541,10 +1548,10 @@ export default function TenantDashboard() {
                   <div className="bg-white p-6 rounded-lg shadow-sm border">
                     <div className="flex items-center">
                       <RectangleStackIcon className="h-8 w-8 text-blue-600" />
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Total Categories</p>
+                      <div className={`${isRTL ? 'mr-4' : 'ml-4'}`}>
+                        <p className="text-sm font-medium text-gray-600">{t('tenant.analytics.overview.totalCategories')}</p>
                         <p className="text-2xl font-semibold text-gray-900">{analytics.overview.totalCategories}</p>
-                        <p className="text-xs text-green-600">{analytics.overview.activeCategories} active</p>
+                        <p className="text-xs text-green-600">{analytics.overview.activeCategories} {t('tenant.analytics.overview.active')}</p>
                       </div>
                     </div>
                   </div>
@@ -1552,10 +1559,10 @@ export default function TenantDashboard() {
                   <div className="bg-white p-6 rounded-lg shadow-sm border">
                     <div className="flex items-center">
                       <TagIcon className="h-8 w-8 text-green-600" />
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Total Products</p>
+                      <div className={`${isRTL ? 'mr-4' : 'ml-4'}`}>
+                        <p className="text-sm font-medium text-gray-600">{t('tenant.analytics.overview.totalProducts')}</p>
                         <p className="text-2xl font-semibold text-gray-900">{analytics.overview.totalProducts}</p>
-                        <p className="text-xs text-green-600">{analytics.overview.activeProducts} active</p>
+                        <p className="text-xs text-green-600">{analytics.overview.activeProducts} {t('tenant.analytics.overview.active')}</p>
                       </div>
                     </div>
                   </div>
@@ -1563,10 +1570,10 @@ export default function TenantDashboard() {
                   <div className="bg-white p-6 rounded-lg shadow-sm border">
                     <div className="flex items-center">
                       <EyeIcon className="h-8 w-8 text-purple-600" />
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Featured Items</p>
+                      <div className={`${isRTL ? 'mr-4' : 'ml-4'}`}>
+                        <p className="text-sm font-medium text-gray-600">{t('tenant.analytics.overview.featuredItems')}</p>
                         <p className="text-2xl font-semibold text-gray-900">{analytics.overview.featuredProducts}</p>
-                        <p className="text-xs text-gray-500">Highlighted for customers</p>
+                        <p className="text-xs text-gray-500">{t('tenant.analytics.overview.highlightedForCustomers')}</p>
                       </div>
                     </div>
                   </div>
@@ -1574,15 +1581,15 @@ export default function TenantDashboard() {
                   <div className="bg-white p-6 rounded-lg shadow-sm border">
                     <div className="flex items-center">
                       <ChartBarIcon className="h-8 w-8 text-red-600" />
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Menu Health Score</p>
+                      <div className={`${isRTL ? 'mr-4' : 'ml-4'}`}>
+                        <p className="text-sm font-medium text-gray-600">{t('tenant.analytics.overview.menuHealthScore')}</p>
                         <p className="text-2xl font-semibold text-gray-900">{analytics.overview.menuHealthScore}%</p>
                         <p className={`text-xs ${
                           analytics.overview.menuHealthScore >= 80 ? 'text-green-600' :
                           analytics.overview.menuHealthScore >= 60 ? 'text-yellow-600' : 'text-red-600'
                         }`}>
-                          {analytics.overview.menuHealthScore >= 80 ? 'Excellent' :
-                           analytics.overview.menuHealthScore >= 60 ? 'Good' : 'Needs Improvement'}
+                          {analytics.overview.menuHealthScore >= 80 ? t('tenant.analytics.overview.excellent') :
+                           analytics.overview.menuHealthScore >= 60 ? t('tenant.analytics.overview.good') : t('tenant.analytics.overview.needsImprovement')}
                         </p>
                       </div>
                     </div>
@@ -1591,22 +1598,22 @@ export default function TenantDashboard() {
 
                 {/* Pricing Analytics */}
                 <div className="bg-white p-6 rounded-lg shadow-sm border">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Pricing Overview</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">{t('tenant.analytics.pricing.title')}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="text-center">
-                      <p className="text-sm font-medium text-gray-600">Average Price</p>
+                      <p className="text-sm font-medium text-gray-600">{t('tenant.analytics.pricing.averagePrice')}</p>
                       <p className="text-2xl font-semibold text-gray-900">
                         {analytics.pricing.averagePrice.toFixed(2)} {analytics.pricing.currency}
                       </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm font-medium text-gray-600">Lowest Price</p>
+                      <p className="text-sm font-medium text-gray-600">{t('tenant.analytics.pricing.lowestPrice')}</p>
                       <p className="text-2xl font-semibold text-green-600">
                         {analytics.pricing.minPrice.toFixed(2)} {analytics.pricing.currency}
                       </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm font-medium text-gray-600">Highest Price</p>
+                      <p className="text-sm font-medium text-gray-600">{t('tenant.analytics.pricing.highestPrice')}</p>
                       <p className="text-2xl font-semibold text-blue-600">
                         {analytics.pricing.maxPrice.toFixed(2)} {analytics.pricing.currency}
                       </p>
@@ -1616,12 +1623,12 @@ export default function TenantDashboard() {
 
                 {/* Inventory Status */}
                 <div className="bg-white p-6 rounded-lg shadow-sm border">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Inventory Status</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">{t('tenant.analytics.inventory.title')}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <div className="flex justify-between text-sm font-medium text-gray-600 mb-2">
-                        <span>Available Items</span>
-                        <span>{analytics.overview.totalProducts - analytics.overview.outOfStockProducts} of {analytics.overview.totalProducts}</span>
+                        <span>{t('tenant.analytics.inventory.availableItems')}</span>
+                        <span>{analytics.overview.totalProducts - analytics.overview.outOfStockProducts} {t('tenant.analytics.inventory.of')} {analytics.overview.totalProducts}</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div 
@@ -1636,8 +1643,8 @@ export default function TenantDashboard() {
                     </div>
                     <div>
                       <div className="flex justify-between text-sm font-medium text-gray-600 mb-2">
-                        <span>Out of Stock</span>
-                        <span>{analytics.overview.outOfStockProducts} items</span>
+                        <span>{t('tenant.analytics.inventory.outOfStock')}</span>
+                        <span>{analytics.overview.outOfStockProducts} {t('tenant.analytics.inventory.items')}</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div 
@@ -1660,10 +1667,10 @@ export default function TenantDashboard() {
                     {analytics.insights.alerts.length > 0 && (
                       <div className="bg-white p-6 rounded-lg shadow-sm border">
                         <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                          <svg className="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className={`w-5 h-5 text-red-600 ${isRTL ? 'ml-2' : 'mr-2'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
                           </svg>
-                          Alerts
+                          {t('tenant.analytics.alerts.title')}
                         </h3>
                         <div className="space-y-3">
                           {analytics.insights.alerts.map((alert, index) => (
@@ -1688,10 +1695,10 @@ export default function TenantDashboard() {
                     {analytics.insights.recommendations.length > 0 && (
                       <div className="bg-white p-6 rounded-lg shadow-sm border">
                         <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                          <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className={`w-5 h-5 text-green-600 ${isRTL ? 'ml-2' : 'mr-2'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                           </svg>
-                          Recommendations
+                          {t('tenant.analytics.recommendations.title')}
                         </h3>
                         <div className="space-y-3">
                           {analytics.insights.recommendations.map((recommendation, index) => (
@@ -1729,19 +1736,19 @@ export default function TenantDashboard() {
           <div className="px-4 py-6 sm:px-0">
             <div className="space-y-8">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Restaurant Settings</h2>
-                <p className="text-gray-600">Configure your restaurant information, branding, and menu settings</p>
+                <h2 className="text-2xl font-bold text-gray-900">{t('tenant.settings.title')}</h2>
+                <p className="text-gray-600">{t('tenant.settings.subtitle')}</p>
               </div>
 
               {/* Settings Tabs */}
               <div className="bg-white shadow-sm rounded-lg">
                 <div className="border-b border-gray-200">
-                  <nav className="flex space-x-8 px-6">
+                  <nav className={`flex space-x-8 px-6 ${isRTL ? 'space-x-reverse' : ''}`}>
                     {[
-                      { id: 'general', name: 'General', icon: '🏪' },
-                      { id: 'branding', name: 'Branding', icon: '🎨' },
-                      { id: 'menu', name: 'Menu Settings', icon: '📋' },
-                      { id: 'qr', name: 'QR Codes', icon: '📱' }
+                      { id: 'general', name: t('tenant.settings.tabs.general'), icon: '🏪' },
+                      { id: 'branding', name: t('tenant.settings.tabs.branding'), icon: '🎨' },
+                      { id: 'menu', name: t('tenant.settings.tabs.menu'), icon: '📋' },
+                      { id: 'qr', name: t('tenant.settings.tabs.qr'), icon: '📱' }
                     ].map((tab) => (
                       <button
                         key={tab.id}
@@ -1752,7 +1759,7 @@ export default function TenantDashboard() {
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                         }`}
                       >
-                        <span className="mr-2">{tab.icon}</span>
+                        <span className={`${isRTL ? 'ml-2' : 'mr-2'}`}>{tab.icon}</span>
                         {tab.name}
                       </button>
                     ))}
@@ -1764,11 +1771,11 @@ export default function TenantDashboard() {
                   {settingsTab === 'general' && (
                     <div className="space-y-6">
                       <div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">Restaurant Information</h3>
+                        <h3 className="text-lg font-medium text-gray-900 mb-4">{t('tenant.settings.general.restaurantInformation')}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Restaurant Name (English)
+                              {t('tenant.settings.general.restaurantNameEn')}
                             </label>
                             <input
                               type="text"
@@ -1779,7 +1786,7 @@ export default function TenantDashboard() {
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Restaurant Name (Arabic)
+                              {t('tenant.settings.general.restaurantNameAr')}
                             </label>
                             <input
                               type="text"
@@ -1793,14 +1800,14 @@ export default function TenantDashboard() {
                       </div>
 
                       <div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">Menu URL</h3>
+                        <h3 className="text-lg font-medium text-gray-900 mb-4">{t('tenant.settings.general.menuUrl')}</h3>
                         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
                               <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Public Menu URL
+                                {t('tenant.settings.general.publicMenuUrl')}
                               </label>
-                              <div className="flex items-center space-x-2">
+                              <div className={`flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-2`}>
                                 <input
                                   type="text"
                                   value={`${window.location.origin}/menu/${slug}`}
@@ -1814,30 +1821,30 @@ export default function TenantDashboard() {
                                     // Show a quick feedback (you could add a toast notification here)
                                     const button = event?.target as HTMLButtonElement;
                                     const originalText = button.textContent;
-                                    button.textContent = 'Copied!';
+                                    button.textContent = t('tenant.settings.general.copied');
                                     setTimeout(() => {
                                       button.textContent = originalText;
                                     }, 2000);
                                   }}
                                   className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
                                 >
-                                  Copy
+                                  {t('tenant.settings.general.copy')}
                                 </button>
                               </div>
                             </div>
                           </div>
                           <p className="text-sm text-gray-500 mt-2">
-                            Share this URL with customers to let them view your menu directly.
+                            {t('tenant.settings.general.shareUrlDescription')}
                           </p>
                         </div>
                       </div>
 
                       <div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">Contact Information</h3>
+                        <h3 className="text-lg font-medium text-gray-900 mb-4">{t('tenant.settings.general.contactInformation')}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Phone Number
+                              {t('tenant.settings.general.phoneNumber')}
                             </label>
                             <input
                               type="tel"
@@ -1848,7 +1855,7 @@ export default function TenantDashboard() {
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Email Address
+                              {t('tenant.settings.general.emailAddress')}
                             </label>
                             <input
                               type="email"
@@ -1862,7 +1869,7 @@ export default function TenantDashboard() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Address
+                          {t('tenant.settings.general.address')}
                         </label>
                         <textarea
                           value={tenantSettings.address || ''}
@@ -1874,13 +1881,13 @@ export default function TenantDashboard() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Business Hours
+                          {t('tenant.settings.general.businessHours')}
                         </label>
                         <div className="space-y-3">
                           {daysOfWeek.map((day) => (
                             <div key={day} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                               <span className="font-medium text-gray-900 w-20">{day}</span>
-                              <div className="flex items-center space-x-3">
+                              <div className={`flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-3`}>
                                 <label className="flex items-center">
                                   <input
                                     type="checkbox"
@@ -1888,7 +1895,7 @@ export default function TenantDashboard() {
                                     onChange={(e) => updateBusinessHours(day.toLowerCase(), 'isOpen', e.target.checked)}
                                     className="rounded border-gray-300"
                                   />
-                                  <span className="ml-2 text-sm text-gray-700">Open</span>
+                                  <span className={`${isRTL ? 'mr-2' : 'ml-2'} text-sm text-gray-700`}>{t('tenant.settings.general.open')}</span>
                                 </label>
                                 {tenantSettings.businessHours?.[day.toLowerCase()]?.isOpen && (
                                   <>
@@ -1898,7 +1905,7 @@ export default function TenantDashboard() {
                                       onChange={(e) => updateBusinessHours(day.toLowerCase(), 'open', e.target.value)}
                                       className="px-2 py-1 border border-gray-300 rounded text-sm"
                                     />
-                                    <span className="text-gray-500">to</span>
+                                    <span className="text-gray-500">{t('tenant.settings.general.to')}</span>
                                     <input
                                       type="time"
                                       value={tenantSettings.businessHours[day.toLowerCase()].close || '22:00'}
@@ -2269,12 +2276,12 @@ export default function TenantDashboard() {
                   )}
                 </div>
 
-                <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                <div className={`flex justify-end ${isRTL ? 'space-x-reverse' : ''} space-x-3 pt-6 border-t border-gray-200`}>
                   <button
                     onClick={resetSettings}
                     className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                   >
-                    Reset Changes
+                    {t('tenant.settings.actions.resetChanges')}
                   </button>
                   <button
                     onClick={saveSettings}
@@ -2282,7 +2289,7 @@ export default function TenantDashboard() {
                     className="px-6 py-2 rounded-md text-white shadow-sm hover:opacity-90 disabled:opacity-50"
                     style={{ backgroundColor: tenant.primaryColor }}
                   >
-                    {isSavingSettings ? 'Saving...' : 'Save Settings'}
+                    {isSavingSettings ? t('tenant.settings.actions.saving') : t('tenant.settings.actions.saveSettings')}
                   </button>
                 </div>
               </div>

@@ -14,7 +14,13 @@
     "db:reset": "prisma db push --force-reset && npm run db:seed",
     "db:studio": "prisma studio",
     "type-check": "tsc --noEmit",
-    "stop": "./stop.sh"
+    "stop": "./stop.sh",
+    "build:prod": "./build-production.sh",
+    "deploy:vercel": "./deploy-vercel.sh",
+    "deploy:railway": "./deploy-railway.sh",
+    "db:migrate": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.637.0",

@@ -1,0 +1,106 @@
+{
+  "common": {
+    "language": "اللغة",
+    "english": "الإنجليزية",
+    "arabic": "العربية",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "edit": "تحرير",
+    "delete": "حذف",
+    "add": "إضافة",
+    "update": "تحديث",
+    "create": "إنشاء",
+    "search": "بحث",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجح",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "backToHome": "العودة للرئيسية",
+    "filter": "تصفية",
+    "active": "نشط",
+    "featured": "مميز"
+  },
+  "superAdmin": {
+    "title": "لوحة المدير العام",
+    "subtitle": "إدارة المستأجرين والمستخدمين وإعدادات النظام",
+    "auth": {
+      "login": {
+        "title": "تسجيل دخول المدير العام",
+        "description": "الوصول إلى لوحة إدارة النظام",
+        "mfaCode": "كود المصادقة الثنائية",
+        "mfaCodePlaceholder": "كود المصادقة الثنائية (6 أرقام)",
+        "quickLogin": "تسجيل دخول سريع للتطوير",
+        "quickLoginDescription": "انقر لملء بيانات المدير تلقائياً",
+        "quickLoginButton": "تسجيل دخول سريع",
+        "signingIn": "جاري تسجيل الدخول...",
+        "verifyMfa": "تحقق من المصادقة الثنائية",
+        "signIn": "تسجيل الدخول",
+        "mfaInstructions": "أدخل الرمز المكون من 6 أرقام من تطبيق المصادقة"
+      }
+    },
+    "dashboard": {
+      "title": "لوحة تحكم المدير العام",
+      "description": "إدارة النظام والمستأجرين والإحصائيات",
+      "addTenant": "إضافة مستأجر",
+      "stats": {
+        "totalTenants": "إجمالي المستأجرين",
+        "totalUsers": "إجمالي المستخدمين",
+        "monthlyRevenue": "الإيرادات الشهرية",
+        "activeSubscriptions": "الاشتراكات النشطة",
+        "active": "نشط"
+      },
+      "recentTenants": {
+        "title": "المستأجرين الحديثين",
+        "searchPlaceholder": "البحث في المستأجرين...",
+        "tenant": "المستأجر",
+        "businessType": "نوع العمل",
+        "status": "الحالة",
+        "plan": "الخطة",
+        "revenue": "الإيرادات"
+      }
+    }
+  },
+  "tenant": {
+    "title": "لوحة تحكم المطعم",
+    "subtitle": "إدارة القائمة الرقمية وعمليات المطعم",
+    "auth": {
+      "login": {
+        "title": "تسجيل دخول المدير",
+        "description": "تسجيل الدخول إلى لوحة تحكم المطعم",
+        "emailPlaceholder": "أدخل بريدك الإلكتروني",
+        "passwordPlaceholder": "أدخل كلمة المرور",
+        "signIn": "تسجيل الدخول",
+        "signingIn": "جاري تسجيل الدخول...",
+        "forgotPassword": "نسيت كلمة المرور؟",
+        "showPassword": "إظهار كلمة المرور",
+        "hidePassword": "إخفاء كلمة المرور"
+      }
+    },
+    "dashboard": {
+      "title": "لوحة التحكم",
+      "welcome": "مرحباً بك في {{restaurantName}}",
+      "description": "إدارة القائمة الرقمية والفئات والمنتجات الخاصة بمطعمك من هذه اللوحة.",
+      "stats": {
+        "categories": "الفئات",
+        "products": "المنتجات",
+        "menuHealth": "صحة القائمة"
+      },
+      "quickActions": {
+        "title": "الإجراءات السريعة",
+        "manageCategories": "إدارة الفئات",
+        "addProduct": "إضافة منتج",
+        "viewQrCode": "عرض رمز QR",
+        "viewAnalytics": "عرض التحليلات"
+      }
+    },
+    "navigation": {
+      "dashboard": "لوحة التحكم",
+      "categories": "الفئات",
+      "products": "المنتجات",
+      "analytics": "التحليلات",
+      "settings": "الإعدادات",
+      "logout": "تسجيل الخروج"
+    }
+  }
+}

@@ -1,69 +1,65 @@
 # Dependencies
 node_modules/
-.pnp
+/.pnp
 .pnp.js
 
 # Testing
-coverage/
+/coverage
 
 # Next.js
-.next/
-out/
-build/
+/.next/
+/out/
+.next
 
 # Production
-dist/
+/build
+.vercel
 
-# Misc
-.DS_Store
-*.tsbuildinfo
+# Environment Variables - NEVER COMMIT THESE!
+.env
+.env.local
+.env.production
+.env.development.local
+.env.test.local
+.env.production.local
+.credentials.txt
 
 # Debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
 # Local env files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env*.local
 
 # Vercel
 .vercel
 
-# Prisma
-prisma/migrations/dev.db*
-prisma/*.db
-prisma/*.db-journal
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
 
-# IDEs
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# Logs
-logs/
-*.log
-
-# Uploads (for local development)
-uploads/
-temp/
+*~
 
 # OS
+.DS_Store
 Thumbs.db
 
-# Backup files
-*.backup
-*backup*
-*corrupted*
+# Database
+*.db
+*.db-journal
+prisma/dev.db
+prisma/dev.db-journal
 
-# Multiple package-lock files (keep only the main one)
-package-lock*.json
-!package-lock.json
+# Logs
+*.log
 
-# Duplicate Next.js env files
-next-env.d*.ts
-!next-env.d.ts
+# Misc
+.cache/
+.temp/

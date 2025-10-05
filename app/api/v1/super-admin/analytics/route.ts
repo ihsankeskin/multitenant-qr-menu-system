@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    if (!decoded || decoded.role !== 'SUPER_ADMIN') {
+    if (!decoded || (decoded.role !== 'SUPER_ADMIN' && decoded.role !== 'ADMIN')) {
       return NextResponse.json(
         { success: false, message: 'Access denied' },
         { status: 403 }
