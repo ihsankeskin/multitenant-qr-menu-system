@@ -153,8 +153,8 @@ export async function GET(request: NextRequest) {
     ])
 
     // Calculate revenue growth
-    const currentMonthRevenue = monthlyRevenueResult._sum.amount || 0
-    const previousMonthRevenue = previousMonthRevenueResult._sum.amount || 0
+    const currentMonthRevenue = Number(monthlyRevenueResult._sum.amount) || 0
+    const previousMonthRevenue = Number(previousMonthRevenueResult._sum.amount) || 0
     let revenueGrowth = 0
     
     if (previousMonthRevenue > 0) {
@@ -164,13 +164,13 @@ export async function GET(request: NextRequest) {
     }
 
     const stats = {
-      totalRevenue: totalRevenueResult._sum.amount || 0,
+      totalRevenue: Number(totalRevenueResult._sum.amount) || 0,
       monthlyRevenue: currentMonthRevenue,
       totalTenants,
       activeTenants,
       overduePayments,
       pendingPayments,
-      averagePayment: averagePaymentResult._avg.amount || 0,
+      averagePayment: Number(averagePaymentResult._avg.amount) || 0,
       revenueGrowth: Math.round(revenueGrowth * 100) / 100 // Round to 2 decimal places
     }
 
