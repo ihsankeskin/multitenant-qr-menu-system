@@ -293,8 +293,8 @@ export async function POST(
         discountPrice: hasActiveDiscount ? product.discountPrice : null,
         currentPrice: hasActiveDiscount ? product.discountPrice : product.basePrice,
         hasDiscount: hasActiveDiscount,
-        discountPercentage: hasActiveDiscount && product.discountPrice ? 
-          Math.round(((product.basePrice - product.discountPrice) / product.basePrice) * 100) : 
+        discountPercentage: hasActiveDiscount && product.discountPrice && product.basePrice ? 
+          Math.round(((Number(product.basePrice) - Number(product.discountPrice)) / Number(product.basePrice)) * 100) : 
           null,
         isOutOfStock: product.isOutOfStock,
         preparationTime: product.preparationTime,

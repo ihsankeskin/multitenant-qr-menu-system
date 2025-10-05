@@ -1,13 +1,11 @@
-// Multi-Tenant QR Menu System Database Schema - PostgreSQL Production
+// Multi-Tenant QR Menu System Database Schema - SQLite Compatible
 generator client {
   provider = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-1.0.x"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 // Business Type model
@@ -109,7 +107,7 @@ model Tenant {
   descriptionAr         String?
   subscriptionStatus    String    @default("ACTIVE") // ACTIVE, GRACE_PERIOD, SUSPENDED, CANCELLED
   subscriptionPlan      String    @default("BASIC")  // BASIC, PREMIUM, ENTERPRISE
-  monthlyFee            Decimal   @default(100.00) @db.Decimal(10,2)
+  monthlyFee            Float     @default(100.00)
   lastPaymentDate       DateTime?
   nextPaymentDate       DateTime?
   overdueSince          DateTime?
@@ -199,9 +197,9 @@ model Product {
   imageData             String?   // Base64 encoded primary image data
   imageUrls             String?   // JSON string for multiple images
   imageDataArray        String?   // JSON string for multiple base64 images
-  basePrice             Decimal   @db.Decimal(10,2)
+  basePrice             Float
   currency              String    @default("EGP")
-  discountPrice         Decimal?  @db.Decimal(10,2)
+  discountPrice         Float?
   discountStartDate     DateTime?
   discountEndDate       DateTime?
   isActive              Boolean   @default(true)
@@ -239,7 +237,7 @@ model Product {
 model PaymentRecord {
   id                    String    @id @default(cuid())
   tenantId              String
-  amount                Decimal   @db.Decimal(10,2)
+  amount                Float
   currency              String    @default("EGP")
   method                String    @default("BANK_TRANSFER") // CASH, BANK_TRANSFER, CREDIT_CARD, DIGITAL_WALLET, CHECK, OTHER
   status                String    @default("PENDING") // PENDING, PAID, OVERDUE, CANCELLED, REFUNDED
