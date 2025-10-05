@@ -232,9 +232,9 @@ export async function GET(request: NextRequest) {
           menuHealthScore
         },
         pricing: {
-          averagePrice: priceStats._avg.basePrice ? Math.round(priceStats._avg.basePrice * 100) / 100 : 0,
-          minPrice: priceStats._min.basePrice || 0,
-          maxPrice: priceStats._max.basePrice || 0,
+          averagePrice: priceStats._avg.basePrice ? Math.round(Number(priceStats._avg.basePrice) * 100) / 100 : 0,
+          minPrice: Number(priceStats._min.basePrice) || 0,
+          maxPrice: Number(priceStats._max.basePrice) || 0,
           discountedProducts,
           currency: tenant.currency
         },
