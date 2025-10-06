@@ -488,12 +488,28 @@ export default function SuperAdminTenantDetail() {
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-gray-500">URLs</dt>
-                  <dd className="mt-1 space-y-1">
-                    <div className="text-sm text-gray-900">
-                      <span className="font-medium">Admin:</span> /tenant/{tenant.slug}/dashboard
+                  <dd className="mt-1 space-y-2">
+                    <div className="text-sm">
+                      <span className="font-medium text-gray-900">Admin:</span>{' '}
+                      <a 
+                        href={`https://themenugenie.com/tenant/${tenant.slug}/dashboard`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        themenugenie.com/tenant/{tenant.slug}/dashboard
+                      </a>
                     </div>
-                    <div className="text-sm text-gray-900">
-                      <span className="font-medium">Menu:</span> /menu/{tenant.slug}
+                    <div className="text-sm">
+                      <span className="font-medium text-gray-900">Menu:</span>{' '}
+                      <a 
+                        href={`https://themenugenie.com/menu/${tenant.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        themenugenie.com/menu/{tenant.slug}
+                      </a>
                     </div>
                   </dd>
                 </div>

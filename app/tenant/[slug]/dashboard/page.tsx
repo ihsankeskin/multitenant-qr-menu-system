@@ -148,8 +148,13 @@ interface Product {
   descriptionAr?: string
   imageUrl?: string
   imageData?: string
-  price: number
-  compareAtPrice?: number
+  imageUrls?: string[]
+  basePrice: number
+  discountPrice?: number
+  discountStartDate?: string
+  discountEndDate?: string
+  price?: number  // Deprecated - keeping for backward compatibility
+  compareAtPrice?: number  // Deprecated - keeping for backward compatibility
   isActive: boolean
   isAvailable: boolean
   isFeatured: boolean
@@ -1454,11 +1459,11 @@ export default function TenantDashboard() {
 
                         <div className="mb-3">
                           <span className="text-lg font-bold" style={{ color: tenant.primaryColor }}>
-                            {formatCurrency(product.price || 0)}
+                            {formatCurrency(product.basePrice || 0)}
                           </span>
-                          {product.compareAtPrice && product.compareAtPrice > (product.price || 0) && (
+                          {product.discountPrice && product.discountPrice < (product.basePrice || 0) && (
                             <span className="ml-2 text-sm text-gray-500 line-through">
-                              {formatCurrency(product.compareAtPrice)}
+                              {formatCurrency(product.basePrice)}
                             </span>
                           )}
                         </div>

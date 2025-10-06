@@ -68,6 +68,13 @@ export default function SuperAdminLogin() {
           <div className="flex justify-end mb-4">
             <LanguageSwitcher variant="dropdown" />
           </div>
+          <div className="flex justify-center mb-4">
+            <img 
+              src="/logo.jpg" 
+              alt="The Menu Genie" 
+              className="h-20 w-auto rounded-lg"
+            />
+          </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             {t('superAdmin.auth.login.title')}
           </h2>

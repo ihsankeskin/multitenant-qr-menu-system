@@ -6,9 +6,13 @@ import { LocalizationProvider } from '@/contexts/LocalizationContext'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Multi-Tenant QR Menu System',
+  title: 'The Menu Genie - Digital Menu & QR Code System',
   description: 'A comprehensive multi-tenant QR menu system with Super Admin management',
-  keywords: ['restaurant', 'menu', 'qr code', 'multi-tenant', 'saas'],
+  keywords: ['restaurant', 'menu', 'qr code', 'multi-tenant', 'saas', 'digital menu'],
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/logo.jpg',
+  },
 }
 
 export default function RootLayout({

@@ -97,6 +97,11 @@ export async function GET(request: NextRequest) {
       _min: { basePrice: true },
       _max: { basePrice: true }
     })
+    
+    // Convert Decimal to Number for pricing
+    const avgPrice = priceStats._avg.basePrice ? Number(priceStats._avg.basePrice) : 0
+    const minPrice = priceStats._min.basePrice ? Number(priceStats._min.basePrice) : 0
+    const maxPrice = priceStats._max.basePrice ? Number(priceStats._max.basePrice) : 0
 
     // Products with active discounts
     const discountedProducts = await prisma.product.count({
@@ -232,9 +237,9 @@ export async function GET(request: NextRequest) {
           menuHealthScore
         },
         pricing: {
-          averagePrice: priceStats._avg.basePrice ? Math.round(Number(priceStats._avg.basePrice) * 100) / 100 : 0,
-          minPrice: Number(priceStats._min.basePrice) || 0,
-          maxPrice: Number(priceStats._max.basePrice) || 0,
+          averagePrice: Math.round(avgPrice * 100) / 100,
+          minPrice: minPrice,
+          maxPrice: maxPrice,
           discountedProducts,
           currency: tenant.currency
         },
