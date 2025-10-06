@@ -1810,13 +1810,21 @@ export default function TenantDashboard() {
                               <div className={`flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-2`}>
                                 <input
                                   type="text"
-                                  value={`${window.location.origin}/menu/${slug}`}
+                                  value={`https://themenugenie.com/menu/${slug}`}
                                   readOnly
                                   className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
                                 />
+                                <a
+                                  href={`https://themenugenie.com/menu/${slug}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors whitespace-nowrap"
+                                >
+                                  {t('common.view', { default: 'View' })}
+                                </a>
                                 <button
                                   onClick={() => {
-                                    const url = `${window.location.origin}/menu/${slug}`;
+                                    const url = `https://themenugenie.com/menu/${slug}`;
                                     navigator.clipboard.writeText(url);
                                     // Show a quick feedback (you could add a toast notification here)
                                     const button = event?.target as HTMLButtonElement;
@@ -2170,7 +2178,17 @@ export default function TenantDashboard() {
                         <h3 className="text-lg font-medium text-gray-900 mb-4">QR Code Management</h3>
                         <div className="bg-gray-50 p-4 rounded-lg mb-6">
                           <p className="text-sm text-gray-600 mb-2">
-                            Your menu URL: <span className="font-mono bg-white px-2 py-1 rounded">{`${window.location.origin}/menu/${slug}`}</span>
+                            Your menu URL: <a 
+                              href={`https://themenugenie.com/menu/${slug}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-mono bg-white px-2 py-1 rounded hover:bg-blue-50 hover:text-blue-600 transition-colors inline-flex items-center gap-1"
+                            >
+                              {`https://themenugenie.com/menu/${slug}`}
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                              </svg>
+                            </a>
                           </p>
                           <p className="text-sm text-gray-500">
                             Customers can scan your QR code to access this menu directly.

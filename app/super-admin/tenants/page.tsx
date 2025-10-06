@@ -304,8 +304,26 @@ export default function TenantsPage() {
                           {tenant.ownerEmail}
                         </div>
                         <div className="text-xs text-gray-400 space-y-1">
-                          <div>Admin: /tenant/{tenant.subdomain}/dashboard</div>
-                          <div>Menu: /menu/{tenant.subdomain}</div>
+                          <div>
+                            Admin: <a 
+                              href={`https://themenugenie.com/tenant/${tenant.subdomain}/dashboard`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-500 hover:text-blue-700 hover:underline"
+                            >
+                              themenugenie.com/tenant/{tenant.subdomain}/dashboard
+                            </a>
+                          </div>
+                          <div>
+                            Menu: <a 
+                              href={`https://themenugenie.com/menu/${tenant.subdomain}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-500 hover:text-blue-700 hover:underline"
+                            >
+                              themenugenie.com/menu/{tenant.subdomain}
+                            </a>
+                          </div>
                         </div>
                       </div>
                     </div>

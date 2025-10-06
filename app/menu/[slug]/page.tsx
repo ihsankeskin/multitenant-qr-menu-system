@@ -126,19 +126,20 @@ export default function PublicMenu() {
     if (!settings?.showPrices) return ''
     
     const currencySymbol = {
+      'EGP': 'ج.م',
       'USD': '$',
       'EUR': '€',
       'GBP': '£',
       'AED': 'د.إ',
       'SAR': 'ر.س'
-    }[settings?.currency || 'USD'] || '$'
+    }[settings?.currency || 'EGP'] || 'ج.م'
 
     const formattedPrice = price.toFixed(2)
     
     if (settings?.currencyPosition === 'after') {
-      return `${formattedPrice}${currencySymbol}`
+      return `${formattedPrice} ${currencySymbol}`
     }
-    return `${currencySymbol}${formattedPrice}`
+    return `${currencySymbol} ${formattedPrice}`
   }
 
   const toggleFavorite = (productId: string) => {
