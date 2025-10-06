@@ -149,18 +149,36 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Daily activity trend (last 30 days)
-    const dailyActivity = await prisma.$queryRaw`
-      SELECT 
-        DATE("createdAt") as date,
-        COUNT(*) as count,
-        COUNT(DISTINCT "userId") as "uniqueUsers"
-      FROM "audit_logs" 
-      WHERE "tenantId" = ${tenantId}
-        AND "createdAt" >= ${startDate}
-      GROUP BY DATE("createdAt")
-      ORDER BY date ASC
-    ` as Array<{ date: string; count: bigint; uniqueUsers: bigint }>
+    // Daily activity trend (last 30 days) - Using Prisma query instead of raw SQL
+    const allActivity = await prisma.auditLog.findMany({
+      where: {
+        tenantId,
+        createdAt: { gte: startDate }
+      },
+      select: {
+        createdAt: true,
+        userId: true
+      }
+    })
+
+    // Group by date manually
+    const activityByDate = allActivity.reduce((acc, log) => {
+      const dateKey = log.createdAt.toISOString().split('T')[0]
+      if (!acc[dateKey]) {
+        acc[dateKey] = { users: new Set(), count: 0 }
+      }
+      acc[dateKey].users.add(log.userId)
+      acc[dateKey].count++
+      return acc
+    }, {} as Record<string, { users: Set<string>; count: number }>)
+
+    const dailyActivity = Object.entries(activityByDate)
+      .map(([date, data]) => ({
+        date,
+        count: data.count,
+        uniqueUsers: data.users.size
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date))
 
     // Resource usage statistics
     const resourceUsage = {
@@ -266,8 +284,8 @@ export async function GET(request: NextRequest) {
           })),
           dailyTrend: dailyActivity.map(item => ({
             date: item.date,
-            count: Number(item.count),
-            uniqueUsers: Number(item.uniqueUsers)
+            count: item.count,
+            uniqueUsers: item.uniqueUsers
           })),
           totalActivities: recentActivity.length
         },
