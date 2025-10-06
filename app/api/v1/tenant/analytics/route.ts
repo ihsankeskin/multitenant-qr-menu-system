@@ -152,15 +152,15 @@ export async function GET(request: NextRequest) {
     // Daily activity trend (last 30 days)
     const dailyActivity = await prisma.$queryRaw`
       SELECT 
-        date(createdAt) as date,
+        DATE("createdAt") as date,
         COUNT(*) as count,
-        COUNT(DISTINCT userId) as uniqueUsers
-      FROM audit_logs 
-      WHERE tenantId = ${tenantId}
-        AND createdAt >= ${startDate.toISOString()}
-      GROUP BY date(createdAt)
+        COUNT(DISTINCT "userId") as "uniqueUsers"
+      FROM "audit_logs" 
+      WHERE "tenantId" = ${tenantId}
+        AND "createdAt" >= ${startDate}
+      GROUP BY DATE("createdAt")
       ORDER BY date ASC
-    ` as Array<{ date: string; count: number; uniqueUsers: number }>
+    ` as Array<{ date: string; count: bigint; uniqueUsers: bigint }>
 
     // Resource usage statistics
     const resourceUsage = {
