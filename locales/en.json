@@ -410,12 +410,17 @@
         "viewMenu": "View Public Menu",
         "generateQR": "Generate QR Code"
       },
+      "insights": {
+        "title": "Insights & Recommendations"
+      },
       "viewMenu": "View Public Menu",
       "generateQR": "Generate QR Code",
       "stats": {
         "categories": "Categories",
         "products": "Products",
-        "menuHealth": "Menu Health"
+        "menuHealth": "Menu Health",
+        "active": "active",
+        "featured": "featured"
       }
     },
     "categories": {
@@ -467,6 +472,10 @@
       "statusFilter": "Filter by Status",
       "allCategories": "All Categories",
       "allStatus": "All Status",
+      "category": "Category",
+      "unknown": "Unknown",
+      "sortOrderLabel": "Sort Order",
+      "available": "Available",
       "unavailable": "Unavailable",
       "noProducts": "No products found",
       "createSuccess": "Product created successfully",
@@ -485,14 +494,44 @@
     "analytics": {
       "title": "Analytics",
       "subtitle": "Track your restaurant's performance and customer insights",
-      "overview": "Overview",
+      "refreshData": "Refresh Data",
+      "overview": {
+        "title": "Overview",
+        "totalCategories": "Total Categories",
+        "totalProducts": "Total Products",
+        "featuredItems": "Featured Items",
+        "menuHealthScore": "Menu Health Score",
+        "active": "active",
+        "inactive": "inactive",
+        "highlightedForCustomers": "Highlighted for customers",
+        "excellent": "Excellent",
+        "good": "Good",
+        "needsImprovement": "Needs Improvement"
+      },
+      "pricing": {
+        "title": "Pricing Overview",
+        "averagePrice": "Average Price",
+        "lowestPrice": "Lowest Price",
+        "highestPrice": "Highest Price"
+      },
+      "inventory": {
+        "title": "Inventory Status",
+        "availableItems": "Available Items",
+        "outOfStock": "Out of Stock",
+        "items": "items",
+        "of": "of"
+      },
+      "recommendations": {
+        "title": "Recommendations"
+      },
+      "alerts": {
+        "title": "Alerts"
+      },
       "popularItems": "Popular Items",
       "salesTrends": "Sales Trends",
       "customerInsights": "Customer Insights",
-      "inventoryStatus": "Inventory Status",
-      "recommendations": "Recommendations",
-      "alerts": "Alerts",
       "noData": "No analytics data available",
+      "noDataDescription": "Start by adding categories and products to see analytics.",
       "retryLoading": "Retry Loading"
     },
     "settings": {
