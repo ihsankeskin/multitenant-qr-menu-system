@@ -109,6 +109,10 @@ export async function GET(
           now >= product.discountStartDate && 
           now <= product.discountEndDate
 
+        const basePrice = Number(product.basePrice)
+        const discountPrice = product.discountPrice ? Number(product.discountPrice) : null
+        const currentPrice = hasActiveDiscount && discountPrice ? discountPrice : basePrice
+
         return {
           id: product.id,
           nameEn: product.nameEn,
@@ -117,12 +121,12 @@ export async function GET(
           descriptionAr: product.descriptionAr,
           imageUrl: product.imageUrl,
           imageUrls: jsonToStringArray(product.imageUrls),
-          basePrice: product.basePrice,
-          discountPrice: hasActiveDiscount ? product.discountPrice : null,
-          currentPrice: hasActiveDiscount ? product.discountPrice : product.basePrice,
+          basePrice: basePrice,
+          discountPrice: hasActiveDiscount ? discountPrice : null,
+          currentPrice: currentPrice,
           hasDiscount: hasActiveDiscount,
-          discountPercentage: hasActiveDiscount && product.discountPrice ? 
-            Math.round(((product.basePrice - product.discountPrice) / product.basePrice) * 100) : 
+          discountPercentage: hasActiveDiscount && discountPrice ? 
+            Math.round(((basePrice - discountPrice) / basePrice) * 100) : 
             null,
           isFeatured: product.isFeatured,
           isOutOfStock: product.isOutOfStock,
@@ -279,6 +283,10 @@ export async function POST(
       now >= product.discountStartDate && 
       now <= product.discountEndDate
 
+    const basePrice = Number(product.basePrice)
+    const discountPrice = product.discountPrice ? Number(product.discountPrice) : null
+    const currentPrice = hasActiveDiscount && discountPrice ? discountPrice : basePrice
+
     return NextResponse.json({
       success: true,
       data: {
@@ -289,12 +297,12 @@ export async function POST(
         descriptionAr: product.descriptionAr,
         imageUrl: product.imageUrl,
         imageUrls: jsonToStringArray(product.imageUrls),
-        basePrice: product.basePrice,
-        discountPrice: hasActiveDiscount ? product.discountPrice : null,
-        currentPrice: hasActiveDiscount ? product.discountPrice : product.basePrice,
+        basePrice: basePrice,
+        discountPrice: hasActiveDiscount ? discountPrice : null,
+        currentPrice: currentPrice,
         hasDiscount: hasActiveDiscount,
-        discountPercentage: hasActiveDiscount && product.discountPrice && product.basePrice ? 
-          Math.round(((Number(product.basePrice) - Number(product.discountPrice)) / Number(product.basePrice)) * 100) : 
+        discountPercentage: hasActiveDiscount && discountPrice ? 
+          Math.round(((basePrice - discountPrice) / basePrice) * 100) : 
           null,
         isOutOfStock: product.isOutOfStock,
         preparationTime: product.preparationTime,

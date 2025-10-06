@@ -467,6 +467,7 @@
       "statusFilter": "Filter by Status",
       "allCategories": "All Categories",
       "allStatus": "All Status",
+      "unavailable": "Unavailable",
       "noProducts": "No products found",
       "createSuccess": "Product created successfully",
       "updateSuccess": "Product updated successfully",
