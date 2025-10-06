@@ -617,6 +617,14 @@ export default function TenantDashboard() {
     }
   }, [isLoading, user, tenant, activeTab])
 
+  // Fetch categories and products when Dashboard tab is active (for product category display)
+  useEffect(() => {
+    if (!isLoading && user && tenant && activeTab === 'dashboard') {
+      fetchCategories()  // Needed for product category lookup
+      fetchProducts()    // Needed for dashboard display
+    }
+  }, [isLoading, user, tenant, activeTab])
+
   // Fetch categories when switching to categories tab
   useEffect(() => {
     if (!isLoading && user && tenant && activeTab === 'categories') {
