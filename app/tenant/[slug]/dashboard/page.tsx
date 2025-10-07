@@ -2556,8 +2556,8 @@ interface ProductFormData {
   descriptionAr?: string
   imageUrl?: string
   imageData?: string
-  price: number
-  compareAtPrice?: number
+  basePrice: number
+  discountPrice?: number
   isActive: boolean
   isAvailable: boolean
   isFeatured: boolean
@@ -2582,8 +2582,8 @@ function ProductModal({ product, onClose, onSave, tenant, categories }: ProductM
     descriptionAr: product?.descriptionAr || '',
     imageUrl: product?.imageUrl || '',
     imageData: product?.imageData || '',
-    price: product?.price || 0,
-    compareAtPrice: product?.compareAtPrice || undefined,
+    basePrice: product?.basePrice || 0,
+    discountPrice: product?.discountPrice || undefined,
     isActive: product?.isActive ?? true,
     isAvailable: product?.isAvailable ?? true,
     isFeatured: product?.isFeatured ?? false,
@@ -2606,11 +2606,11 @@ function ProductModal({ product, onClose, onSave, tenant, categories }: ProductM
     if (!formData.categoryId) {
       newErrors.categoryId = 'Category is required'
     }
-    if (formData.price <= 0) {
-      newErrors.price = 'Price must be greater than 0'
+    if (formData.basePrice <= 0) {
+      newErrors.basePrice = 'Price must be greater than 0'
     }
-    if (formData.compareAtPrice && formData.compareAtPrice <= formData.price) {
-      newErrors.compareAtPrice = 'Compare price must be greater than regular price'
+    if (formData.discountPrice && formData.discountPrice >= formData.basePrice) {
+      newErrors.discountPrice = 'Discount price must be less than regular price'
     }
     if (formData.sortOrder < 0) {
       newErrors.sortOrder = 'Sort order must be 0 or greater'
@@ -2763,40 +2763,40 @@ function ProductModal({ product, onClose, onSave, tenant, categories }: ProductM
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Price ($) *
+                Base Price *
               </label>
               <input
                 type="number"
                 step="0.01"
                 min="0"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
+                value={formData.basePrice}
+                onChange={(e) => setFormData({ ...formData, basePrice: parseFloat(e.target.value) || 0 })}
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.price ? 'border-red-300' : 'border-gray-300'
+                  errors.basePrice ? 'border-red-300' : 'border-gray-300'
                 }`}
               />
-              {errors.price && (
-                <p className="mt-1 text-sm text-red-600">{errors.price}</p>
+              {errors.basePrice && (
+                <p className="mt-1 text-sm text-red-600">{errors.basePrice}</p>
               )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Compare Price ($)
+                Discount Price
               </label>
               <input
                 type="number"
                 step="0.01"
                 min="0"
-                value={formData.compareAtPrice || ''}
-                onChange={(e) => setFormData({ ...formData, compareAtPrice: parseFloat(e.target.value) || undefined })}
+                value={formData.discountPrice || ''}
+                onChange={(e) => setFormData({ ...formData, discountPrice: parseFloat(e.target.value) || undefined })}
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.compareAtPrice ? 'border-red-300' : 'border-gray-300'
+                  errors.discountPrice ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder="Optional"
               />
-              {errors.compareAtPrice && (
-                <p className="mt-1 text-sm text-red-600">{errors.compareAtPrice}</p>
+              {errors.discountPrice && (
+                <p className="mt-1 text-sm text-red-600">{errors.discountPrice}</p>
               )}
             </div>
           </div>

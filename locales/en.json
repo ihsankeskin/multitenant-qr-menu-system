@@ -436,6 +436,7 @@
       "descriptionEn": "English Description",
       "descriptionAr": "Arabic Description",
       "sortOrder": "Sort Order",
+      "order": "Sort Order",
       "showInMenu": "Show in Menu",
       "productCount": "Products",
       "noCategories": "No categories found",
