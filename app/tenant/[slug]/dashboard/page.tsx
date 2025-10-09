@@ -123,6 +123,8 @@ interface Category {
   createdAt: string
   updatedAt: string
   createdBy?: string
+  productCount?: number
+  activeProductCount?: number
   _count?: {
     products: number
   }
@@ -401,23 +403,48 @@ export default function TenantDashboard() {
 
   useEffect(() => {
     // Check for authentication token and user data
-    const token = localStorage.getItem(`tenant_token_${slug}`)
-    const userData = localStorage.getItem(`tenant_user_${slug}`)
-    const tenantData = localStorage.getItem(`tenant_data_${slug}`)
+    const checkAuthAndLoadData = async () => {
+      const token = localStorage.getItem(`tenant_token_${slug}`)
+      const userData = localStorage.getItem(`tenant_user_${slug}`)
+      const tenantData = localStorage.getItem(`tenant_data_${slug}`)
 
-    if (!token || !userData || !tenantData) {
-      router.push(`/tenant/${slug}/login`)
-      return
+      if (!token || !userData || !tenantData) {
+        router.push(`/tenant/${slug}/login`)
+        return
+      }
+
+      // Verify token is valid by making a test API call
+      try {
+        const verifyResponse = await fetch('/api/v1/tenant/dashboard', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+
+        if (!verifyResponse.ok) {
+          // Token is invalid or expired, clear storage and redirect
+          localStorage.removeItem(`tenant_token_${slug}`)
+          localStorage.removeItem(`tenant_user_${slug}`)
+          localStorage.removeItem(`tenant_data_${slug}`)
+          router.push(`/tenant/${slug}/login`)
+          return
+        }
+
+        // Token is valid, load user data
+        setUser(JSON.parse(userData))
+        setTenant(JSON.parse(tenantData))
+        setIsLoading(false)
+      } catch (error) {
+        console.error('Error verifying token or parsing stored data:', error)
+        localStorage.removeItem(`tenant_token_${slug}`)
+        localStorage.removeItem(`tenant_user_${slug}`)
+        localStorage.removeItem(`tenant_data_${slug}`)
+        router.push(`/tenant/${slug}/login`)
+      }
     }
 
-    try {
-      setUser(JSON.parse(userData))
-      setTenant(JSON.parse(tenantData))
-      setIsLoading(false)
-    } catch (error) {
-      console.error('Error parsing stored data:', error)
-      router.push(`/tenant/${slug}/login`)
-    }
+    checkAuthAndLoadData()
   }, [slug, router])
 
   // Fetch data when tabs are accessed
@@ -1284,7 +1311,7 @@ export default function TenantDashboard() {
                           )}
                           <div className="flex items-center text-sm text-gray-500">
                             <TagIcon className={`h-4 w-4 ${isRTL ? 'ml-1' : 'mr-1'}`} />
-                            <span>{category._count?.products || 0} {t('tenant.categories.productCount')}</span>
+                            <span>{category.productCount || category._count?.products || 0} {t('tenant.categories.productCount')}</span>
                             <span className="mx-2">•</span>
                             <span>{t('tenant.categories.order')}: {category.sortOrder}</span>
                           </div>
@@ -1478,7 +1505,7 @@ export default function TenantDashboard() {
 
                         <div className="mb-3">
                           <p className="text-xs text-gray-500">
-                            {t('tenant.products.category')}: {categories.find(c => c.id === product.categoryId)?.nameEn || t('tenant.products.unknown')}
+                            {t('tenant.products.category')}: {product.category?.nameEn || t('tenant.products.unknown')}
                           </p>
                           <p className="text-xs text-gray-500">
                             {t('tenant.products.sortOrderLabel')}: {product.sortOrder}
@@ -2702,7 +2729,7 @@ function ProductModal({ product, onClose, onSave, tenant, categories }: ProductM
               Category *
             </label>
             <select
-              value={formData.categoryId}
+              value={formData.categoryId || ''}
               onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.categoryId ? 'border-red-300' : 'border-gray-300'
