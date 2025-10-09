@@ -59,9 +59,8 @@ export async function GET(request: NextRequest) {
     })
 
     // Generate the public menu URL regardless of content
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : 'https://themenugenie.com'
+    // Always use production URL for QR codes
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://themenugenie.com'
     const menuUrl = `${baseUrl}/menu/${tenant.slug}`
 
     // Return QR code data
