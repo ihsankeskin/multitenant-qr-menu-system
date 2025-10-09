@@ -1544,6 +1544,7 @@ export default function TenantDashboard() {
               {/* Product Modal */}
               {isProductModalOpen && (
                 <ProductModal
+                  key={selectedProduct?.id || 'new'}
                   product={selectedProduct}
                   onClose={() => {
                     setIsProductModalOpen(false)
@@ -2621,28 +2622,26 @@ function ProductModal({ product, onClose, onSave, tenant, categories }: ProductM
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Update form when product changes (e.g., when modal opens with a product to edit)
-  // Using product?.id as dependency ensures this runs when a different product is loaded
+  // Update form when product prop changes (including when modal reopens with same product)
+  // This ensures the form always reflects the current product's data
   useEffect(() => {
-    if (product) {
-      setFormData({
-        nameEn: product.nameEn || '',
-        nameAr: product.nameAr || '',
-        descriptionEn: product.descriptionEn || '',
-        descriptionAr: product.descriptionAr || '',
-        imageUrl: product.imageUrl || '',
-        imageData: product.imageData || '',
-        basePrice: product.basePrice || 0,
-        discountPrice: product.discountPrice || undefined,
-        isActive: product.isActive ?? true,
-        isAvailable: product.isAvailable ?? true,
-        isFeatured: product.isFeatured ?? false,
-        sortOrder: product.sortOrder || 0,
-        calories: product.calories || undefined,
-        categoryId: product.categoryId || ''
-      })
-    }
-  }, [product?.id])
+    setFormData({
+      nameEn: product?.nameEn || '',
+      nameAr: product?.nameAr || '',
+      descriptionEn: product?.descriptionEn || '',
+      descriptionAr: product?.descriptionAr || '',
+      imageUrl: product?.imageUrl || '',
+      imageData: product?.imageData || '',
+      basePrice: product?.basePrice || 0,
+      discountPrice: product?.discountPrice || undefined,
+      isActive: product?.isActive ?? true,
+      isAvailable: product?.isAvailable ?? true,
+      isFeatured: product?.isFeatured ?? false,
+      sortOrder: product?.sortOrder || 0,
+      calories: product?.calories || undefined,
+      categoryId: product?.categoryId || ''
+    })
+  }, [product])
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
