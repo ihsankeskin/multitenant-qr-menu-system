@@ -16,17 +16,15 @@ export async function GET(
       )
     }
 
-    const token = authHeader.substring(7)
-    const payload = await verifyToken(token)
-
-    if (!payload || payload.role !== 'super-admin') {
-      return NextResponse.json(
-        { success: false, message: 'Access denied' },
-        { status: 403 }
-      )
-    }
-
-    const tenantId = params.id
+  const token = authHeader.substring(7)
+  const payload = await verifyToken(token)
+  
+  if (!payload || (payload.role !== 'SUPER_ADMIN' && payload.role !== 'ADMIN')) {
+    return NextResponse.json(
+      { success: false, message: 'Access denied' },
+      { status: 403 }
+    )
+  }    const tenantId = params.id
 
     // Verify tenant exists
     const tenant = await prisma.tenant.findUnique({
