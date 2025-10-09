@@ -558,6 +558,22 @@ export default function PublicMenu() {
                   </div>
                 )}
 
+                {/* Featured Badge for products without images */}
+                {product.isFeatured && (!settings?.showImages || !product.imageUrl) && (
+                  <div className="p-4 pb-0">
+                    <div 
+                      className="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-white text-xs font-bold shadow-lg"
+                      style={{ 
+                        backgroundColor: accentColor,
+                        boxShadow: `0 4px 12px ${accentColor}40`
+                      }}
+                    >
+                      <StarIcon className="h-3 w-3" />
+                      <span>{language === 'ar' ? 'مميز' : 'Featured'}</span>
+                    </div>
+                  </div>
+                )}
+
                 {/* Product Content */}
                 <div className="p-4">
                   <div className="flex justify-between items-start mb-3">
