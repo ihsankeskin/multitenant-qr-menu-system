@@ -249,6 +249,21 @@ export async function POST(request: NextRequest) {
     // Convert isAvailable to isOutOfStock if needed
     const outOfStock = isAvailable !== undefined ? !isAvailable : isOutOfStock
 
+    // Set default discount dates if discount price is provided but dates are missing
+    let finalDiscountStartDate = discountStartDate
+    let finalDiscountEndDate = discountEndDate
+    
+    if (discountPrice && !discountStartDate) {
+      finalDiscountStartDate = new Date().toISOString() // Start now
+    }
+    
+    if (discountPrice && !discountEndDate) {
+      // Set end date to 1 year from now
+      const oneYearFromNow = new Date()
+      oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1)
+      finalDiscountEndDate = oneYearFromNow.toISOString()
+    }
+
     // Validate required fields
     if (!categoryId || !nameEn || !nameAr || !productPrice) {
       console.error('Product validation error - missing fields:', {
@@ -324,13 +339,13 @@ export async function POST(request: NextRequest) {
         nameAr: nameAr.trim(),
         descriptionEn: descriptionEn?.trim() || null,
         descriptionAr: descriptionAr?.trim() || null,
-        imageUrl: imageUrl?.trim() || null,
+        imageUrl: imageUrl?.trim() || imageData?.trim() || null, // Use imageData as fallback
         imageData: imageData?.trim() || null,
         imageUrls: stringArrayToJson(imageUrls),
         basePrice: parseFloat(productPrice),
         discountPrice: discountPrice ? parseFloat(discountPrice) : null,
-        discountStartDate: discountStartDate ? new Date(discountStartDate) : null,
-        discountEndDate: discountEndDate ? new Date(discountEndDate) : null,
+        discountStartDate: finalDiscountStartDate ? new Date(finalDiscountStartDate) : null,
+        discountEndDate: finalDiscountEndDate ? new Date(finalDiscountEndDate) : null,
         isActive,
         isFeatured,
         isOutOfStock: outOfStock,

@@ -413,7 +413,7 @@ export default function PublicMenu() {
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm whitespace-nowrap ${
+                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm whitespace-nowrap flex items-center space-x-2 ${
                   selectedCategory === category.id 
                     ? 'text-white transform scale-105'
                     : 'text-gray-600 hover:text-white hover:scale-105'
@@ -433,7 +433,17 @@ export default function PublicMenu() {
                   e.currentTarget.style.backgroundColor = 'transparent'
                 }}
               >
-                {language === 'ar' ? category.nameAr : category.nameEn}
+                {category.imageUrl && (
+                  <img 
+                    src={category.imageUrl} 
+                    alt={language === 'ar' ? category.nameAr : category.nameEn}
+                    className="h-5 w-5 rounded-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none'
+                    }}
+                  />
+                )}
+                <span>{language === 'ar' ? category.nameAr : category.nameEn}</span>
               </button>
             ))}
           </div>

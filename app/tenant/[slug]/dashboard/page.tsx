@@ -2421,7 +2421,20 @@ function CategoryModal({ category, onClose, onSave, tenant }: CategoryModalProps
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-screen overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-screen overflow-y-auto relative">
+        {isSubmitting && (
+          <div className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center z-10 rounded-lg">
+            <div className="text-center">
+              <div 
+                className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
+                style={{ borderBottomColor: tenant.primaryColor }}
+              ></div>
+              <p className="text-gray-700 font-medium">Saving category...</p>
+              <p className="text-gray-500 text-sm mt-2">Please wait</p>
+            </div>
+          </div>
+        )}
+        
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">
             {category ? 'Edit Category' : 'Add New Category'}
@@ -2694,7 +2707,20 @@ function ProductModal({ product, onClose, onSave, tenant, categories }: ProductM
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-screen overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-screen overflow-y-auto relative">
+        {isSubmitting && (
+          <div className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center z-10 rounded-lg">
+            <div className="text-center">
+              <div 
+                className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
+                style={{ borderBottomColor: tenant.primaryColor }}
+              ></div>
+              <p className="text-gray-700 font-medium">Saving product...</p>
+              <p className="text-gray-500 text-sm mt-2">Please wait</p>
+            </div>
+          </div>
+        )}
+        
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">
             {product ? 'Edit Product' : 'Add New Product'}
