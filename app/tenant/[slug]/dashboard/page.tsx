@@ -2622,6 +2622,17 @@ function ProductModal({ product, onClose, onSave, tenant, categories }: ProductM
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  // Debug logging to understand what's happening
+  useEffect(() => {
+    console.log('🔍 ProductModal Debug:', {
+      'product?.id': product?.id,
+      'product?.categoryId': product?.categoryId,
+      'product?.category?.id': product?.category?.id,
+      'formData.categoryId': formData.categoryId,
+      'categories': categories.map(c => ({ id: c.id, name: c.nameEn }))
+    })
+  }, [product, formData.categoryId, categories])
+
   // Update form when product prop changes (including when modal reopens with same product)
   // This ensures the form always reflects the current product's data
   useEffect(() => {
