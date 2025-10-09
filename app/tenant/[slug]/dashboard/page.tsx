@@ -2603,6 +2603,7 @@ interface ProductModalProps {
 }
 
 function ProductModal({ product, onClose, onSave, tenant, categories }: ProductModalProps) {
+  // Use product?.category?.id as fallback since API returns the relation but not the categoryId field
   const [formData, setFormData] = useState<ProductFormData>({
     nameEn: product?.nameEn || '',
     nameAr: product?.nameAr || '',
@@ -2617,21 +2618,10 @@ function ProductModal({ product, onClose, onSave, tenant, categories }: ProductM
     isFeatured: product?.isFeatured ?? false,
     sortOrder: product?.sortOrder || 0,
     calories: product?.calories || undefined,
-    categoryId: product?.categoryId || ''
+    categoryId: product?.categoryId || product?.category?.id || ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
-
-  // Debug logging to understand what's happening
-  useEffect(() => {
-    console.log('🔍 ProductModal Debug:', {
-      'product?.id': product?.id,
-      'product?.categoryId': product?.categoryId,
-      'product?.category?.id': product?.category?.id,
-      'formData.categoryId': formData.categoryId,
-      'categories': categories.map(c => ({ id: c.id, name: c.nameEn }))
-    })
-  }, [product, formData.categoryId, categories])
 
   // Update form when product prop changes (including when modal reopens with same product)
   // This ensures the form always reflects the current product's data
@@ -2650,7 +2640,7 @@ function ProductModal({ product, onClose, onSave, tenant, categories }: ProductM
       isFeatured: product?.isFeatured ?? false,
       sortOrder: product?.sortOrder || 0,
       calories: product?.calories || undefined,
-      categoryId: product?.categoryId || ''
+      categoryId: product?.categoryId || product?.category?.id || ''
     })
   }, [product])
 
