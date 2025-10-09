@@ -153,6 +153,8 @@ interface Product {
   imageUrls?: string[]
   basePrice: number
   discountPrice?: number
+  currentPrice?: number
+  hasDiscount?: boolean
   discountStartDate?: string
   discountEndDate?: string
   price?: number  // Deprecated - keeping for backward compatibility
@@ -1494,9 +1496,9 @@ export default function TenantDashboard() {
 
                         <div className="mb-3">
                           <span className="text-lg font-bold" style={{ color: tenant.primaryColor }}>
-                            {formatCurrency(product.basePrice || 0)}
+                            {formatCurrency(product.currentPrice || product.basePrice || 0)}
                           </span>
-                          {product.discountPrice && product.discountPrice < (product.basePrice || 0) && (
+                          {product.hasDiscount && (
                             <span className="ml-2 text-sm text-gray-500 line-through">
                               {formatCurrency(product.basePrice)}
                             </span>

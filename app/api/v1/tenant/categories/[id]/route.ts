@@ -226,7 +226,7 @@ export async function PUT(
         nameAr: nameAr.trim(),
         descriptionEn: descriptionEn?.trim() || null,
         descriptionAr: descriptionAr?.trim() || null,
-        imageUrl: imageUrl?.trim() || null,
+        imageUrl: imageUrl?.trim() || imageData?.trim() || null, // Use imageData as fallback
         imageData: imageData?.trim() || null,
         isActive: isActive !== undefined ? isActive : existingCategory.isActive,
         showInMenu: showInMenu !== undefined ? showInMenu : existingCategory.showInMenu,

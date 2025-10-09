@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
         nameAr: nameAr.trim(),
         descriptionEn: descriptionEn?.trim() || null,
         descriptionAr: descriptionAr?.trim() || null,
-        imageUrl: imageUrl?.trim() || null,
+        imageUrl: imageUrl?.trim() || imageData?.trim() || null, // Use imageData as fallback
         imageData: imageData?.trim() || null,
         isActive,
         showInMenu,

@@ -116,44 +116,61 @@ export async function GET(request: NextRequest) {
     })
 
     // Transform data for response
-    const transformedProducts = products.map(product => ({
-      id: product.id,
-      nameEn: product.nameEn,
-      nameAr: product.nameAr,
-      descriptionEn: product.descriptionEn,
-      descriptionAr: product.descriptionAr,
-      imageUrl: product.imageUrl,
-      imageData: product.imageData,
-      imageUrls: jsonToStringArray(product.imageUrls),
-      basePrice: Number(product.basePrice),
-      discountPrice: product.discountPrice ? Number(product.discountPrice) : null,
-      discountStartDate: product.discountStartDate,
-      discountEndDate: product.discountEndDate,
-      isActive: product.isActive,
-      isFeatured: product.isFeatured,
-      isOutOfStock: product.isOutOfStock,
-      stockQuantity: product.stockQuantity,
-      preparationTime: product.preparationTime,
-      servingSize: product.servingSize,
-      calories: product.calories,
-      ingredientsEn: jsonToStringArray(product.ingredientsEn),
-      ingredientsAr: jsonToStringArray(product.ingredientsAr),
-      allergensEn: jsonToStringArray(product.allergensEn),
-      allergensAr: jsonToStringArray(product.allergensAr),
-      category: {
-        id: product.category.id,
-        nameEn: product.category.nameEn,
-        nameAr: product.category.nameAr,
-        isActive: product.category.isActive
-      },
-      tenant: {
-        businessName: product.tenant.businessName,
-        currency: product.tenant.currency
-      },
-      createdAt: product.createdAt,
-      updatedAt: product.updatedAt,
-      createdBy: `${product.createdBy.firstName} ${product.createdBy.lastName}`
-    }))
+    const transformedProducts = products.map(product => {
+      // Check if discount is currently active
+      const now = new Date()
+      const hasActiveDiscount = product.discountPrice && 
+        product.discountStartDate && 
+        product.discountEndDate &&
+        now >= product.discountStartDate && 
+        now <= product.discountEndDate
+
+      const basePrice = Number(product.basePrice)
+      const discountPrice = product.discountPrice ? Number(product.discountPrice) : null
+      const currentPrice = hasActiveDiscount && discountPrice ? discountPrice : basePrice
+
+      return {
+        id: product.id,
+        nameEn: product.nameEn,
+        nameAr: product.nameAr,
+        descriptionEn: product.descriptionEn,
+        descriptionAr: product.descriptionAr,
+        imageUrl: product.imageUrl,
+        imageData: product.imageData,
+        imageUrls: jsonToStringArray(product.imageUrls),
+        basePrice: basePrice,
+        discountPrice: discountPrice,
+        currentPrice: currentPrice,
+        hasDiscount: hasActiveDiscount,
+        discountStartDate: product.discountStartDate,
+        discountEndDate: product.discountEndDate,
+        isActive: product.isActive,
+        isAvailable: !product.isOutOfStock, // Add isAvailable for dashboard display
+        isFeatured: product.isFeatured,
+        isOutOfStock: product.isOutOfStock,
+        stockQuantity: product.stockQuantity,
+        preparationTime: product.preparationTime,
+        servingSize: product.servingSize,
+        calories: product.calories,
+        ingredientsEn: jsonToStringArray(product.ingredientsEn),
+        ingredientsAr: jsonToStringArray(product.ingredientsAr),
+        allergensEn: jsonToStringArray(product.allergensEn),
+        allergensAr: jsonToStringArray(product.allergensAr),
+        category: {
+          id: product.category.id,
+          nameEn: product.category.nameEn,
+          nameAr: product.category.nameAr,
+          isActive: product.category.isActive
+        },
+        tenant: {
+          businessName: product.tenant.businessName,
+          currency: product.tenant.currency
+        },
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+        createdBy: `${product.createdBy.firstName} ${product.createdBy.lastName}`
+      }
+    })
 
     return NextResponse.json({
       success: true,
