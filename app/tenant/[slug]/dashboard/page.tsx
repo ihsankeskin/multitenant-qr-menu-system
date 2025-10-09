@@ -2621,6 +2621,28 @@ function ProductModal({ product, onClose, onSave, tenant, categories }: ProductM
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  // Update form when product changes (e.g., when modal opens with a product to edit)
+  useEffect(() => {
+    if (product) {
+      setFormData({
+        nameEn: product.nameEn || '',
+        nameAr: product.nameAr || '',
+        descriptionEn: product.descriptionEn || '',
+        descriptionAr: product.descriptionAr || '',
+        imageUrl: product.imageUrl || '',
+        imageData: product.imageData || '',
+        basePrice: product.basePrice || 0,
+        discountPrice: product.discountPrice || undefined,
+        isActive: product.isActive ?? true,
+        isAvailable: product.isAvailable ?? true,
+        isFeatured: product.isFeatured ?? false,
+        sortOrder: product.sortOrder || 0,
+        calories: product.calories || undefined,
+        categoryId: product.categoryId || ''
+      })
+    }
+  }, [product])
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
     
