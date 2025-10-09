@@ -708,56 +708,78 @@ export default function SuperAdminTenantDetail() {
           </div>
         )}
 
-        {activeTab === 'stats' && tenantStats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">Content Statistics</h4>
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Total Categories:</span>
-                  <span className="font-medium">{tenantStats.totalCategories}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Total Products:</span>
-                  <span className="font-medium">{tenantStats.totalProducts}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Active Products:</span>
-                  <span className="font-medium text-green-600">{tenantStats.activeProducts}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">User Statistics</h4>
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Total Users:</span>
-                  <span className="font-medium">{tenantStats.totalUsers}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Active Users:</span>
-                  <span className="font-medium text-green-600">{tenantStats.activeUsers}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">Engagement</h4>
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Menu Views:</span>
-                  <span className="font-medium">{tenantStats.menuViews}</span>
-                </div>
-                {tenantStats.lastActivity && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Last Activity:</span>
-                    <span className="font-medium">{formatDate(tenantStats.lastActivity)}</span>
+        {activeTab === 'stats' && (
+          <>
+            {!tenantStats ? (
+              <div className="bg-white rounded-lg shadow-sm border p-12">
+                <div className="text-center">
+                  <ChartBarIcon className="mx-auto h-12 w-12 text-gray-400" />
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">No statistics available</h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Statistics data could not be loaded. Please try refreshing the page.
+                  </p>
+                  <div className="mt-6">
+                    <button
+                      onClick={fetchTenantStats}
+                      className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                    >
+                      Retry
+                    </button>
                   </div>
-                )}
+                </div>
               </div>
-            </div>
-          </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="bg-white p-6 rounded-lg shadow-sm border">
+                  <h4 className="text-lg font-medium text-gray-900 mb-4">Content Statistics</h4>
+                  <div className="space-y-4">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Total Categories:</span>
+                      <span className="font-medium">{tenantStats.totalCategories}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Total Products:</span>
+                      <span className="font-medium">{tenantStats.totalProducts}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Active Products:</span>
+                      <span className="font-medium text-green-600">{tenantStats.activeProducts}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white p-6 rounded-lg shadow-sm border">
+                  <h4 className="text-lg font-medium text-gray-900 mb-4">User Statistics</h4>
+                  <div className="space-y-4">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Total Users:</span>
+                      <span className="font-medium">{tenantStats.totalUsers}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Active Users:</span>
+                      <span className="font-medium text-green-600">{tenantStats.activeUsers}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white p-6 rounded-lg shadow-sm border">
+                  <h4 className="text-lg font-medium text-gray-900 mb-4">Engagement</h4>
+                  <div className="space-y-4">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Menu Views:</span>
+                      <span className="font-medium">{tenantStats.menuViews}</span>
+                    </div>
+                    {tenantStats.lastActivity && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Last Activity:</span>
+                        <span className="font-medium">{formatDate(tenantStats.lastActivity)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {activeTab === 'settings' && (
