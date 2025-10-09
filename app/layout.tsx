@@ -24,7 +24,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head />
       <body className={inter.className} suppressHydrationWarning>
-        <LocalizationProvider>
+        <LocalizationProvider defaultLanguage="ar">
           <div id="root">{children}</div>
         </LocalizationProvider>
       </body>

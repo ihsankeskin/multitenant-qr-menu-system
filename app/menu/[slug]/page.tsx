@@ -86,7 +86,7 @@ export default function PublicMenu() {
   const [isLoading, setIsLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [searchTerm, setSearchTerm] = useState('')
-  const [language, setLanguage] = useState<'en' | 'ar'>('en')
+  const [language, setLanguage] = useState<'en' | 'ar'>('ar')
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   // Note: Menu open state available for future mobile menu functionality
   // const [isMenuOpen, setIsMenuOpen] = useState(false)

@@ -34,7 +34,8 @@ export async function GET(
         addressAr: true,
         phone: true,
         email: true,
-        isActive: true
+        isActive: true,
+        defaultLanguage: true
       }
     })
 
@@ -180,7 +181,7 @@ export async function GET(
         showCalories: true,
         showDescriptions: true,
         showImages: true,
-        defaultLanguage: 'en',
+        defaultLanguage: tenant.defaultLanguage || 'ar',
         enableBilingualMenu: true,
         currency: tenant.currency || 'USD',
         currencyPosition: 'before',
