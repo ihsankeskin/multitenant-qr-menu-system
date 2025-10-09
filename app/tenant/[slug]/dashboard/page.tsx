@@ -2622,6 +2622,7 @@ function ProductModal({ product, onClose, onSave, tenant, categories }: ProductM
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   // Update form when product changes (e.g., when modal opens with a product to edit)
+  // Using product?.id as dependency ensures this runs when a different product is loaded
   useEffect(() => {
     if (product) {
       setFormData({
@@ -2641,7 +2642,7 @@ function ProductModal({ product, onClose, onSave, tenant, categories }: ProductM
         categoryId: product.categoryId || ''
       })
     }
-  }, [product])
+  }, [product?.id])
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
