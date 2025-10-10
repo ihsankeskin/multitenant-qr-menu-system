@@ -14,7 +14,9 @@ import {
   ChartBarIcon,
   CogIcon,
   PlusIcon,
-  XMarkIcon
+  XMarkIcon,
+  ClipboardDocumentIcon,
+  InformationCircleIcon
 } from '@heroicons/react/24/outline'
 import {
   BuildingStorefrontIcon as BuildingStorefrontSolidIcon
@@ -83,6 +85,8 @@ export default function SuperAdminTenantDetail() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleteConfirmName, setDeleteConfirmName] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
+  const [showAccessModal, setShowAccessModal] = useState(false)
+  const [copySuccess, setCopySuccess] = useState(false)
   const [userFormData, setUserFormData] = useState({
     email: '',
     firstName: '',
@@ -253,6 +257,104 @@ export default function SuperAdminTenantDetail() {
     setShowDeleteModal(false)
   }
 
+  const generateAccessInstructions = () => {
+    if (!tenant) return ''
+    
+    const adminUrl = `https://themenugenie.com/tenant/${tenant.slug}/dashboard`
+    const menuUrl = `https://themenugenie.com/menu/${tenant.slug}`
+    
+    // Find admin users and their initial passwords
+    const adminUsers = tenantUsers.filter(u => u.role === 'admin')
+    
+    const englishMessage = `🎉 Welcome to The Menu Genie! 🎉
+
+Your digital menu system is now ready to use!
+
+📱 Public Menu Link (Share with customers):
+${menuUrl}
+
+🔐 Admin Dashboard Access:
+${adminUrl}
+
+👥 Admin Credentials:
+${adminUsers.length > 0 ? adminUsers.map(user => 
+`• ${user.firstName} ${user.lastName}
+  Email: ${user.email}
+  Initial Password: Admin123!
+  (You'll be required to change this on first login)`
+).join('\n\n') : '⚠️ No admin users created yet. Please create an admin user first.'}
+
+📋 Quick Start Guide:
+1. Visit the admin dashboard link above
+2. Login with the credentials provided
+3. Change your password when prompted (first login)
+4. Start adding your menu categories and items
+5. Customize your menu appearance and branding
+6. Share your public menu link with customers
+
+💡 Tips:
+• Use the QR code generator to create printable codes for your tables
+• Support both English and Arabic languages
+• Upload your logo and customize brand colors
+• Add descriptions and images to your menu items
+
+Need help? Contact support at support@themenugenie.com
+
+---
+
+${'-'.repeat(60)}
+
+`
+
+    const arabicMessage = `🎉 مرحباً بك في The Menu Genie! 🎉
+
+نظام القائمة الرقمية الخاص بك جاهز للاستخدام!
+
+📱 رابط القائمة العامة (شاركه مع عملائك):
+${menuUrl}
+
+🔐 الوصول إلى لوحة التحكم:
+${adminUrl}
+
+👥 بيانات اعتماد المسؤول:
+${adminUsers.length > 0 ? adminUsers.map(user => 
+`• ${user.firstName} ${user.lastName}
+  البريد الإلكتروني: ${user.email}
+  كلمة المرور الأولية: Admin123!
+  (سيُطلب منك تغيير كلمة المرور عند تسجيل الدخول لأول مرة)`
+).join('\n\n') : '⚠️ لم يتم إنشاء مستخدمين مسؤولين بعد. يرجى إنشاء مستخدم مسؤول أولاً.'}
+
+📋 دليل البدء السريع:
+١. قم بزيارة رابط لوحة التحكم أعلاه
+٢. سجل الدخول باستخدام بيانات الاعتماد المقدمة
+٣. قم بتغيير كلمة المرور عند المطالبة (تسجيل الدخول الأول)
+٤. ابدأ في إضافة فئات ومنتجات القائمة الخاصة بك
+٥. قم بتخصيص مظهر القائمة والعلامة التجارية
+٦. شارك رابط القائمة العامة مع عملائك
+
+💡 نصائح:
+• استخدم مولد رمز الاستجابة السريعة لإنشاء رموز قابلة للطباعة لطاولاتك
+• دعم اللغتين العربية والإنجليزية
+• قم بتحميل شعارك وتخصيص ألوان العلامة التجارية
+• أضف أوصافًا وصورًا لعناصر القائمة الخاصة بك
+
+هل تحتاج إلى مساعدة؟ اتصل بالدعم على support@themenugenie.com`
+
+    return englishMessage + '\n' + arabicMessage
+  }
+
+  const copyAccessInstructions = async () => {
+    const message = generateAccessInstructions()
+    try {
+      await navigator.clipboard.writeText(message)
+      setCopySuccess(true)
+      setTimeout(() => setCopySuccess(false), 3000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+      alert('Failed to copy to clipboard')
+    }
+  }
+
   const createTenantUser = async () => {
     if (!validateUserForm()) return
 
@@ -404,6 +506,14 @@ export default function SuperAdminTenantDetail() {
               <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(tenant.isActive)}`}>
                 {tenant.isActive ? 'Active' : 'Inactive'}
               </span>
+              
+              <button
+                onClick={() => setShowAccessModal(true)}
+                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                <InformationCircleIcon className="h-4 w-4 mr-2" />
+                Access Info
+              </button>
               
               <button
                 onClick={toggleTenantStatus}
@@ -1017,6 +1127,63 @@ export default function SuperAdminTenantDetail() {
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                 )}
                 {isDeleting ? 'Deleting...' : 'Delete Tenant'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Access Instructions Modal */}
+      {showAccessModal && tenant && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <InformationCircleIcon className="h-6 w-6 text-blue-600 mr-2" />
+                <h3 className="text-lg font-medium text-gray-900">Access Instructions & Credentials</h3>
+              </div>
+              <button
+                onClick={() => setShowAccessModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                <p className="text-sm text-blue-800">
+                  📋 Copy this message and share it with the tenant owner. It contains all the information needed to access their menu system.
+                </p>
+              </div>
+
+              <div className="bg-gray-50 border border-gray-200 rounded-md p-4 max-h-96 overflow-y-auto">
+                <pre className="text-sm text-gray-800 whitespace-pre-wrap font-mono">
+                  {generateAccessInstructions()}
+                </pre>
+              </div>
+
+              {copySuccess && (
+                <div className="flex items-center p-3 bg-green-50 border border-green-200 rounded-md">
+                  <CheckCircleIcon className="h-5 w-5 text-green-600 mr-2" />
+                  <span className="text-sm text-green-800">Copied to clipboard!</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200 mt-6">
+              <button
+                onClick={() => setShowAccessModal(false)}
+                className="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Close
+              </button>
+              <button
+                onClick={copyAccessInstructions}
+                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              >
+                <ClipboardDocumentIcon className="h-4 w-4 mr-2" />
+                Copy to Clipboard
               </button>
             </div>
           </div>

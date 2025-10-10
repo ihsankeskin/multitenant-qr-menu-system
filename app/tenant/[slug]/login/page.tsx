@@ -138,8 +138,13 @@ export default function TenantLoginPage() {
         localStorage.setItem(`tenant_user_${slug}`, JSON.stringify(data.data.user))
         localStorage.setItem(`tenant_data_${slug}`, JSON.stringify(data.data.tenant))
         
-        // Redirect to tenant dashboard
-        router.push(`/tenant/${slug}/dashboard`)
+        // Check if user must change password on first login
+        if (data.data.user.mustChangePassword) {
+          router.push(`/tenant/${slug}/change-password?firstLogin=true`)
+        } else {
+          // Redirect to tenant dashboard
+          router.push(`/tenant/${slug}/dashboard`)
+        }
       } else {
         setErrors({ 
           submit: data.message || 'Invalid email or password'
