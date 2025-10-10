@@ -1,6 +1,10 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 
+// Force dynamic rendering to avoid build-time database access
+export const dynamic = 'force-dynamic'
+export const revalidate = 60 // Revalidate every 60 seconds
+
 async function getActiveMenus() {
   try {
     const tenants = await prisma.tenant.findMany({
