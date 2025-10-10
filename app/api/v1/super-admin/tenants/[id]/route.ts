@@ -257,6 +257,11 @@ export async function DELETE(
         }
       })
 
+      // Delete payment records
+      await tx.paymentRecord.deleteMany({
+        where: { tenantId: tenantId }
+      })
+
       // Delete all products (cascade will handle related records)
       await tx.product.deleteMany({
         where: { tenantId: tenantId }
