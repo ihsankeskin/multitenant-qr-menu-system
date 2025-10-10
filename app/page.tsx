@@ -147,9 +147,16 @@ export default async function HomePage() {
 
                 {/* Info Section */}
                 <div className="p-5">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">
-                    {menu.businessName}
-                  </h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                      {menu.businessName}
+                    </h3>
+                    {(menu.slug === 'bella-italia' || menu.slug === 'artisan-brew') && (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-sm">
+                        ✨ Demo
+                      </span>
+                    )}
+                  </div>
                   
                   <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
                     <div className="flex items-center space-x-1">
