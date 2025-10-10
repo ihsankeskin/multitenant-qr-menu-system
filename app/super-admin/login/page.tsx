@@ -15,14 +15,6 @@ export default function SuperAdminLogin() {
   const [error, setError] = useState('')
   const router = useRouter()
 
-  const handleQuickLogin = () => {
-    setEmail('admin@qrmenu.system')
-    setPassword('SuperAdmin123!')
-    setMfaCode('')
-    setShowMfa(false)
-    setError('')
-  }
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -134,23 +126,6 @@ export default function SuperAdminLogin() {
               {error}
             </div>
           )}
-
-          {/* Quick Login Button for Development */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-yellow-800">{t('superAdmin.auth.login.quickLogin')}</p>
-                <p className="text-xs text-yellow-600 mt-1">{t('superAdmin.auth.login.quickLoginDescription')}</p>
-              </div>
-              <button
-                type="button"
-                onClick={handleQuickLogin}
-                className="inline-flex items-center px-3 py-1 border border-yellow-300 rounded-md text-sm font-medium text-yellow-700 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              >
-                {t('superAdmin.auth.login.quickLoginButton')}
-              </button>
-            </div>
-          </div>
 
           <div>
             <button
