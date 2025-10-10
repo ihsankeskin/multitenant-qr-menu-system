@@ -240,25 +240,24 @@ export async function DELETE(
 
     // Start transaction to delete all related data
     await prisma.$transaction(async (tx) => {
-      // Delete audit logs first (they reference users)
+      // Get all users associated with this tenant
+      const tenantUserIds = await tx.tenantUser.findMany({
+        where: { tenantId: tenantId },
+        select: { userId: true }
+      })
+      const userIds = tenantUserIds.map(tu => tu.userId)
+
+      // Delete audit logs related to this tenant or its users
       await tx.auditLog.deleteMany({
         where: {
           OR: [
             { tenantId: tenantId },
-            { 
-              user: {
-                tenantUsers: {
-                  some: {
-                    tenantId: tenantId
-                  }
-                }
-              }
-            }
+            { userId: { in: userIds } }
           ]
         }
       })
 
-      // Delete all products
+      // Delete all products (cascade will handle related records)
       await tx.product.deleteMany({
         where: { tenantId: tenantId }
       })
@@ -276,10 +275,9 @@ export async function DELETE(
       // Delete users who only belong to this tenant
       const usersToDelete = await tx.user.findMany({
         where: {
+          id: { in: userIds },
           tenantUsers: {
-            every: {
-              tenantId: tenantId
-            }
+            none: {} // Users with no other tenant relationships
           }
         },
         select: { id: true }
