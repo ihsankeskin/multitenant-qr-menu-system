@@ -2,10 +2,103 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-async function main() {
-  console.log('🎬 Starting demo menus creation...\n')
+async function deleteWaseemTenant() {
+  console.log('🗑️  Deleting Waseem tenant (waseemco)...\n')
+  
+  try {
+    // Find the tenant
+    const tenant = await prisma.tenant.findFirst({
+      where: {
+        slug: 'waseemco'
+      },
+      select: {
+        id: true,
+        businessName: true,
+        slug: true
+      }
+    })
 
-  // Get the super admin user who will own these tenants
+    if (!tenant) {
+      console.log('⚠️  Waseem tenant not found - skipping deletion')
+      return
+    }
+
+    console.log(`Found tenant: ${tenant.businessName} (${tenant.slug})`)
+
+    // Delete in transaction
+    await prisma.$transaction(async (tx) => {
+      // Get all users associated with this tenant
+      const tenantUserIds = await tx.tenantUser.findMany({
+        where: { tenantId: tenant.id },
+        select: { userId: true }
+      })
+      const userIds = tenantUserIds.map(tu => tu.userId)
+
+      console.log(`  - Deleting audit logs...`)
+      await tx.auditLog.deleteMany({
+        where: {
+          OR: [
+            { tenantId: tenant.id },
+            { userId: { in: userIds } }
+          ]
+        }
+      })
+
+      console.log(`  - Deleting products...`)
+      await tx.product.deleteMany({
+        where: { tenantId: tenant.id }
+      })
+
+      console.log(`  - Deleting categories...`)
+      await tx.category.deleteMany({
+        where: { tenantId: tenant.id }
+      })
+
+      console.log(`  - Deleting tenant user relationships...`)
+      await tx.tenantUser.deleteMany({
+        where: { tenantId: tenant.id }
+      })
+
+      console.log(`  - Checking for orphaned users...`)
+      const usersToDelete = await tx.user.findMany({
+        where: {
+          id: { in: userIds },
+          tenantUsers: {
+            none: {}
+          }
+        },
+        select: { id: true, email: true }
+      })
+
+      if (usersToDelete.length > 0) {
+        console.log(`  - Deleting ${usersToDelete.length} orphaned user(s)...`)
+        await tx.user.deleteMany({
+          where: {
+            id: { in: usersToDelete.map(u => u.id) }
+          }
+        })
+      }
+
+      console.log(`  - Deleting tenant...`)
+      await tx.tenant.delete({
+        where: { id: tenant.id }
+      })
+    })
+
+    console.log(`✅ Successfully deleted tenant: ${tenant.businessName}\n`)
+  } catch (error) {
+    console.error('❌ Error deleting Waseem tenant:', error)
+    throw error
+  }
+}
+
+async function main() {
+  console.log('🎬 Starting demo menus setup...\n')
+
+  // Step 1: Delete Waseem tenant
+  await deleteWaseemTenant()
+
+  // Step 2: Get the super admin user who will own these tenants
   const superAdmin = await prisma.user.findFirst({
     where: {
       role: 'SUPER_ADMIN'
