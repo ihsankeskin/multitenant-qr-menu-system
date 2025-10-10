@@ -91,10 +91,10 @@ export async function GET(
     })
 
     // Filter out categories with no products
-    const categoriesWithProducts = categories.filter((category: any) => category.products.length > 0)
+    const categoriesWithProducts = categories.filter((category) => category.products.length > 0)
 
     // Transform products data
-    const transformedCategories = categoriesWithProducts.map((category: any) => ({
+    const transformedCategories = categoriesWithProducts.map((category) => ({
       id: category.id,
       nameEn: category.nameEn,
       nameAr: category.nameAr,
@@ -102,7 +102,7 @@ export async function GET(
       descriptionAr: category.descriptionAr,
       imageUrl: category.imageUrl,
       sortOrder: category.sortOrder,
-      products: category.products.map((product: any) => {
+      products: category.products.map((product) => {
         const now = new Date()
         const hasActiveDiscount = product.discountPrice && 
           product.discountStartDate && 
@@ -144,14 +144,16 @@ export async function GET(
 
     // Get featured products across all categories
     const featuredProducts = transformedCategories
-      .flatMap((category: any) => category.products)
-      .filter((product: any) => product.isFeatured && !product.isOutOfStock)
+      .flatMap((category) => category.products)
+      .filter((product) => product.isFeatured && !product.isOutOfStock)
       .slice(0, 6) // Limit to 6 featured items
 
     // Calculate basic statistics
-    const totalProducts = transformedCategories.reduce((sum: number, cat: any) => sum + cat.products.length, 0)
-    const availableProducts = transformedCategories.reduce((sum: number, cat: any) =>
-      sum + cat.products.filter((p: any) => !p.isOutOfStock).length, 0)    // Log menu view (optional analytics)
+    const totalProducts = transformedCategories.reduce((sum: number, cat) => sum + cat.products.length, 0)
+    const availableProducts = transformedCategories.reduce((sum: number, cat) =>
+      sum + cat.products.filter((p) => !p.isOutOfStock).length, 0)
+
+    // Log menu view (optional analytics)
     try {
       // For public menu access, we'll create a simplified log without full audit requirements
       console.log(`Public menu accessed: ${tenantSlug}, Categories: ${categoriesWithProducts.length}, Products: ${totalProducts}`)
