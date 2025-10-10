@@ -5,8 +5,6 @@ import { useParams } from 'next/navigation'
 import { 
   MagnifyingGlassIcon, 
   PhoneIcon, 
-  EnvelopeIcon, 
-  ClockIcon,
   MapPinIcon,
   LanguageIcon,
   HeartIcon,
@@ -265,16 +263,14 @@ export default function PublicMenu() {
                 <h1 className="text-3xl font-bold">
                   {language === 'ar' ? tenant.businessNameAr : tenant.businessName}
                 </h1>
-                {todayHours && (
-                  <div className="flex items-center space-x-2 mt-2 text-white/80">
-                    <ClockIcon className="h-4 w-4" />
-                    <span className="text-sm">
-                      {todayHours.isOpen 
-                        ? `Open: ${todayHours.open} - ${todayHours.close}`
-                        : 'Closed Today'
-                      }
-                    </span>
-                  </div>
+                {tenant.phone && (
+                  <a
+                    href={`tel:${tenant.phone}`}
+                    className="flex items-center space-x-2 mt-2 text-white/90 hover:text-white transition-colors"
+                  >
+                    <PhoneIcon className="h-4 w-4" />
+                    <span className="text-sm font-medium">{tenant.phone}</span>
+                  </a>
                 )}
               </div>
             </div>
@@ -328,24 +324,6 @@ export default function PublicMenu() {
               )}
             </div>
           </div>
-
-          {/* Restaurant Info */}
-          {(tenant.address || tenant.email) && (
-            <div className="mt-6 flex flex-wrap gap-4 text-white/80">
-              {tenant.address && (
-                <div className="flex items-center space-x-2">
-                  <MapPinIcon className="h-4 w-4" />
-                  <span className="text-sm">{tenant.address}</span>
-                </div>
-              )}
-              {tenant.email && (
-                <div className="flex items-center space-x-2">
-                  <EnvelopeIcon className="h-4 w-4" />
-                  <span className="text-sm">{tenant.email}</span>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </div>
 
@@ -673,46 +651,25 @@ export default function PublicMenu() {
             </div>
 
             {/* Contact Information */}
-            {(tenant.phone || tenant.email) && (
-              <div className="flex justify-center space-x-6 mb-6">
-                {tenant.phone && (
-                  <a
-                    href={`tel:${tenant.phone}`}
-                    className="flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-200 hover:shadow-lg"
-                    style={{ 
-                      backgroundColor: `${primaryColor}10`,
-                      color: primaryColor
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = `${primaryColor}20`
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = `${primaryColor}10`
-                    }}
-                  >
-                    <PhoneIcon className="h-4 w-4" />
-                    <span className="text-sm font-medium">{tenant.phone}</span>
-                  </a>
-                )}
-                {tenant.email && (
-                  <a
-                    href={`mailto:${tenant.email}`}
-                    className="flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-200 hover:shadow-lg"
-                    style={{ 
-                      backgroundColor: `${secondaryColor}10`,
-                      color: secondaryColor
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = `${secondaryColor}20`
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = `${secondaryColor}10`
-                    }}
-                  >
-                    <EnvelopeIcon className="h-4 w-4" />
-                    <span className="text-sm font-medium">{tenant.email}</span>
-                  </a>
-                )}
+            {tenant.phone && (
+              <div className="flex justify-center mb-6">
+                <a
+                  href={`tel:${tenant.phone}`}
+                  className="flex items-center space-x-2 px-6 py-3 rounded-full transition-all duration-200 hover:shadow-lg"
+                  style={{ 
+                    backgroundColor: `${primaryColor}10`,
+                    color: primaryColor
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = `${primaryColor}20`
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = `${primaryColor}10`
+                  }}
+                >
+                  <PhoneIcon className="h-5 w-5" />
+                  <span className="text-sm font-medium">{tenant.phone}</span>
+                </a>
               </div>
             )}
 

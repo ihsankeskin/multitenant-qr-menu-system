@@ -489,42 +489,72 @@ export default function CreateTenantPage() {
               <label htmlFor="primaryColor" className="block text-sm font-medium text-gray-700 mb-2">
                 Primary Color
               </label>
-              <input
-                type="color"
-                id="primaryColor"
-                name="primaryColor"
-                value={formData.primaryColor}
-                onChange={handleChange}
-                className="w-full h-10 border border-gray-300 rounded-lg"
-              />
+              <div className="flex items-center space-x-3">
+                <input
+                  type="color"
+                  id="primaryColor"
+                  name="primaryColor"
+                  value={formData.primaryColor}
+                  onChange={handleChange}
+                  className="h-10 w-20 border border-gray-300 rounded-lg"
+                />
+                <input
+                  type="text"
+                  value={formData.primaryColor}
+                  onChange={(e) => handleChange({ target: { name: 'primaryColor', value: e.target.value } } as any)}
+                  placeholder="#2563eb"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">HEX or RGB format</p>
             </div>
 
             <div>
               <label htmlFor="secondaryColor" className="block text-sm font-medium text-gray-700 mb-2">
                 Secondary Color
               </label>
-              <input
-                type="color"
-                id="secondaryColor"
-                name="secondaryColor"
-                value={formData.secondaryColor}
-                onChange={handleChange}
-                className="w-full h-10 border border-gray-300 rounded-lg"
-              />
+              <div className="flex items-center space-x-3">
+                <input
+                  type="color"
+                  id="secondaryColor"
+                  name="secondaryColor"
+                  value={formData.secondaryColor}
+                  onChange={handleChange}
+                  className="h-10 w-20 border border-gray-300 rounded-lg"
+                />
+                <input
+                  type="text"
+                  value={formData.secondaryColor}
+                  onChange={(e) => handleChange({ target: { name: 'secondaryColor', value: e.target.value } } as any)}
+                  placeholder="#6B7280"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">HEX or RGB format</p>
             </div>
 
             <div>
               <label htmlFor="accentColor" className="block text-sm font-medium text-gray-700 mb-2">
                 Accent Color
               </label>
-              <input
-                type="color"
-                id="accentColor"
-                name="accentColor"
-                value={formData.accentColor}
-                onChange={handleChange}
-                className="w-full h-10 border border-gray-300 rounded-lg"
-              />
+              <div className="flex items-center space-x-3">
+                <input
+                  type="color"
+                  id="accentColor"
+                  name="accentColor"
+                  value={formData.accentColor}
+                  onChange={handleChange}
+                  className="h-10 w-20 border border-gray-300 rounded-lg"
+                />
+                <input
+                  type="text"
+                  value={formData.accentColor}
+                  onChange={(e) => handleChange({ target: { name: 'accentColor', value: e.target.value } } as any)}
+                  placeholder="#3B82F6"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">HEX or RGB format</p>
             </div>
           </div>
         </div>

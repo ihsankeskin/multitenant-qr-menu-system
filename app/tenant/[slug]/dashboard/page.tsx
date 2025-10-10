@@ -1994,9 +1994,11 @@ export default function TenantDashboard() {
                                 type="text"
                                 value={tenantSettings.primaryColor || '#2563eb'}
                                 onChange={(e) => updateTenantSetting('primaryColor', e.target.value)}
+                                placeholder="#2563eb"
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                               />
                             </div>
+                            <p className="text-xs text-gray-500 mt-1">HEX or RGB format</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -2013,9 +2015,11 @@ export default function TenantDashboard() {
                                 type="text"
                                 value={tenantSettings.secondaryColor || '#6B7280'}
                                 onChange={(e) => updateTenantSetting('secondaryColor', e.target.value)}
+                                placeholder="#6B7280"
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                               />
                             </div>
+                            <p className="text-xs text-gray-500 mt-1">HEX or RGB format</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -2032,9 +2036,11 @@ export default function TenantDashboard() {
                                 type="text"
                                 value={tenantSettings.accentColor || '#3B82F6'}
                                 onChange={(e) => updateTenantSetting('accentColor', e.target.value)}
+                                placeholder="#3B82F6"
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                               />
                             </div>
+                            <p className="text-xs text-gray-500 mt-1">HEX or RGB format</p>
                           </div>
                         </div>
                       </div>
