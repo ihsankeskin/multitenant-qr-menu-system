@@ -105,10 +105,8 @@ export default function PublicMenu() {
         setSettings(data.settings)
         setLanguage(data.settings?.defaultLanguage === 'ar' ? 'ar' : 'en')
         
-        // Set first category as selected
-        if (data.categories.length > 0) {
-          setSelectedCategory(data.categories[0].id)
-        }
+        // Default to "All" category (empty string shows all products)
+        setSelectedCategory('')
       } else if (response.status === 404) {
         // Restaurant not found
         setTenant(null)
