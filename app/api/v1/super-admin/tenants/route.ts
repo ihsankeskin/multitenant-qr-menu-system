@@ -8,7 +8,7 @@ import { objectToJson } from '@/lib/validation'
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
-  console.log('===== TENANTS API CALLED =====')
+  console.log('===== TENANTS API CALLED (v1765523-FIXED) =====')
   console.log('Timestamp:', new Date().toISOString())
   console.log('URL:', request.url)
   
