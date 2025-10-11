@@ -75,6 +75,7 @@ model User {
   updatedProducts       Product[]     @relation("ProductUpdater")
   createdPaymentRecords PaymentRecord[] @relation("PaymentRecordCreator")
   auditLogs            AuditLog[]
+  notifications         Notification[] @relation("UserNotifications")
 
   @@map("users")
 }
@@ -280,4 +281,27 @@ model AuditLog {
   user                  User      @relation(fields: [userId], references: [id])
 
   @@map("audit_logs")
+}
+
+model Notification {
+  id                    String    @id @default(cuid())
+  userId                String
+  type                  String    // PASSWORD_RESET_REQUEST, PAYMENT_DUE, TENANT_SUSPENDED, etc.
+  title                 String
+  message               String    @db.Text
+  priority              String    @default("NORMAL") // LOW, NORMAL, HIGH, URGENT
+  isRead                Boolean   @default(false)
+  readAt                DateTime?
+  relatedEntity         String?   // Tenant, User, PaymentRecord, etc.
+  relatedEntityId       String?
+  metadata              String?   @db.Text // JSON string for additional data
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // Relations
+  user                  User      @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("notifications")
 }

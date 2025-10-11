@@ -25,6 +25,8 @@ interface DashboardStats {
   monthlyRevenue: number
   revenueGrowth: number
   activeSubscriptions: number
+  expectedMonthlyRevenue: number
+  totalCashCollected: number
 }
 
 interface RecentTenant {
@@ -176,7 +178,7 @@ export default function SuperAdminDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Grid */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
             <div className="bg-white overflow-hidden shadow rounded-lg">
               <div className="p-5">
                 <div className="flex items-center">
@@ -227,16 +229,38 @@ export default function SuperAdminDashboard() {
               <div className="p-5">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <DollarSign className="h-6 w-6 text-gray-400" />
+                    <DollarSign className="h-6 w-6 text-emerald-600" />
                   </div>
                   <div className={`${isRTL ? 'mr-5' : 'ml-5'} w-0 flex-1`}>
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">
-                        {t('superAdmin.dashboard.stats.monthlyRevenue')}
+                        Expected Monthly Revenue
                       </dt>
                       <dd className="flex items-baseline">
                         <div className="text-2xl font-semibold text-gray-900">
-                          ${stats.monthlyRevenue.toLocaleString()}
+                          {stats.expectedMonthlyRevenue.toLocaleString()} EGP
+                        </div>
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <DollarSign className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div className={`${isRTL ? 'mr-5' : 'ml-5'} w-0 flex-1`}>
+                    <dl>
+                      <dt className="text-sm font-medium text-gray-500 truncate">
+                        Cash Collected (Total)
+                      </dt>
+                      <dd className="flex items-baseline">
+                        <div className="text-2xl font-semibold text-gray-900">
+                          {stats.totalCashCollected.toLocaleString()} EGP
                         </div>
                         <div className={`${isRTL ? 'mr-2' : 'ml-2'} flex items-baseline text-sm font-semibold ${
                           stats.revenueGrowth >= 0 ? 'text-green-600' : 'text-red-600'
@@ -353,7 +377,7 @@ export default function SuperAdminDashboard() {
                         {translateSubscriptionPlan(tenant.subscriptionPlan)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${tenant.revenue.toLocaleString()}
+                        {tenant.revenue.toLocaleString()} EGP
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(tenant.createdAt).toLocaleDateString()}

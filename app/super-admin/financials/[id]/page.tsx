@@ -397,7 +397,7 @@ export default function PaymentDetailPage() {
                         {getStatusIcon(payment.status)}
                         <div>
                           <h3 className="text-2xl font-bold text-gray-900">
-                            ${payment.amount.toLocaleString()}
+                            {payment.amount.toLocaleString()} EGP
                           </h3>
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(payment.status)}`}>
                             {payment.status}

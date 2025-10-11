@@ -343,7 +343,7 @@ export default function TenantsPage() {
                     {tenant.nextPaymentDate ? new Date(tenant.nextPaymentDate).toLocaleDateString() : 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    ${tenant.monthlyFee}
+                    {tenant.monthlyFee} EGP
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">

@@ -395,7 +395,7 @@ export default function FinancialManagementPage() {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">{t('superAdmin.financials.totalRevenue')}</p>
-                  <p className="text-2xl font-semibold text-gray-900">${stats.totalRevenue.toLocaleString()}</p>
+                  <p className="text-2xl font-semibold text-gray-900">{stats.totalRevenue.toLocaleString()} EGP</p>
                 </div>
               </div>
             </div>
@@ -407,7 +407,7 @@ export default function FinancialManagementPage() {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">{t('superAdmin.financials.monthlyRevenue')}</p>
-                  <p className="text-2xl font-semibold text-gray-900">${stats.monthlyRevenue.toLocaleString()}</p>
+                  <p className="text-2xl font-semibold text-gray-900">{stats.monthlyRevenue.toLocaleString()} EGP</p>
                   <div className="flex items-center mt-1">
                     {stats.revenueGrowth >= 0 ? (
                       <ArrowTrendingUpIcon className="h-4 w-4 text-green-500" />
@@ -589,7 +589,7 @@ export default function FinancialManagementPage() {
                       {payment.invoiceNumber}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      ${payment.amount.toLocaleString()}
+                      {payment.amount.toLocaleString()} EGP
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center text-sm text-gray-900">
@@ -706,14 +706,14 @@ export default function FinancialManagementPage() {
                         {t('superAdmin.financials.paymentModal.paymentAmount')} *
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">EGP</span>
                         <input
                           type="number"
                           step="0.01"
                           min="0"
                           value={paymentAmount}
                           onChange={(e) => setPaymentAmount(e.target.value)}
-                          className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full pl-16 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           placeholder="0.00"
                           required
                         />

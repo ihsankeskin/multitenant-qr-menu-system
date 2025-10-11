@@ -44,9 +44,11 @@ export async function GET(request: NextRequest) {
       totalTenants,
       activeTenants,
       totalUsers,
-      currentMonthRevenue,
-      previousMonthRevenue,
-      activeSubscriptions
+      currentMonthCollected,
+      previousMonthCollected,
+      activeSubscriptions,
+      totalCollected,
+      expectedMonthlyRevenue
     ] = await Promise.all([
       // Total tenants
       prisma.tenant.count(),
@@ -61,7 +63,7 @@ export async function GET(request: NextRequest) {
         where: { isActive: true }
       }),
       
-      // Current month revenue
+      // Current month collected payments
       prisma.paymentRecord.aggregate({
         where: {
           createdAt: { gte: currentMonthStart },
@@ -70,7 +72,7 @@ export async function GET(request: NextRequest) {
         _sum: { amount: true }
       }),
       
-      // Previous month revenue
+      // Previous month collected payments
       prisma.paymentRecord.aggregate({
         where: {
           createdAt: { 
@@ -88,17 +90,33 @@ export async function GET(request: NextRequest) {
           subscriptionStatus: 'ACTIVE',
           subscriptionPlan: { not: 'BASIC' }
         }
+      }),
+      
+      // Total cash collected (all paid payments)
+      prisma.paymentRecord.aggregate({
+        where: {
+          status: 'PAID'
+        },
+        _sum: { amount: true }
+      }),
+      
+      // Expected monthly revenue (sum of all active tenants' monthly fees)
+      prisma.tenant.aggregate({
+        where: {
+          subscriptionStatus: 'ACTIVE'
+        },
+        _sum: { monthlyFee: true }
       })
     ])
 
     // Calculate revenue growth percentage
-    const currentRevenue = Number(currentMonthRevenue._sum?.amount || 0)
-    const previousRevenue = Number(previousMonthRevenue._sum?.amount || 0)
+    const currentCollected = Number(currentMonthCollected._sum?.amount || 0)
+    const previousCollected = Number(previousMonthCollected._sum?.amount || 0)
     
     let revenueGrowth = 0
-    if (previousRevenue > 0) {
-      revenueGrowth = Math.round(((currentRevenue - previousRevenue) / previousRevenue) * 100)
-    } else if (currentRevenue > 0) {
+    if (previousCollected > 0) {
+      revenueGrowth = Math.round(((currentCollected - previousCollected) / previousCollected) * 100)
+    } else if (currentCollected > 0) {
       revenueGrowth = 100 // 100% growth if no previous revenue but current revenue exists
     }
 
@@ -106,9 +124,11 @@ export async function GET(request: NextRequest) {
       totalTenants,
       activeTenants,
       totalUsers,
-      monthlyRevenue: currentRevenue,
+      monthlyRevenue: currentCollected, // Current month collected for backward compatibility
       revenueGrowth,
-      activeSubscriptions
+      activeSubscriptions,
+      expectedMonthlyRevenue: Number(expectedMonthlyRevenue._sum?.monthlyFee || 0),
+      totalCashCollected: Number(totalCollected._sum?.amount || 0)
     }
 
     return NextResponse.json({

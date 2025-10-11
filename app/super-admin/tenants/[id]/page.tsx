@@ -264,7 +264,7 @@ export default function SuperAdminTenantDetail() {
     const menuUrl = `https://themenugenie.com/menu/${tenant.slug}`
     
     // Find admin users and their initial passwords
-    const adminUsers = tenantUsers.filter(u => u.role === 'admin')
+    const adminUsers = tenantUsers.filter(u => u.role === 'TENANT_ADMIN' || u.role === 'admin')
     
     const englishMessage = `🎉 Welcome to The Menu Genie! 🎉
 
