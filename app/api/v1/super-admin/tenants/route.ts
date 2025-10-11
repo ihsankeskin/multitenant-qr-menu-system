@@ -64,7 +64,12 @@ export async function GET(request: NextRequest) {
     }
 
     if (businessType) {
-      where.businessType = { name: businessType }
+      where.businessType = {
+        OR: [
+          { nameEn: businessType },
+          { nameAr: businessType }
+        ]
+      }
     }
 
     // Get tenants with pagination
@@ -104,7 +109,7 @@ export async function GET(request: NextRequest) {
           name: tenant.businessName,
           businessName: tenant.businessName, // Add for consistency
           slug: tenant.slug, // Add slug for modal
-          businessType: tenant.businessType.nameEn,
+          businessType: tenant.businessType?.nameEn || 'Unknown',
           status: tenant.subscriptionStatus,
           subscriptionPlan: tenant.subscriptionPlan,
           ownerName: tenant.ownerName,
