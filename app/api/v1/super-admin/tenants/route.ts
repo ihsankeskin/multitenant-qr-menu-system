@@ -58,33 +58,9 @@ export async function GET(request: NextRequest) {
     console.log('Step 3: Building query...')
     console.log('Params:', { page, limit, search, status, plan, businessType })
     
-    // Build where clause
+    // TEMPORARY: Skip all filtering to isolate the issue
     const where: any = {}
-
-    if (search) {
-      where.OR = [
-        { businessName: { contains: search, mode: 'insensitive' } },
-        { ownerName: { contains: search, mode: 'insensitive' } },
-        { ownerEmail: { contains: search, mode: 'insensitive' } }
-      ]
-    }
-
-    if (status) {
-      where.subscriptionStatus = status
-    }
-
-    if (plan) {
-      where.subscriptionPlan = plan
-    }
-
-    if (businessType) {
-      where.businessType = {
-        OR: [
-          { nameEn: businessType },
-          { nameAr: businessType }
-        ]
-      }
-    }
+    console.log('Using empty where clause for debugging')
 
     console.log('Step 4: Executing Prisma queries...')
     console.log('Where clause:', JSON.stringify(where))
