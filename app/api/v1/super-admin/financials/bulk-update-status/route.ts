@@ -72,20 +72,25 @@ export async function POST(request: NextRequest) {
       data: updateData
     })
 
-    // Log the action
-    await prisma.auditLog.create({
-      data: {
-        userId: decodedToken.id as string,
-        action: 'PAYMENT_UPDATE',
-        resource: 'PaymentRecord',
-        resourceId: paymentIds.join(','),
-        newValues: JSON.stringify({ status, count: result.count }),
-        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
-        userAgent: request.headers.get('user-agent') || 'unknown',
-        requestMethod: 'POST',
-        requestUrl: '/api/v1/super-admin/financials/bulk-update-status'
-      }
-    })
+    // Log the action (wrapped in try-catch to not fail if audit log fails)
+    try {
+      await prisma.auditLog.create({
+        data: {
+          userId: String(decodedToken.sub || decodedToken.id || decodedToken.userId || 'system'),
+          action: 'PAYMENT_UPDATE',
+          resource: 'PaymentRecord',
+          resourceId: paymentIds.join(','),
+          newValues: JSON.stringify({ status, count: result.count }),
+          ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+          userAgent: request.headers.get('user-agent') || 'unknown',
+          requestMethod: 'POST',
+          requestUrl: '/api/v1/super-admin/financials/bulk-update-status'
+        }
+      })
+    } catch (auditError) {
+      console.error('Failed to create audit log:', auditError)
+      // Continue anyway - audit log failure shouldn't break the operation
+    }
 
     return NextResponse.json({
       success: true,
