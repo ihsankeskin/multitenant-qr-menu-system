@@ -112,7 +112,9 @@ export async function GET(request: NextRequest) {
     
     console.log('Step 5: Queries executed successfully')
     console.log('Tenants found:', tenants.length)
-    console.log('Total count:', totalCount)    // Calculate total revenue for each tenant from payment records
+    console.log('Total count:', totalCount)
+    
+    // Calculate total revenue for each tenant from payment records
     const tenantsWithRevenue = await Promise.all(
       tenants.map(async (tenant) => {
         let revenue = 0
