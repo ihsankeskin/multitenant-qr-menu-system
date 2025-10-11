@@ -205,6 +205,98 @@ const ARTISAN_BREW_PRODUCTS = [
     category: 'Specialty Drinks',
     price: 7.49,
     calories: 320
+  },
+  // Breakfast & Brunch Category
+  {
+    name: 'Classic Eggs Benedict',
+    nameAr: 'بيض بنديكت كلاسيك',
+    description: 'Poached eggs on English muffin with Canadian bacon and hollandaise sauce',
+    descriptionAr: 'بيض مسلوق على مافن إنجليزي مع لحم كندي وصوص هولانديز',
+    category: 'Breakfast & Brunch',
+    price: 12.99,
+    calories: 480
+  },
+  {
+    name: 'Avocado Toast',
+    nameAr: 'توست الأفوكادو',
+    description: 'Smashed avocado on sourdough with cherry tomatoes, feta, and poached egg',
+    descriptionAr: 'أفوكادو مهروس على خبز محمص مع طماطم كرزية وجبنة فيتا وبيض مسلوق',
+    category: 'Breakfast & Brunch',
+    price: 10.99,
+    calories: 420
+  },
+  {
+    name: 'Buttermilk Pancakes',
+    nameAr: 'فطائر اللبن الرائب',
+    description: 'Fluffy pancakes served with maple syrup, butter, and fresh berries',
+    descriptionAr: 'فطائر هشة تقدم مع شراب القيقب والزبدة والتوت الطازج',
+    category: 'Breakfast & Brunch',
+    price: 9.99,
+    calories: 540
+  },
+  {
+    name: 'Breakfast Burrito',
+    nameAr: 'بوريتو الإفطار',
+    description: 'Scrambled eggs, chorizo, cheese, avocado, and salsa wrapped in tortilla',
+    descriptionAr: 'بيض مخفوق وتشوريزو وجبن وأفوكادو وصلصة ملفوفة في تورتيلا',
+    category: 'Breakfast & Brunch',
+    price: 11.99,
+    calories: 620
+  },
+  {
+    name: 'Greek Yogurt Bowl',
+    nameAr: 'بول الزبادي اليوناني',
+    description: 'Greek yogurt topped with honey, granola, nuts, and seasonal fruits',
+    descriptionAr: 'زبادي يوناني مع عسل وجرانولا ومكسرات وفواكه موسمية',
+    category: 'Breakfast & Brunch',
+    price: 8.99,
+    calories: 350
+  },
+  // Sandwiches & Wraps Category
+  {
+    name: 'Club Sandwich',
+    nameAr: 'ساندويتش كلوب',
+    description: 'Triple-decker with turkey, bacon, lettuce, tomato, and mayo',
+    descriptionAr: 'ساندويتش ثلاثي الطبقات مع ديك رومي ولحم مقدد وخس وطماطم ومايونيز',
+    category: 'Sandwiches & Wraps',
+    price: 13.99,
+    calories: 580
+  },
+  {
+    name: 'Grilled Chicken Panini',
+    nameAr: 'بانيني دجاج مشوي',
+    description: 'Grilled chicken breast with mozzarella, pesto, and sun-dried tomatoes',
+    descriptionAr: 'صدر دجاج مشوي مع موزاريلا وبيستو وطماطم مجففة',
+    category: 'Sandwiches & Wraps',
+    price: 12.49,
+    calories: 520
+  },
+  {
+    name: 'Veggie Wrap',
+    nameAr: 'لفافة الخضروات',
+    description: 'Hummus, grilled vegetables, feta cheese, and mixed greens in whole wheat wrap',
+    descriptionAr: 'حمص وخضروات مشوية وجبن فيتا وخضار مشكلة في لفافة قمح كامل',
+    category: 'Sandwiches & Wraps',
+    price: 9.99,
+    calories: 380
+  },
+  {
+    name: 'Philly Cheesesteak',
+    nameAr: 'فيلي تشيز ستيك',
+    description: 'Thinly sliced beef with melted cheese, onions, and peppers on hoagie roll',
+    descriptionAr: 'شرائح لحم رقيقة مع جبن ذائب وبصل وفلفل على خبز هوجي',
+    category: 'Sandwiches & Wraps',
+    price: 14.99,
+    calories: 680
+  },
+  {
+    name: 'Mediterranean Wrap',
+    nameAr: 'لفافة البحر المتوسط',
+    description: 'Grilled halloumi, roasted vegetables, hummus, and tahini sauce',
+    descriptionAr: 'حلومي مشوي وخضروات محمصة وحمص وصوص الطحينة',
+    category: 'Sandwiches & Wraps',
+    price: 11.49,
+    calories: 450
   }
 ];
 
@@ -244,6 +336,31 @@ async function getCategories(token) {
   return data.data.categories;
 }
 
+async function createCategory(token, categoryName, categoryNameAr) {
+  const response = await fetch(`https://themenugenie.com/api/v1/tenant/categories`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      nameEn: categoryName,
+      nameAr: categoryNameAr,
+      descriptionEn: '',
+      descriptionAr: '',
+      showInMenu: true,
+      isActive: true
+    })
+  });
+
+  const data = await response.json();
+  if (!data.success) {
+    throw new Error(`Failed to create category ${categoryName}: ${data.message}`);
+  }
+
+  return data.data;
+}
+
 async function addProduct(token, product, categoryId) {
   const response = await fetch(`https://themenugenie.com/api/v1/tenant/products`, {
     method: 'POST',
@@ -272,14 +389,14 @@ async function addProduct(token, product, categoryId) {
   return data.data;
 }
 
-async function addProductsToMenu(credentials, products) {
+async function addProductsToMenu(credentials, products, newCategories = []) {
   try {
     console.log(`\n🔐 Logging in to ${credentials.tenant}...`);
     const token = await login(credentials);
     console.log(`✅ Logged in successfully`);
 
     console.log(`\n📋 Fetching categories...`);
-    const categories = await getCategories(token);
+    let categories = await getCategories(token);
     console.log(`✅ Found ${categories.length} categories`);
 
     // Create a map of category names to IDs
@@ -287,6 +404,25 @@ async function addProductsToMenu(credentials, products) {
     categories.forEach(cat => {
       categoryMap[cat.nameEn] = cat.id;
     });
+
+    // Create new categories if they don't exist
+    if (newCategories.length > 0) {
+      console.log(`\n🆕 Creating new categories...`);
+      for (const newCat of newCategories) {
+        if (!categoryMap[newCat.nameEn]) {
+          try {
+            const created = await createCategory(token, newCat.nameEn, newCat.nameAr);
+            categoryMap[newCat.nameEn] = created.id;
+            console.log(`✅ Created category: ${newCat.nameEn} (${newCat.nameAr})`);
+            await new Promise(resolve => setTimeout(resolve, 500));
+          } catch (error) {
+            console.log(`❌ Error creating category ${newCat.nameEn}: ${error.message}`);
+          }
+        } else {
+          console.log(`ℹ️  Category "${newCat.nameEn}" already exists`);
+        }
+      }
+    }
 
     console.log(`\n🍽️  Adding ${products.length} products...`);
     let successCount = 0;
@@ -332,10 +468,14 @@ async function main() {
   console.log('=' .repeat(60));
   await addProductsToMenu(BELLA_ITALIA_LOGIN, BELLA_ITALIA_PRODUCTS);
 
-  // Add products to Artisan Brew
+  // Add products to Artisan Brew with new categories
   console.log('\n\n☕ ARTISAN BREW COFFEE');
   console.log('=' .repeat(60));
-  await addProductsToMenu(ARTISAN_BREW_LOGIN, ARTISAN_BREW_PRODUCTS);
+  const newCategories = [
+    { nameEn: 'Breakfast & Brunch', nameAr: 'الإفطار والبرانش' },
+    { nameEn: 'Sandwiches & Wraps', nameAr: 'ساندويتشات ولفائف' }
+  ];
+  await addProductsToMenu(ARTISAN_BREW_LOGIN, ARTISAN_BREW_PRODUCTS, newCategories);
 
   console.log('\n\n🎉 Process completed!');
 }

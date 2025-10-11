@@ -24,7 +24,6 @@ interface DashboardStats {
   totalUsers: number
   monthlyRevenue: number
   revenueGrowth: number
-  activeSubscriptions: number
   expectedMonthlyRevenue: number
   totalCashCollected: number
 }
@@ -178,7 +177,7 @@ export default function SuperAdminDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Grid */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div className="bg-white overflow-hidden shadow rounded-lg">
               <div className="p-5">
                 <div className="flex items-center">
@@ -272,26 +271,6 @@ export default function SuperAdminDashboard() {
                           )}
                           {Math.abs(stats.revenueGrowth)}%
                         </div>
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <Activity className="h-6 w-6 text-gray-400" />
-                  </div>
-                  <div className={`${isRTL ? 'mr-5' : 'ml-5'} w-0 flex-1`}>
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        {t('superAdmin.dashboard.stats.activeSubscriptions')}
-                      </dt>
-                      <dd className="text-2xl font-semibold text-gray-900">
-                        {stats.activeSubscriptions}
                       </dd>
                     </dl>
                   </div>

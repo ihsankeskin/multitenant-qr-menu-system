@@ -39,77 +39,73 @@ export async function GET(request: NextRequest) {
     const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
     const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0)
 
-    // Get dashboard statistics
+    // Fetch all metrics in parallel
     const [
       totalTenants,
       activeTenants,
       totalUsers,
       currentMonthCollected,
       previousMonthCollected,
-      activeSubscriptions,
       totalCollected,
       expectedMonthlyRevenue
     ] = await Promise.all([
       // Total tenants
       prisma.tenant.count(),
-      
+
       // Active tenants
       prisma.tenant.count({
         where: { subscriptionStatus: 'ACTIVE' }
       }),
-      
-      // Total users across all tenants
-      prisma.user.count({
-        where: { isActive: true }
-      }),
-      
-      // Current month collected payments
-      prisma.paymentRecord.aggregate({
+
+      // Total users (only tenant users, not super admins)
+      prisma.tenantUser.count({
         where: {
-          createdAt: { gte: currentMonthStart },
-          status: 'PAID'
-        },
-        _sum: { amount: true }
-      }),
-      
-      // Previous month collected payments
-      prisma.paymentRecord.aggregate({
-        where: {
-          createdAt: { 
-            gte: previousMonthStart,
-            lte: previousMonthEnd
-          },
-          status: 'PAID'
-        },
-        _sum: { amount: true }
-      }),
-      
-      // Active subscriptions (all non-basic plans)
-      prisma.tenant.count({
-        where: { 
-          subscriptionStatus: 'ACTIVE',
-          subscriptionPlan: { not: 'BASIC' }
+          user: {
+            isActive: true
+          }
         }
       }),
-      
-      // Total cash collected (all paid payments)
+
+      // Current month collected
+      prisma.paymentRecord.aggregate({
+        where: {
+          status: 'PAID',
+          paidAt: {
+            gte: currentMonthStart,
+            lt: new Date(now.getFullYear(), now.getMonth() + 1, 1) // Start of next month
+          }
+        },
+        _sum: { amount: true }
+      }),
+
+      // Previous month collected
+      prisma.paymentRecord.aggregate({
+        where: {
+          status: 'PAID',
+          paidAt: {
+            gte: previousMonthStart,
+            lt: currentMonthStart
+          }
+        },
+        _sum: { amount: true }
+      }),
+
+      // Total collected amount (all time)
       prisma.paymentRecord.aggregate({
         where: {
           status: 'PAID'
         },
         _sum: { amount: true }
       }),
-      
-      // Expected monthly revenue (sum of all active tenants' monthly fees)
+
+      // Expected monthly revenue (sum of all active tenant monthly fees)
       prisma.tenant.aggregate({
         where: {
           subscriptionStatus: 'ACTIVE'
         },
         _sum: { monthlyFee: true }
       })
-    ])
-
-    // Calculate revenue growth percentage
+    ])    // Calculate revenue growth percentage
     const currentCollected = Number(currentMonthCollected._sum?.amount || 0)
     const previousCollected = Number(previousMonthCollected._sum?.amount || 0)
     
@@ -126,7 +122,6 @@ export async function GET(request: NextRequest) {
       totalUsers,
       monthlyRevenue: currentCollected, // Current month collected for backward compatibility
       revenueGrowth,
-      activeSubscriptions,
       expectedMonthlyRevenue: Number(expectedMonthlyRevenue._sum?.monthlyFee || 0),
       totalCashCollected: Number(totalCollected._sum?.amount || 0)
     }

@@ -86,6 +86,8 @@ export default function PublicMenu() {
   const [searchTerm, setSearchTerm] = useState('')
   const [language, setLanguage] = useState<'en' | 'ar'>('ar')
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
   // Note: Menu open state available for future mobile menu functionality
   // const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -149,6 +151,37 @@ export default function PublicMenu() {
     
     // Store in localStorage
     localStorage.setItem(`favorites_${slug}`, JSON.stringify(Array.from(newFavorites)))
+  }
+
+  // Swipe functionality for categories
+  const minSwipeDistance = 50
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+    
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > minSwipeDistance
+    const isRightSwipe = distance < -minSwipeDistance
+
+    if (isLeftSwipe || isRightSwipe) {
+      const allCategories = ['', ...categories.map(c => c.id)]
+      const currentIndex = allCategories.indexOf(selectedCategory)
+      
+      if (isLeftSwipe && currentIndex < allCategories.length - 1) {
+        setSelectedCategory(allCategories[currentIndex + 1])
+      } else if (isRightSwipe && currentIndex > 0) {
+        setSelectedCategory(allCategories[currentIndex - 1])
+      }
+    }
   }
 
   // Load favorites from localStorage
@@ -358,12 +391,18 @@ export default function PublicMenu() {
       </div>
 
       {/* Categories Navigation */}
-      <div className="sticky top-16 bg-white border-b z-30" style={{ borderBottomColor: `${secondaryColor}20` }}>
+      <div 
+        className="sticky top-16 bg-white border-b z-30" 
+        style={{ borderBottomColor: `${secondaryColor}20` }}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         <div className="container mx-auto">
-          <div className="flex overflow-x-auto scrollbar-hide py-3 px-4 space-x-4">
+          <div className="flex overflow-x-auto scrollbar-hide py-3 px-4 space-x-4 scroll-smooth snap-x snap-mandatory touch-pan-x">
             <button
               onClick={() => setSelectedCategory('')}
-              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${
+              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm snap-center ${
                 !selectedCategory 
                   ? 'text-white transform scale-105'
                   : 'text-gray-600 hover:text-white hover:scale-105'
@@ -389,7 +428,7 @@ export default function PublicMenu() {
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm whitespace-nowrap flex items-center space-x-2 ${
+                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm whitespace-nowrap flex items-center space-x-2 snap-center ${
                   selectedCategory === category.id 
                     ? 'text-white transform scale-105'
                     : 'text-gray-600 hover:text-white hover:scale-105'
