@@ -8,9 +8,15 @@ import { objectToJson } from '@/lib/validation'
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
+  console.log('===== TENANTS API CALLED =====')
+  console.log('Timestamp:', new Date().toISOString())
+  console.log('URL:', request.url)
+  
   try {
+    console.log('Step 1: Checking authorization header...')
     // Verify authentication and super admin role
     const authHeader = request.headers.get('authorization')
+    console.log('Auth header present:', !!authHeader)
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
         {
@@ -23,7 +29,9 @@ export async function GET(request: NextRequest) {
     }
 
     const token = authHeader.substring(7)
+    console.log('Step 2: Verifying token...')
     const decodedToken = await verifyToken(token)
+    console.log('Token decoded:', !!decodedToken, 'Role:', decodedToken?.role)
     
     if (!decodedToken || (decodedToken.role !== 'SUPER_ADMIN' && decodedToken.role !== 'ADMIN')) {
       return NextResponse.json(
@@ -47,6 +55,9 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit
 
+    console.log('Step 3: Building query...')
+    console.log('Params:', { page, limit, search, status, plan, businessType })
+    
     // Build where clause
     const where: any = {}
 
@@ -75,28 +86,33 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    console.log('Step 4: Executing Prisma queries...')
+    console.log('Where clause:', JSON.stringify(where))
+    
     // Get tenants with pagination
     const [tenants, totalCount] = await Promise.all([
       prisma.tenant.findMany({
         where,
         skip,
         take: limit,
+        orderBy: { createdAt: 'desc' },
         include: {
           businessType: true,
           _count: {
             select: {
-              tenantUsers: true,
+              products: true,
               categories: true,
-              products: true
-            }
-          }
+              tenantUsers: true,
+            },
+          },
         },
-        orderBy: { createdAt: 'desc' }
       }),
-      prisma.tenant.count({ where })
+      prisma.tenant.count({ where }),
     ])
-
-    // Calculate total revenue for each tenant from payment records
+    
+    console.log('Step 5: Queries executed successfully')
+    console.log('Tenants found:', tenants.length)
+    console.log('Total count:', totalCount)    // Calculate total revenue for each tenant from payment records
     const tenantsWithRevenue = await Promise.all(
       tenants.map(async (tenant) => {
         let revenue = 0
