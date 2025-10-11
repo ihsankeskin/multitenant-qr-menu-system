@@ -8,9 +8,10 @@ import { objectToJson } from '@/lib/validation'
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
-  console.log('===== TENANTS API CALLED (v1765523-FIXED) =====')
+  console.log('===== TENANTS API CALLED (v59c6e93-ULTRA-SIMPLIFIED) =====')
   console.log('Timestamp:', new Date().toISOString())
   console.log('URL:', request.url)
+  console.log('Deployment fresh:', new Date().toISOString())
   
   try {
     console.log('Step 1: Checking authorization header...')
@@ -162,10 +163,11 @@ export async function GET(request: NextRequest) {
         success: false,
         message: 'Failed to retrieve tenants',
         error: 'INTERNAL_ERROR',
-        debug: process.env.NODE_ENV === 'development' ? {
+        debug: {
           message: error?.message,
-          name: error?.name
-        } : undefined
+          name: error?.name,
+          stack: error?.stack?.substring(0, 500)
+        }
       },
       { status: 500 }
     )
