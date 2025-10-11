@@ -62,6 +62,14 @@ export default function FinancialManagementPage() {
   const [methodFilter, setMethodFilter] = useState('all')
   const [error, setError] = useState('')
   
+  // Bulk Actions States
+  const [selectedPayments, setSelectedPayments] = useState<string[]>([])
+  const [bulkActionStatus, setBulkActionStatus] = useState('')
+  const [showBulkActionModal, setShowBulkActionModal] = useState(false)
+  const [processingBulkAction, setProcessingBulkAction] = useState(false)
+  const [bulkActionError, setBulkActionError] = useState('')
+  const [bulkActionSuccess, setBulkActionSuccess] = useState('')
+  
   // Payment Modal States
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [tenants, setTenants] = useState<Tenant[]>([])
@@ -230,6 +238,77 @@ export default function FinancialManagementPage() {
     tenant?.businessName?.toLowerCase().includes(tenantSearchQuery.toLowerCase()) ||
     tenant?.slug?.toLowerCase().includes(tenantSearchQuery.toLowerCase())
   )
+  
+  // Bulk action handlers
+  const handleSelectPayment = (paymentId: string) => {
+    setSelectedPayments(prev => {
+      if (prev.includes(paymentId)) {
+        return prev.filter(id => id !== paymentId)
+      } else {
+        return [...prev, paymentId]
+      }
+    })
+  }
+  
+  const handleSelectAllPayments = () => {
+    if (selectedPayments.length === filteredPayments.length) {
+      setSelectedPayments([])
+    } else {
+      setSelectedPayments(filteredPayments.map(p => p.id))
+    }
+  }
+  
+  const handleBulkStatusChange = async () => {
+    if (!bulkActionStatus || selectedPayments.length === 0) {
+      setBulkActionError('Please select a status and at least one payment')
+      return
+    }
+    
+    setProcessingBulkAction(true)
+    setBulkActionError('')
+    setBulkActionSuccess('')
+    
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        window.location.href = '/super-admin/login'
+        return
+      }
+
+      const response = await fetch('/api/v1/super-admin/financials/bulk-update-status', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          paymentIds: selectedPayments,
+          status: bulkActionStatus
+        })
+      })
+
+      const data = await response.json()
+      
+      if (response.ok && data.success) {
+        setBulkActionSuccess(`Successfully updated ${selectedPayments.length} payment(s)`)
+        setSelectedPayments([])
+        setBulkActionStatus('')
+        // Refresh data
+        setTimeout(() => {
+          setShowBulkActionModal(false)
+          setBulkActionSuccess('')
+          fetchFinancialData()
+        }, 2000)
+      } else {
+        setBulkActionError(data.error || 'Failed to update payments')
+      }
+    } catch (error) {
+      console.error('Error updating payments:', error)
+      setBulkActionError('Failed to update payments')
+    } finally {
+      setProcessingBulkAction(false)
+    }
+  }
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -419,6 +498,30 @@ export default function FinancialManagementPage() {
               </span>
             </div>
           </div>
+          
+          {/* Bulk Actions Bar */}
+          {selectedPayments.length > 0 && (
+            <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <span className="text-sm font-medium text-blue-900">
+                  {selectedPayments.length} payment(s) selected
+                </span>
+                <button
+                  onClick={() => setSelectedPayments([])}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  Clear selection
+                </button>
+              </div>
+              <button
+                onClick={() => setShowBulkActionModal(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
+              >
+                <CheckIcon className="h-5 w-5" />
+                <span>Change Status</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Payment Records Table */}
@@ -430,6 +533,14 @@ export default function FinancialManagementPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="px-6 py-3 text-left">
+                    <input
+                      type="checkbox"
+                      checked={selectedPayments.length === filteredPayments.length && filteredPayments.length > 0}
+                      onChange={handleSelectAllPayments}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {t('superAdmin.financials.tenant')}
                   </th>
@@ -456,6 +567,14 @@ export default function FinancialManagementPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredPayments.map((payment) => (
                   <tr key={payment.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={selectedPayments.includes(payment.id)}
+                        onChange={() => handleSelectPayment(payment.id)}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">
@@ -743,6 +862,110 @@ export default function FinancialManagementPage() {
                     <>
                       <BanknotesIcon className="h-5 w-5" />
                       <span>{t('superAdmin.financials.registerPayment')}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Bulk Status Change Modal */}
+        {showBulkActionModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+              {/* Modal Header */}
+              <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    Change Payment Status
+                  </h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Update status for {selectedPayments.length} selected payment(s)
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowBulkActionModal(false)
+                    setBulkActionError('')
+                    setBulkActionSuccess('')
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <XMarkIcon className="h-6 w-6" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="px-6 py-4">
+                {/* Error/Success Messages */}
+                {bulkActionError && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                    <p className="text-sm text-red-800">{bulkActionError}</p>
+                  </div>
+                )}
+                
+                {bulkActionSuccess && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <p className="text-sm text-green-800">{bulkActionSuccess}</p>
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      New Status *
+                    </label>
+                    <select
+                      value={bulkActionStatus}
+                      onChange={(e) => setBulkActionStatus(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    >
+                      <option value="">Select a status...</option>
+                      <option value="PAID">Paid</option>
+                      <option value="PENDING">Pending</option>
+                      <option value="OVERDUE">Overdue</option>
+                      <option value="CANCELLED">Cancelled</option>
+                      <option value="REFUNDED">Refunded</option>
+                    </select>
+                  </div>
+
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-sm text-blue-800">
+                      This will update the status of all {selectedPayments.length} selected payment(s).
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="bg-gray-50 border-t border-gray-200 px-6 py-4 flex items-center justify-end space-x-4">
+                <button
+                  onClick={() => {
+                    setShowBulkActionModal(false)
+                    setBulkActionError('')
+                    setBulkActionSuccess('')
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+                  disabled={processingBulkAction}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleBulkStatusChange}
+                  disabled={processingBulkAction || !bulkActionStatus}
+                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-2"
+                >
+                  {processingBulkAction ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Updating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckIcon className="h-5 w-5" />
+                      <span>Update Status</span>
                     </>
                   )}
                 </button>
