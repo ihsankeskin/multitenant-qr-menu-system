@@ -59,22 +59,77 @@ export async function GET(request: NextRequest) {
     console.log('Step 3: Building query...')
     console.log('Params:', { page, limit, search, status, plan, businessType })
     
-    // TEMPORARY: Skip all filtering to isolate the issue
+    // Build where clause
     const where: any = {}
-    console.log('Using empty where clause for debugging')
+
+    if (search) {
+      where.OR = [
+        { businessName: { contains: search, mode: 'insensitive' } },
+        { ownerName: { contains: search, mode: 'insensitive' } },
+        { ownerEmail: { contains: search, mode: 'insensitive' } }
+      ]
+    }
+
+    if (status) {
+      where.subscriptionStatus = status
+    }
+
+    if (plan) {
+      where.subscriptionPlan = plan
+    }
+
+    if (businessType) {
+      where.businessType = {
+        OR: [
+          { nameEn: businessType },
+          { nameAr: businessType }
+        ]
+      }
+    }
 
     console.log('Step 4: Executing Prisma queries...')
     console.log('Where clause:', JSON.stringify(where))
     
-    // Get tenants with pagination
+    // Get tenants with pagination - select only needed fields to avoid 5MB limit
     const [tenants, totalCount] = await Promise.all([
       prisma.tenant.findMany({
         where,
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        include: {
-          businessType: true,
+        select: {
+          id: true,
+          slug: true,
+          businessName: true,
+          businessNameAr: true,
+          email: true,
+          phone: true,
+          address: true,
+          ownerName: true,
+          ownerEmail: true,
+          ownerPhone: true,
+          customDomain: true,
+          subdomain: true,
+          logoUrl: true,
+          // Exclude logoImage and coverImage (base64 data - too large!)
+          primaryColor: true,
+          secondaryColor: true,
+          accentColor: true,
+          subscriptionStatus: true,
+          subscriptionPlan: true,
+          monthlyFee: true,
+          lastPaymentDate: true,
+          nextPaymentDate: true,
+          overdueSince: true,
+          createdAt: true,
+          updatedAt: true,
+          businessType: {
+            select: {
+              id: true,
+              nameEn: true,
+              nameAr: true,
+            },
+          },
           _count: {
             select: {
               products: true,
