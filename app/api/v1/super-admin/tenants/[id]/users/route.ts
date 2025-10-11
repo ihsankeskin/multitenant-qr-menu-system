@@ -4,6 +4,9 @@ import { verifyToken } from '@/lib/auth'
 import bcrypt from 'bcryptjs'
 
 // GET /api/v1/super-admin/tenants/[id]/users - Get tenant users
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic'
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }

@@ -10,6 +10,9 @@ interface JWTPayload {
 }
 
 // GET /api/v1/super-admin/analytics - Get platform analytics
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get('Authorization')

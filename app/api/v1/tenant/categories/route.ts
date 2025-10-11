@@ -5,6 +5,9 @@ import { objectToJson } from '@/lib/validation'
 // Note: jsonToStringArray, stringArrayToJson available if needed for future features
 
 // GET /api/v1/tenant/categories - List categories with pagination and search
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization')

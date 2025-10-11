@@ -3,6 +3,9 @@ import { verifyPassword, generateTokens } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { UserRole, TenantRole, objectToJson, UserRoleType } from '@/lib/validation'
 
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()

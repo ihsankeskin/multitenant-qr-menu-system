@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma'
 import { jsonToStringArray } from '@/lib/validation'
 
 // GET /api/v1/public/menu/[slug] - Get public menu for customers
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic'
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { slug: string } }

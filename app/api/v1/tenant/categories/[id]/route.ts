@@ -4,6 +4,9 @@ import { verifyToken } from '@/lib/auth'
 import { objectToJson } from '@/lib/validation'
 
 // GET /api/v1/tenant/categories/[id] - Get single category
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic'
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
