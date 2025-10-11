@@ -96,13 +96,19 @@ export async function GET(request: NextRequest) {
     // Calculate total revenue for each tenant from payment records
     const tenantsWithRevenue = await Promise.all(
       tenants.map(async (tenant) => {
-        const revenueResult = await prisma.paymentRecord.aggregate({
-          where: {
-            tenantId: tenant.id,
-            status: 'PAID'
-          },
-          _sum: { amount: true }
-        })
+        let revenue = 0
+        try {
+          const revenueResult = await prisma.paymentRecord.aggregate({
+            where: {
+              tenantId: tenant.id,
+              status: 'PAID'
+            },
+            _sum: { amount: true }
+          })
+          revenue = Number(revenueResult._sum?.amount || 0)
+        } catch (revenueError) {
+          console.error(`Failed to calculate revenue for tenant ${tenant.id}:`, revenueError)
+        }
 
         return {
           id: tenant.id,
@@ -127,7 +133,7 @@ export async function GET(request: NextRequest) {
           overdueSince: tenant.overdueSince,
           createdAt: tenant.createdAt,
           updatedAt: tenant.updatedAt,
-          revenue: Number(revenueResult._sum?.amount || 0),
+          revenue: revenue,
           counts: {
             users: tenant._count.tenantUsers,
             categories: tenant._count.categories,
@@ -155,13 +161,25 @@ export async function GET(request: NextRequest) {
       }
     })
 
-  } catch (error) {
-    console.error('Tenants fetch error:', error)
+  } catch (error: any) {
+    console.error('====== TENANTS API ERROR ======')
+    console.error('Error message:', error?.message)
+    console.error('Error name:', error?.name)
+    console.error('Error stack:', error?.stack)
+    console.error('Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error)))
+    console.error('API Version: e9018a8')
+    console.error('Timestamp:', new Date().toISOString())
+    console.error('===============================')
+    
     return NextResponse.json(
       {
         success: false,
         message: 'Failed to retrieve tenants',
-        error: 'INTERNAL_ERROR'
+        error: 'INTERNAL_ERROR',
+        debug: process.env.NODE_ENV === 'development' ? {
+          message: error?.message,
+          name: error?.name
+        } : undefined
       },
       { status: 500 }
     )
