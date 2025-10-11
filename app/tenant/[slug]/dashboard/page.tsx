@@ -1089,7 +1089,7 @@ export default function TenantDashboard() {
                           {isLoadingAnalytics ? (
                             <span className="animate-pulse bg-gray-200 rounded w-8 h-8 block"></span>
                           ) : (
-                            analytics?.overview?.totalCategories || 0
+                            analytics?.overview?.activeCategories || 0
                           )}
                         </p>
                         {analytics?.overview?.activeCategories !== undefined && (
@@ -1113,7 +1113,7 @@ export default function TenantDashboard() {
                           {isLoadingAnalytics ? (
                             <span className="animate-pulse bg-gray-200 rounded w-8 h-8 block"></span>
                           ) : (
-                            analytics?.overview?.totalProducts || 0
+                            analytics?.overview?.activeProducts || 0
                           )}
                         </p>
                         {analytics?.overview?.activeProducts !== undefined && (
