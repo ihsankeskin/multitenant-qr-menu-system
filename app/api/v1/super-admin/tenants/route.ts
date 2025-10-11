@@ -114,55 +114,44 @@ export async function GET(request: NextRequest) {
     console.log('Tenants found:', tenants.length)
     console.log('Total count:', totalCount)
     
-    // Calculate total revenue for each tenant from payment records
-    const tenantsWithRevenue = await Promise.all(
-      tenants.map(async (tenant) => {
-        let revenue = 0
-        try {
-          const revenueResult = await prisma.paymentRecord.aggregate({
-            where: {
-              tenantId: tenant.id,
-              status: 'PAID'
-            },
-            _sum: { amount: true }
-          })
-          revenue = Number(revenueResult._sum?.amount || 0)
-        } catch (revenueError) {
-          console.error(`Failed to calculate revenue for tenant ${tenant.id}:`, revenueError)
+    console.log('Step 6: Mapping tenant data...')
+    // Map tenant data without async revenue calculation for now
+    const tenantsWithRevenue = tenants.map((tenant) => {
+      console.log(`Processing tenant: ${tenant.id}`)
+      
+      return {
+        id: tenant.id,
+        name: tenant.businessName,
+        businessName: tenant.businessName,
+        slug: tenant.slug,
+        businessType: tenant.businessType?.nameEn || 'Unknown',
+        status: tenant.subscriptionStatus,
+        subscriptionPlan: tenant.subscriptionPlan,
+        ownerName: tenant.ownerName,
+        ownerEmail: tenant.ownerEmail,
+        ownerPhone: tenant.ownerPhone,
+        customDomain: tenant.customDomain,
+        subdomain: tenant.subdomain,
+        logoUrl: tenant.logoUrl,
+        primaryColor: tenant.primaryColor,
+        secondaryColor: tenant.secondaryColor,
+        accentColor: tenant.accentColor,
+        monthlyFee: tenant.monthlyFee,
+        lastPaymentDate: tenant.lastPaymentDate,
+        nextPaymentDate: tenant.nextPaymentDate,
+        overdueSince: tenant.overdueSince,
+        createdAt: tenant.createdAt,
+        updatedAt: tenant.updatedAt,
+        revenue: 0, // Temporarily disabled revenue calculation
+        counts: {
+          users: tenant._count.tenantUsers,
+          categories: tenant._count.categories,
+          products: tenant._count.products
         }
-
-        return {
-          id: tenant.id,
-          name: tenant.businessName,
-          businessName: tenant.businessName, // Add for consistency
-          slug: tenant.slug, // Add slug for modal
-          businessType: tenant.businessType?.nameEn || 'Unknown',
-          status: tenant.subscriptionStatus,
-          subscriptionPlan: tenant.subscriptionPlan,
-          ownerName: tenant.ownerName,
-          ownerEmail: tenant.ownerEmail,
-          ownerPhone: tenant.ownerPhone,
-          customDomain: tenant.customDomain,
-          subdomain: tenant.subdomain,
-          logoUrl: tenant.logoUrl,
-          primaryColor: tenant.primaryColor,
-          secondaryColor: tenant.secondaryColor,
-          accentColor: tenant.accentColor,
-          monthlyFee: tenant.monthlyFee,
-          lastPaymentDate: tenant.lastPaymentDate,
-          nextPaymentDate: tenant.nextPaymentDate,
-          overdueSince: tenant.overdueSince,
-          createdAt: tenant.createdAt,
-          updatedAt: tenant.updatedAt,
-          revenue: revenue,
-          counts: {
-            users: tenant._count.tenantUsers,
-            categories: tenant._count.categories,
-            products: tenant._count.products
-          }
-        }
-      })
-    )
+      }
+    })
+    
+    console.log('Step 7: Data mapping complete')
 
     const totalPages = Math.ceil(totalCount / limit)
 
