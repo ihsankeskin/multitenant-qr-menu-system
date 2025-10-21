@@ -102,13 +102,6 @@ export default function ImageUpload({
     }
   }
 
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes'
-    const k = 1024
-    const sizes = ['Bytes', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-  }
 
   return (
     <div className={`relative ${className}`}>
@@ -137,6 +130,7 @@ export default function ImageUpload({
       >
         {currentImage ? (
           <div className="relative w-full h-full">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={currentImage}
               alt="Uploaded image"

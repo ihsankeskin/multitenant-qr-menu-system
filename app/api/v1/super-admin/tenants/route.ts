@@ -277,12 +277,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const {
       businessName,
+      businessNameTr,
       businessNameAr,
       businessTypeId,
       ownerName,
       ownerEmail,
       ownerPhone,
       address,
+      addressTr,
+      addressAr,
       customDomain,
       subdomain,
       subscriptionPlan,
@@ -298,11 +301,11 @@ export async function POST(request: NextRequest) {
     } = body
 
     // Validate required fields
-    if (!businessName || !businessTypeId || !ownerName || !ownerEmail || !subdomain) {
+    if (!businessName || !businessNameTr || !businessTypeId || !ownerName || !ownerEmail || !subdomain) {
       return NextResponse.json(
         {
           success: false,
-          message: 'Missing required fields: businessName, businessTypeId, ownerName, ownerEmail, subdomain',
+          message: 'Missing required fields: businessName, businessNameTr, businessTypeId, ownerName, ownerEmail, subdomain',
           error: 'VALIDATION_ERROR'
         },
         { status: 400 }
@@ -330,6 +333,7 @@ export async function POST(request: NextRequest) {
       data: {
         slug,
         businessName,
+        businessNameTr,
         businessNameAr,
         businessTypeId,
         email: ownerEmail, // Use owner email as tenant email
@@ -337,6 +341,8 @@ export async function POST(request: NextRequest) {
         ownerEmail,
         ownerPhone,
         address,
+        addressTr,
+        addressAr,
         customDomain,
         subdomain,
         subscriptionPlan: subscriptionPlan || 'BASIC',
@@ -344,8 +350,8 @@ export async function POST(request: NextRequest) {
         primaryColor,
         secondaryColor,
         accentColor,
-        currency: currency || 'EGP',
-        defaultLanguage: defaultLanguage || 'ar',
+        currency: currency || 'TRY',
+        defaultLanguage: defaultLanguage || 'tr',
         timezone,
         logoImage: logoImage || null,
         coverImage: coverImage || null,
