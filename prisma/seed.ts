@@ -423,7 +423,6 @@ async function main() {
         method: 'CREDIT_CARD',
         status: 'PAID',
         description: 'Monthly subscription fee - October 2024',
-        invoiceNumber: 'INV-2024-10-001',
         paidAt: new Date('2024-10-01'),
         dueDate: new Date('2024-10-01'),
         createdById: superAdmin.id
@@ -434,7 +433,6 @@ async function main() {
         method: 'BANK_TRANSFER',
         status: 'PENDING',
         description: 'Monthly subscription fee - November 2024',
-        invoiceNumber: 'INV-2024-11-001',
         dueDate: new Date('2024-11-01'),
         createdById: superAdmin.id
       },
@@ -454,7 +452,6 @@ async function main() {
         method: 'BANK_TRANSFER',
         status: 'PAID',
         description: 'Monthly subscription fee - October 2024',
-        invoiceNumber: 'INV-DEMO-2024-10-001',
         paidAt: new Date('2024-10-01'),
         dueDate: new Date('2024-10-01'),
         createdById: superAdmin.id
@@ -465,7 +462,6 @@ async function main() {
         method: 'CREDIT_CARD',
         status: 'PENDING',
         description: 'Monthly subscription fee - November 2024',
-        invoiceNumber: 'INV-DEMO-2024-11-001',
         dueDate: new Date('2024-11-01'),
         createdById: superAdmin.id
       }
