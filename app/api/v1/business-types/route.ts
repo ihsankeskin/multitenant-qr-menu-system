@@ -34,8 +34,10 @@ export async function GET(request: NextRequest) {
       },
       select: {
         id: true,
+        nameTr: true,
         nameEn: true,
         nameAr: true,
+        descriptionTr: true,
         descriptionEn: true,
         descriptionAr: true,
         sortOrder: true

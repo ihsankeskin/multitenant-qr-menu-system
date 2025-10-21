@@ -163,8 +163,10 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const {
+      nameTr,
       nameEn,
       nameAr,
+      descriptionTr,
       descriptionEn,
       descriptionAr,
       imageUrl,
@@ -175,9 +177,9 @@ export async function POST(request: NextRequest) {
     } = body
 
     // Validate required fields
-    if (!nameEn || !nameAr) {
+    if (!nameTr || !nameEn || !nameAr) {
       return NextResponse.json(
-        { success: false, message: 'Category name in both English and Arabic is required' },
+        { success: false, message: 'Category name in Turkish, English and Arabic is required' },
         { status: 400 }
       )
     }
@@ -187,6 +189,7 @@ export async function POST(request: NextRequest) {
       where: {
         tenantId: tenantId,
         OR: [
+          { nameTr: nameTr.trim() },
           { nameEn: nameEn.trim() },
           { nameAr: nameAr.trim() }
         ]
@@ -203,8 +206,10 @@ export async function POST(request: NextRequest) {
     // Create category
     const category = await prisma.category.create({
       data: {
+        nameTr: nameTr.trim(),
         nameEn: nameEn.trim(),
         nameAr: nameAr.trim(),
+        descriptionTr: descriptionTr?.trim() || null,
         descriptionEn: descriptionEn?.trim() || null,
         descriptionAr: descriptionAr?.trim() || null,
         imageUrl: imageUrl?.trim() || imageData?.trim() || null, // Use imageData as fallback
@@ -243,6 +248,7 @@ export async function POST(request: NextRequest) {
         requestMethod: 'POST',
         requestUrl: '/api/v1/tenant/categories',
         newValues: objectToJson({
+          nameTr: category.nameTr,
           nameEn: category.nameEn,
           nameAr: category.nameAr,
           isActive: category.isActive
