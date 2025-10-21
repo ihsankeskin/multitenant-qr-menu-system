@@ -11,8 +11,10 @@ datasource db {
 // Business Type model
 model BusinessType {
   id                    String    @id @default(cuid())
+  nameTr                String
   nameEn                String
   nameAr                String
+  descriptionTr         String?
   descriptionEn         String?
   descriptionAr         String?
   iconUrl               String?

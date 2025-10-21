@@ -1,6 +1,7 @@
 {
   "common": {
     "language": "Language",
+    "turkish": "Turkish",
     "english": "English",
     "arabic": "Arabic",
     "save": "Save",

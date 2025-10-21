@@ -16,7 +16,8 @@ interface Tenant {
   id: string
   slug: string
   businessName: string
-  businessNameAr: string
+  businessNameTr?: string
+  businessNameAr?: string
   primaryColor: string
   secondaryColor?: string
   accentColor?: string
@@ -25,13 +26,17 @@ interface Tenant {
   phone?: string
   email?: string
   address?: string
+  addressTr?: string
+  addressAr?: string
   coverImageUrl?: string
 }
 
 interface Category {
   id: string
+  nameTr: string
   nameEn: string
   nameAr: string
+  descriptionTr?: string
   descriptionEn?: string
   descriptionAr?: string
   imageUrl?: string
@@ -42,8 +47,10 @@ interface Category {
 
 interface Product {
   id: string
+  nameTr: string
   nameEn: string
   nameAr: string
+  descriptionTr?: string
   descriptionEn?: string
   descriptionAr?: string
   imageUrl?: string
@@ -84,7 +91,7 @@ export default function PublicMenu() {
   const [isLoading, setIsLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [searchTerm, setSearchTerm] = useState('')
-  const [language, setLanguage] = useState<'en' | 'ar'>('ar')
+  const [language, setLanguage] = useState<'tr' | 'en' | 'ar'>('tr')
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
@@ -105,7 +112,7 @@ export default function PublicMenu() {
         setTenant(data.tenant)
         setCategories(data.categories)
         setSettings(data.settings)
-        setLanguage(data.settings?.defaultLanguage === 'ar' ? 'ar' : 'en')
+        setLanguage(data.settings?.defaultLanguage === 'tr' ? 'tr' : data.settings?.defaultLanguage === 'en' ? 'en' : 'ar')
         
         // Default to "All" category (empty string shows all products)
         setSelectedCategory('')
@@ -124,13 +131,14 @@ export default function PublicMenu() {
     if (!settings?.showPrices) return ''
     
     const currencySymbol = {
-      'EGP': 'ج.م',
+      'TRY': '₺',
       'USD': '$',
       'EUR': '€',
       'GBP': '£',
+      'EGP': 'ج.م',
       'AED': 'د.إ',
       'SAR': 'ر.س'
-    }[settings?.currency || 'EGP'] || 'ج.م'
+    }[settings?.currency || 'TRY'] || '₺'
 
     const formattedPrice = price.toFixed(2)
     
@@ -203,13 +211,17 @@ export default function PublicMenu() {
     .filter(product => {
       if (!searchTerm) return true
       const searchLower = searchTerm.toLowerCase()
+      const nameTr = product.nameTr?.toLowerCase() || ''
       const nameEn = product.nameEn?.toLowerCase() || ''
       const nameAr = product.nameAr?.toLowerCase() || ''
+      const descTr = product.descriptionTr?.toLowerCase() || ''
       const descEn = product.descriptionEn?.toLowerCase() || ''
       const descAr = product.descriptionAr?.toLowerCase() || ''
       
-      return nameEn.includes(searchLower) || 
+      return nameTr.includes(searchLower) || 
+             nameEn.includes(searchLower) || 
              nameAr.includes(searchLower) ||
+             descTr.includes(searchLower) ||
              descEn.includes(searchLower) ||
              descAr.includes(searchLower)
     })
@@ -292,7 +304,9 @@ export default function PublicMenu() {
               )}
               <div>
                 <h1 className="text-3xl font-bold">
-                  {language === 'ar' ? tenant.businessNameAr : tenant.businessName}
+                  {language === 'tr' ? (tenant.businessNameTr || tenant.businessName) : 
+                   language === 'en' ? tenant.businessName : 
+                   (tenant.businessNameAr || tenant.businessName)}
                 </h1>
                 {tenant.phone && (
                   <a
@@ -310,7 +324,11 @@ export default function PublicMenu() {
             <div className="flex items-center space-x-3">
               {settings?.enableBilingualMenu && (
                 <button
-                  onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
+                  onClick={() => {
+                    if (language === 'tr') setLanguage('en')
+                    else if (language === 'en') setLanguage('ar')
+                    else setLanguage('tr')
+                  }}
                   className="flex items-center space-x-1 px-4 py-2 rounded-full backdrop-blur-sm hover:shadow-lg transition-all duration-200 font-medium"
                   style={{
                     backgroundColor: `${accentColor}20`,
@@ -328,7 +346,9 @@ export default function PublicMenu() {
                   }}
                 >
                   <LanguageIcon className="h-4 w-4" />
-                  <span className="text-sm">{language === 'en' ? 'عربي' : 'EN'}</span>
+                  <span className="text-sm">
+                    {language === 'tr' ? 'EN' : language === 'en' ? 'عربي' : 'TR'}
+                  </span>
                 </button>
               )}
               
@@ -368,7 +388,9 @@ export default function PublicMenu() {
             />
             <input
               type="text"
-              placeholder={language === 'ar' ? 'ابحث في القائمة...' : 'Search menu...'}
+              placeholder={language === 'tr' ? 'Menüde ara...' : 
+                          language === 'en' ? 'Search menu...' : 
+                          'ابحث في القائمة...'}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border-2 rounded-lg focus:outline-none transition-colors"
@@ -422,7 +444,9 @@ export default function PublicMenu() {
                 e.currentTarget.style.backgroundColor = 'transparent'
               }}
             >
-              {language === 'ar' ? 'الكل' : 'All'}
+              {language === 'tr' ? 'Tümü' : 
+               language === 'en' ? 'All' : 
+               'الكل'}
             </button>
             {categories.map((category) => (
               <button
@@ -448,17 +472,23 @@ export default function PublicMenu() {
                   e.currentTarget.style.backgroundColor = 'transparent'
                 }}
               >
-                {category.imageUrl && (
-                  <img 
-                    src={category.imageUrl} 
-                    alt={language === 'ar' ? category.nameAr : category.nameEn}
-                    className="h-5 w-5 rounded-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none'
-                    }}
-                  />
-                )}
-                <span>{language === 'ar' ? category.nameAr : category.nameEn}</span>
+                  {category.imageUrl && (
+                    <img 
+                      src={category.imageUrl} 
+                      alt={language === 'tr' ? (category.nameTr || category.nameEn) : 
+                           language === 'en' ? category.nameEn : 
+                           (category.nameAr || category.nameEn)}
+                      className="h-5 w-5 rounded-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none'
+                      }}
+                    />
+                  )}
+                  <span>
+                    {language === 'tr' ? (category.nameTr || category.nameEn) : 
+                     language === 'en' ? category.nameEn : 
+                     (category.nameAr || category.nameEn)}
+                  </span>
               </button>
             ))}
           </div>
@@ -470,9 +500,11 @@ export default function PublicMenu() {
         {searchTerm && (
           <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: `${accentColor}10`, borderLeft: `4px solid ${accentColor}` }}>
             <p className="font-medium" style={{ color: accentColor }}>
-              {language === 'ar' 
-                ? `${filteredProducts.length} نتائج للبحث "${searchTerm}"`
-                : `${filteredProducts.length} results for "${searchTerm}"`
+              {language === 'tr' 
+                ? `"${searchTerm}" için ${filteredProducts.length} sonuç`
+                : language === 'en' 
+                ? `${filteredProducts.length} results for "${searchTerm}"`
+                : `${filteredProducts.length} نتائج للبحث "${searchTerm}"`
               }
             </p>
           </div>
@@ -482,12 +514,16 @@ export default function PublicMenu() {
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🔍</div>
             <h3 className="text-xl font-bold mb-2" style={{ color: primaryColor }}>
-              {language === 'ar' ? 'لا توجد منتجات' : 'No items found'}
+              {language === 'tr' ? 'Ürün bulunamadı' : 
+               language === 'en' ? 'No items found' : 
+               'لا توجد منتجات'}
             </h3>
             <p className="text-gray-600 mb-4">
-              {language === 'ar' 
-                ? 'جرب البحث بكلمات مختلفة أو تصفح الفئات'
-                : 'Try searching with different keywords or browse categories'
+              {language === 'tr' 
+                ? 'Farklı anahtar kelimelerle arama yapmayı deneyin veya kategorileri inceleyin'
+                : language === 'en' 
+                ? 'Try searching with different keywords or browse categories'
+                : 'جرب البحث بكلمات مختلفة أو تصفح الفئات'
               }
             </p>
             {searchTerm && (
@@ -502,7 +538,9 @@ export default function PublicMenu() {
                   e.currentTarget.style.transform = 'scale(1)'
                 }}
               >
-                {language === 'ar' ? 'مسح البحث' : 'Clear Search'}
+                {language === 'tr' ? 'Aramayı Temizle' : 
+                 language === 'en' ? 'Clear Search' : 
+                 'مسح البحث'}
               </button>
             )}
           </div>
@@ -526,7 +564,9 @@ export default function PublicMenu() {
                   <div className="relative h-48 overflow-hidden">
                     <img
                       src={product.imageUrl}
-                      alt={language === 'ar' ? product.nameAr : product.nameEn}
+                      alt={language === 'tr' ? (product.nameTr || product.nameEn) : 
+                           language === 'en' ? product.nameEn : 
+                           (product.nameAr || product.nameEn)}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none'
@@ -557,7 +597,9 @@ export default function PublicMenu() {
                         }}
                       >
                         <StarIcon className="h-3 w-3" />
-                        <span>{language === 'ar' ? 'مميز' : 'Featured'}</span>
+                        <span>{language === 'tr' ? 'Öne Çıkan' : 
+                               language === 'en' ? 'Featured' : 
+                               'مميز'}</span>
                       </div>
                     )}
 
@@ -567,7 +609,9 @@ export default function PublicMenu() {
                         className="absolute bottom-3 left-3 px-2 py-1 rounded-full text-white text-xs font-bold shadow-lg"
                         style={{ backgroundColor: secondaryColor }}
                       >
-                        {language === 'ar' ? 'خصم' : 'Sale'}
+                        {language === 'tr' ? 'İndirim' : 
+                         language === 'en' ? 'Sale' : 
+                         'خصم'}
                       </div>
                     )}
                   </div>
@@ -584,7 +628,9 @@ export default function PublicMenu() {
                       }}
                     >
                       <StarIcon className="h-3 w-3" />
-                      <span>{language === 'ar' ? 'مميز' : 'Featured'}</span>
+                      <span>{language === 'tr' ? 'Öne Çıkan' : 
+                             language === 'en' ? 'Featured' : 
+                             'مميز'}</span>
                     </div>
                   </div>
                 )}
@@ -593,7 +639,9 @@ export default function PublicMenu() {
                 <div className="p-4">
                   <div className="flex justify-between items-start mb-3">
                     <h3 className="text-lg font-bold text-gray-900 group-hover:text-opacity-80 transition-colors" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-                      {language === 'ar' ? product.nameAr : product.nameEn}
+                      {language === 'tr' ? (product.nameTr || product.nameEn) : 
+                       language === 'en' ? product.nameEn : 
+                       (product.nameAr || product.nameEn)}
                     </h3>
                     
                     {settings?.showPrices && (
@@ -614,9 +662,11 @@ export default function PublicMenu() {
                   </div>
 
                   {/* Product Description */}
-                  {settings?.showDescriptions && (product.descriptionEn || product.descriptionAr) && (
+                  {settings?.showDescriptions && (product.descriptionTr || product.descriptionEn || product.descriptionAr) && (
                     <p className="text-gray-600 text-sm mb-3 line-clamp-2" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-                      {language === 'ar' ? product.descriptionAr : product.descriptionEn}
+                      {language === 'tr' ? (product.descriptionTr || product.descriptionEn) : 
+                       language === 'en' ? product.descriptionEn : 
+                       (product.descriptionAr || product.descriptionEn)}
                     </p>
                   )}
 
@@ -637,7 +687,9 @@ export default function PublicMenu() {
                           className="text-xs text-white px-2 py-1 rounded-full font-medium"
                           style={{ backgroundColor: '#EF4444' }}
                         >
-                          {language === 'ar' ? 'غير متوفر' : 'Unavailable'}
+                          {language === 'tr' ? 'Mevcut Değil' : 
+                           language === 'en' ? 'Unavailable' : 
+                           'غير متوفر'}
                         </span>
                       )}
                     </div>
@@ -648,7 +700,9 @@ export default function PublicMenu() {
                           className="w-2 h-2 rounded-full mr-2 animate-pulse" 
                           style={{ backgroundColor: accentColor }}
                         ></div>
-                        {language === 'ar' ? 'متوفر' : 'Available'}
+                        {language === 'tr' ? 'Mevcut' : 
+                         language === 'en' ? 'Available' : 
+                         'متوفر'}
                       </div>
                     )}
                   </div>
@@ -677,7 +731,9 @@ export default function PublicMenu() {
               )}
               <div>
                 <h3 className="text-lg font-bold" style={{ color: primaryColor }}>
-                  {language === 'ar' ? tenant.businessNameAr || tenant.businessName : tenant.businessName}
+                  {language === 'tr' ? (tenant.businessNameTr || tenant.businessName) : 
+                   language === 'en' ? tenant.businessName : 
+                   (tenant.businessNameAr || tenant.businessName)}
                 </h3>
                 {tenant.address && (
                   <p className="text-sm" style={{ color: secondaryColor }}>
@@ -713,15 +769,19 @@ export default function PublicMenu() {
             {/* Copyright */}
             <div className="border-t pt-4" style={{ borderTopColor: `${primaryColor}20` }}>
               <p className="text-gray-500 text-sm">
-                {language === 'ar' 
-                  ? `© ${new Date().getFullYear()} ${tenant.businessNameAr || tenant.businessName}. جميع الحقوق محفوظة.`
-                  : `© ${new Date().getFullYear()} ${tenant.businessName}. All rights reserved.`
+                {language === 'tr' 
+                  ? `© ${new Date().getFullYear()} ${tenant.businessNameTr || tenant.businessName}. Tüm hakları saklıdır.`
+                  : language === 'en' 
+                  ? `© ${new Date().getFullYear()} ${tenant.businessName}. All rights reserved.`
+                  : `© ${new Date().getFullYear()} ${tenant.businessNameAr || tenant.businessName}. جميع الحقوق محفوظة.`
                 }
               </p>
               <p className="mt-2 text-xs font-medium" style={{ color: accentColor }}>
-                {language === 'ar' 
-                  ? 'تم إنشاؤها بواسطة Menu App'
-                  : 'Powered by Menu App'
+                {language === 'tr' 
+                  ? 'Menu App tarafından desteklenmektedir'
+                  : language === 'en' 
+                  ? 'Powered by Menu App'
+                  : 'تم إنشاؤها بواسطة Menu App'
                 }
               </p>
             </div>
