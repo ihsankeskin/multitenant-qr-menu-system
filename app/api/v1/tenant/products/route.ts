@@ -237,8 +237,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const {
       categoryId,
+      nameTr,
       nameEn,
       nameAr,
+      descriptionTr,
       descriptionEn,
       descriptionAr,
       imageUrl,
@@ -257,8 +259,10 @@ export async function POST(request: NextRequest) {
       preparationTime,
       servingSize,
       calories,
+      ingredientsTr = [],
       ingredientsEn = [],
       ingredientsAr = [],
+      allergensTr = [],
       allergensEn = [],
       allergensAr = []
     } = body
@@ -285,9 +289,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate required fields
-    if (!categoryId || !nameEn || !nameAr || !productPrice) {
+    if (!categoryId || !nameTr || !nameEn || !nameAr || !productPrice) {
       console.error('Product validation error - missing fields:', {
         categoryId: !!categoryId,
+        nameTr: !!nameTr,
         nameEn: !!nameEn,
         nameAr: !!nameAr,
         basePrice: !!basePrice,
@@ -296,7 +301,7 @@ export async function POST(request: NextRequest) {
         body
       })
       return NextResponse.json(
-        { success: false, message: 'Category, product name (EN/AR), and base price are required' },
+        { success: false, message: 'Category, product name (TR/EN/AR), and base price are required' },
         { status: 400 }
       )
     }
@@ -338,6 +343,7 @@ export async function POST(request: NextRequest) {
       where: {
         tenantId: tenantId,
         OR: [
+          { nameTr: nameTr.trim() },
           { nameEn: nameEn.trim() },
           { nameAr: nameAr.trim() }
         ]
@@ -355,8 +361,10 @@ export async function POST(request: NextRequest) {
     const product = await prisma.product.create({
       data: {
         categoryId,
+        nameTr: nameTr.trim(),
         nameEn: nameEn.trim(),
         nameAr: nameAr.trim(),
+        descriptionTr: descriptionTr?.trim() || null,
         descriptionEn: descriptionEn?.trim() || null,
         descriptionAr: descriptionAr?.trim() || null,
         imageUrl: imageUrl?.trim() || imageData?.trim() || null, // Use imageData as fallback
@@ -373,8 +381,10 @@ export async function POST(request: NextRequest) {
         preparationTime: preparationTime?.trim() || null,
         servingSize: servingSize?.trim() || null,
         calories: calories ? parseInt(calories) : null,
+        ingredientsTr: stringArrayToJson(ingredientsTr),
         ingredientsEn: stringArrayToJson(ingredientsEn),
         ingredientsAr: stringArrayToJson(ingredientsAr),
+        allergensTr: stringArrayToJson(allergensTr),
         allergensEn: stringArrayToJson(allergensEn),
         allergensAr: stringArrayToJson(allergensAr),
         tenantId: tenantId,
@@ -421,6 +431,7 @@ export async function POST(request: NextRequest) {
         requestMethod: 'POST',
         requestUrl: '/api/v1/tenant/products',
         newValues: objectToJson({
+          nameTr: product.nameTr,
           nameEn: product.nameEn,
           nameAr: product.nameAr,
           categoryId: product.categoryId,
