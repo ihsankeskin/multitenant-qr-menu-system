@@ -3,10 +3,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
 // Import translations
+import trTranslations from '@/locales/tr.json'
 import enTranslations from '@/locales/en.json'
 import arTranslations from '@/locales/ar.json'
 
-export type Language = 'en' | 'ar'
+export type Language = 'tr' | 'en' | 'ar'
 
 interface LocalizationContextType {
   language: Language
@@ -19,6 +20,7 @@ interface LocalizationContextType {
 const LocalizationContext = createContext<LocalizationContextType | undefined>(undefined)
 
 const translations = {
+  tr: trTranslations,
   en: enTranslations,
   ar: arTranslations
 }
@@ -28,13 +30,13 @@ interface LocalizationProviderProps {
   defaultLanguage?: Language
 }
 
-export function LocalizationProvider({ children, defaultLanguage = 'en' }: LocalizationProviderProps) {
+export function LocalizationProvider({ children, defaultLanguage = 'tr' }: LocalizationProviderProps) {
   const [language, setLanguageState] = useState<Language>(defaultLanguage)
 
   // Load language from localStorage on mount
   useEffect(() => {
     const storedLanguage = localStorage.getItem('language') as Language
-    if (storedLanguage && (storedLanguage === 'en' || storedLanguage === 'ar')) {
+    if (storedLanguage && (storedLanguage === 'tr' || storedLanguage === 'en' || storedLanguage === 'ar')) {
       setLanguageState(storedLanguage)
     }
   }, [])

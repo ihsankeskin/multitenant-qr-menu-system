@@ -22,10 +22,12 @@ export async function GET(
       select: {
         id: true,
         businessName: true,
+        businessNameTr: true,
         businessNameAr: true,
         slug: true,
         subdomain: true,
         description: true,
+        descriptionTr: true,
         descriptionAr: true,
         logoUrl: true,
         logoImage: true,
@@ -34,6 +36,7 @@ export async function GET(
         accentColor: true,
         currency: true,
         address: true,
+        addressTr: true,
         addressAr: true,
         phone: true,
         email: true,
@@ -62,8 +65,10 @@ export async function GET(
           },
           select: {
             id: true,
+            nameTr: true,
             nameEn: true,
             nameAr: true,
+            descriptionTr: true,
             descriptionEn: true,
             descriptionAr: true,
             imageUrl: true,
@@ -77,14 +82,16 @@ export async function GET(
             preparationTime: true,
             servingSize: true,
             calories: true,
+            ingredientsTr: true,
             ingredientsEn: true,
             ingredientsAr: true,
+            allergensTr: true,
             allergensEn: true,
             allergensAr: true
           },
           orderBy: [
             { isFeatured: 'desc' },
-            { nameEn: 'asc' }
+            { nameTr: 'asc' }
           ]
         }
       },
@@ -99,8 +106,10 @@ export async function GET(
     // Transform products data
     const transformedCategories = categoriesWithProducts.map((category) => ({
       id: category.id,
+      nameTr: category.nameTr,
       nameEn: category.nameEn,
       nameAr: category.nameAr,
+      descriptionTr: category.descriptionTr,
       descriptionEn: category.descriptionEn,
       descriptionAr: category.descriptionAr,
       imageUrl: category.imageUrl,
@@ -119,8 +128,10 @@ export async function GET(
 
         return {
           id: product.id,
+          nameTr: product.nameTr,
           nameEn: product.nameEn,
           nameAr: product.nameAr,
+          descriptionTr: product.descriptionTr,
           descriptionEn: product.descriptionEn,
           descriptionAr: product.descriptionAr,
           imageUrl: product.imageUrl,
@@ -137,8 +148,10 @@ export async function GET(
           preparationTime: product.preparationTime,
           servingSize: product.servingSize,
           calories: product.calories,
+          ingredientsTr: jsonToStringArray(product.ingredientsTr),
           ingredientsEn: jsonToStringArray(product.ingredientsEn),
           ingredientsAr: jsonToStringArray(product.ingredientsAr),
+          allergensTr: jsonToStringArray(product.allergensTr),
           allergensEn: jsonToStringArray(product.allergensEn),
           allergensAr: jsonToStringArray(product.allergensAr)
         }
@@ -171,6 +184,7 @@ export async function GET(
         id: tenant.id,
         slug: tenant.slug,
         businessName: tenant.businessName,
+        businessNameTr: tenant.businessNameTr,
         businessNameAr: tenant.businessNameAr,
         primaryColor: tenant.primaryColor,
         secondaryColor: tenant.secondaryColor,
@@ -178,7 +192,9 @@ export async function GET(
         logoUrl: tenant.logoImage || tenant.logoUrl,
         phone: tenant.phone,
         email: tenant.email,
-        address: tenant.address
+        address: tenant.address,
+        addressTr: tenant.addressTr,
+        addressAr: tenant.addressAr
       },
       categories: transformedCategories,
       settings: {
@@ -186,7 +202,7 @@ export async function GET(
         showCalories: true,
         showDescriptions: true,
         showImages: true,
-        defaultLanguage: tenant.defaultLanguage || 'ar',
+        defaultLanguage: tenant.defaultLanguage || 'tr',
         enableBilingualMenu: true,
         currency: tenant.currency || 'USD',
         currencyPosition: 'before',
