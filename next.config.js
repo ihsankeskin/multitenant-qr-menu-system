@@ -139,10 +139,9 @@ const nextConfig = {
       }
     }
 
-    // Optimize bundle size
+    // Optimize bundle size - disable usedExports to avoid cache conflicts
     config.optimization = {
       ...config.optimization,
-      usedExports: true,
       sideEffects: false,
     }
 
