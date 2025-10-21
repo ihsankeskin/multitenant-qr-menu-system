@@ -31,36 +31,46 @@ async function main() {
     // Create business types
     const businessTypes = [
       {
+        nameTr: 'Restoran',
         nameEn: 'Restaurant',
         nameAr: 'مطعم',
+        descriptionTr: 'Tam hizmet restoranlar ve yemek kuruluşları',
         descriptionEn: 'Full-service restaurants and dining establishments',
         descriptionAr: 'مطاعم الخدمة الكاملة ومؤسسات الطعام',
         sortOrder: 1
       },
       {
+        nameTr: 'Kafe',
         nameEn: 'Cafe',
         nameAr: 'مقهى',
+        descriptionTr: 'Kahve dükkanları, kafeler ve hafif yemekler',
         descriptionEn: 'Coffee shops, cafes, and light dining',
         descriptionAr: 'محلات القهوة والمقاهي والوجبات الخفيفة',
         sortOrder: 2
       },
       {
+        nameTr: 'Fast Food',
         nameEn: 'Fast Food',
         nameAr: 'وجبات سريعة',
+        descriptionTr: 'Hızlı servis restoranları ve yemek zincirleri',
         descriptionEn: 'Quick service restaurants and food chains',
         descriptionAr: 'مطاعم الخدمة السريعة وسلاسل الطعام',
         sortOrder: 3
       },
       {
+        nameTr: 'Fırın',
         nameEn: 'Bakery',
         nameAr: 'مخبز',
+        descriptionTr: 'Fırınlar ve pastane dükkanları',
         descriptionEn: 'Bakeries and pastry shops',
         descriptionAr: 'المخابز ومحلات الحلويات',
         sortOrder: 4
       },
       {
+        nameTr: 'Bar ve Salon',
         nameEn: 'Bar & Lounge',
         nameAr: 'بار وصالة',
+        descriptionTr: 'Barlar, salonlar ve içecek odaklı kuruluşlar',
         descriptionEn: 'Bars, lounges, and beverage-focused establishments',
         descriptionAr: 'البارات والصالات والمؤسسات المتخصصة في المشروبات',
         sortOrder: 5
@@ -101,11 +111,13 @@ async function main() {
       where: { slug: 'sample-restaurant' },
       update: {
         businessName: 'Sample Restaurant',
+        businessNameTr: 'Örnek Restoran',
         businessNameAr: 'مطعم عينة'
       },
       create: {
         slug: 'sample-restaurant',
         businessName: 'Sample Restaurant',
+        businessNameTr: 'Örnek Restoran',
         businessNameAr: 'مطعم عينة',
         businessTypeId: createdBusinessTypes.find(bt => bt.nameEn === 'Restaurant')!.id,
         email: 'owner@sample-restaurant.com',
@@ -113,13 +125,14 @@ async function main() {
         ownerEmail: 'owner@sample-restaurant.com',
         ownerPhone: '+1234567890',
         subdomain: 'sample-restaurant',
-        defaultLanguage: 'ar',
-        currency: 'EGP',
-        timezone: 'Africa/Cairo',
+        defaultLanguage: 'tr',
+        currency: 'TRY',
+        timezone: 'Europe/Istanbul',
         primaryColor: '#2563eb',
         secondaryColor: '#1e40af',
         accentColor: '#3b82f6',
         description: 'A sample restaurant for testing the QR menu system',
+        descriptionTr: 'QR menü sistemini test etmek için örnek bir restoran',
         descriptionAr: 'مطعم عينة لاختبار نظام قائمة QR',
         subscriptionStatus: 'ACTIVE',
         subscriptionPlan: 'PREMIUM',
@@ -291,29 +304,37 @@ async function main() {
     console.log('🍽️  Creating sample categories...')
     const categories = [
       {
+        nameTr: 'Mezeler',
         nameEn: 'Appetizers',
         nameAr: 'المقبلات',
+        descriptionTr: 'Lezzetli mezelerimizle yemeğinize başlayın',
         descriptionEn: 'Start your meal with our delicious appetizers',
         descriptionAr: 'ابدأ وجبتك مع مقبلاتنا اللذيذة',
         sortOrder: 1
       },
       {
+        nameTr: 'Ana Yemekler',
         nameEn: 'Main Courses',
         nameAr: 'الأطباق الرئيسية',
+        descriptionTr: 'İmza ana yemeklerimiz',
         descriptionEn: 'Our signature main dishes',
         descriptionAr: 'أطباقنا الرئيسية المميزة',
         sortOrder: 2
       },
       {
+        nameTr: 'Tatlılar',
         nameEn: 'Desserts',
         nameAr: 'الحلويات',
+        descriptionTr: 'Mükemmel yemeğinizin tatlı sonu',
         descriptionEn: 'Sweet endings to your perfect meal',
         descriptionAr: 'نهاية حلوة لوجبتك المثالية',
         sortOrder: 3
       },
       {
+        nameTr: 'İçecekler',
         nameEn: 'Beverages',
         nameAr: 'المشروبات',
+        descriptionTr: 'Serinletici içecekler ve çeşitli içecekler',
         descriptionEn: 'Refreshing drinks and beverages',
         descriptionAr: 'مشروبات منعشة ومتنوعة',
         sortOrder: 4
@@ -338,32 +359,40 @@ async function main() {
     console.log('🍕 Creating sample products...')
     const products = [
       {
+        nameTr: 'Sezar Salatası',
         nameEn: 'Caesar Salad',
         nameAr: 'سلطة قيصر',
+        descriptionTr: 'Parmesan peyniri ve Sezar sosu ile taze romain marul',
         descriptionEn: 'Fresh romaine lettuce with parmesan cheese and Caesar dressing',
         descriptionAr: 'خس روماني طازج مع جبن البارميزان وتتبيلة القيصر',
         basePrice: 85.00,
         categoryId: createdCategories.find(c => c.nameEn === 'Appetizers')!.id
       },
       {
+        nameTr: 'Izgara Tavuk',
         nameEn: 'Grilled Chicken',
         nameAr: 'دجاج مشوي',
+        descriptionTr: 'Otlar ve baharatlarla yumuşak ızgara tavuk göğsü',
         descriptionEn: 'Tender grilled chicken breast with herbs and spices',
         descriptionAr: 'صدر دجاج مشوي طري مع الأعشاب والتوابل',
         basePrice: 180.00,
         categoryId: createdCategories.find(c => c.nameEn === 'Main Courses')!.id
       },
       {
+        nameTr: 'Çikolatalı Kek',
         nameEn: 'Chocolate Cake',
         nameAr: 'كيك الشوكولاتة',
+        descriptionTr: 'Vanilyalı dondurma ile zengin çikolatalı kek',
         descriptionEn: 'Rich chocolate cake with vanilla ice cream',
         descriptionAr: 'كيك الشوكولاتة الغني مع آيس كريم الفانيليا',
         basePrice: 65.00,
         categoryId: createdCategories.find(c => c.nameEn === 'Desserts')!.id
       },
       {
+        nameTr: 'Taze Portakal Suyu',
         nameEn: 'Fresh Orange Juice',
         nameAr: 'عصير برتقال طازج',
+        descriptionTr: 'Taze sıkılmış portakal suyu',
         descriptionEn: 'Freshly squeezed orange juice',
         descriptionAr: 'عصير برتقال طازج معصور',
         basePrice: 25.00,

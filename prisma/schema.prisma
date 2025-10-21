@@ -81,26 +81,31 @@ model Tenant {
   id                    String    @id @default(cuid())
   slug                  String    @unique
   businessName          String
+  businessNameTr        String?
   businessNameAr        String?
   businessTypeId        String
   email                 String
   phone                 String?
   address               String?
+  addressTr             String?
   addressAr             String?
   ownerName             String
   ownerEmail            String
   ownerPhone            String?
   customDomain          String?
   subdomain             String?
-  defaultLanguage       String    @default("ar")
-  currency              String    @default("EGP")
-  timezone              String    @default("Africa/Cairo")
+  defaultLanguage       String    @default("tr")
+  currency              String    @default("TRY")
+  timezone              String    @default("Europe/Istanbul")
   logoUrl               String?
+  logoImage             String?   // Base64 encoded image data
+  coverImage            String?   // Base64 encoded cover image data
   primaryColor          String?
   secondaryColor        String?
   accentColor           String?
   customCSS             String?
   description           String?
+  descriptionTr         String?
   descriptionAr         String?
   subscriptionStatus    String    @default("ACTIVE") // ACTIVE, GRACE_PERIOD, SUSPENDED, CANCELLED
   subscriptionPlan      String    @default("BASIC")  // BASIC, PREMIUM, ENTERPRISE
@@ -154,8 +159,10 @@ model TenantUser {
 model Category {
   id                    String    @id @default(cuid())
   tenantId              String
+  nameTr                String
   nameEn                String
   nameAr                String
+  descriptionTr         String?
   descriptionEn         String?
   descriptionAr         String?
   imageUrl              String?
@@ -185,14 +192,16 @@ model Product {
   id                    String    @id @default(cuid())
   tenantId              String
   categoryId            String
+  nameTr                String
   nameEn                String
   nameAr                String
+  descriptionTr         String?
   descriptionEn         String?
   descriptionAr         String?
   imageUrl              String?
   imageUrls             String?   // JSON string for multiple images
   basePrice             Float
-  currency              String    @default("EGP")
+  currency              String    @default("TRY")
   discountPrice         Float?
   discountStartDate     DateTime?
   discountEndDate       DateTime?
@@ -205,8 +214,10 @@ model Product {
   preparationTime       String?
   servingSize           String?
   calories              Int?
+  ingredientsTr         String?   // JSON string for ingredients array
   ingredientsEn         String?   // JSON string for ingredients array
   ingredientsAr         String?   // JSON string for ingredients array
+  allergensTr           String?   // JSON string for allergens array
   allergensEn           String?   // JSON string for allergens array
   allergensAr           String?   // JSON string for allergens array
   slugEn                String?
@@ -232,11 +243,12 @@ model PaymentRecord {
   id                    String    @id @default(cuid())
   tenantId              String
   amount                Float
-  currency              String    @default("EGP")
+  currency              String    @default("TRY")
   method                String    @default("BANK_TRANSFER") // CASH, BANK_TRANSFER, CREDIT_CARD, DIGITAL_WALLET, CHECK, OTHER
   status                String    @default("PENDING") // PENDING, PAID, OVERDUE, CANCELLED, REFUNDED
   description           String?
   paymentDate           DateTime?
+  paidAt                DateTime?
   dueDate               DateTime?
   referenceNumber       String?
   notes                 String?

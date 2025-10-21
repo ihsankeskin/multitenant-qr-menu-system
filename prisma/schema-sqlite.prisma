@@ -81,26 +81,29 @@ model Tenant {
   id                    String    @id @default(cuid())
   slug                  String    @unique
   businessName          String
+  businessNameTr        String?
   businessNameAr        String?
   businessTypeId        String
   email                 String
   phone                 String?
   address               String?
+  addressTr             String?
   addressAr             String?
   ownerName             String
   ownerEmail            String
   ownerPhone            String?
   customDomain          String?
   subdomain             String?
-  defaultLanguage       String    @default("ar")
-  currency              String    @default("EGP")
-  timezone              String    @default("Africa/Cairo")
+  defaultLanguage       String    @default("tr")
+  currency              String    @default("TRY")
+  timezone              String    @default("Europe/Istanbul")
   logoUrl               String?
   primaryColor          String?
   secondaryColor        String?
   accentColor           String?
   customCSS             String?
   description           String?
+  descriptionTr         String?
   descriptionAr         String?
   subscriptionStatus    String    @default("ACTIVE") // ACTIVE, GRACE_PERIOD, SUSPENDED, CANCELLED
   subscriptionPlan      String    @default("BASIC")  // BASIC, PREMIUM, ENTERPRISE
